@@ -1,0 +1,8 @@
+- .elif does not work within macros
+- LDS and STS instructions don't address I/O
+- ATmega8 CALL instruction is bogus
+- recursion - sigsegv
+- .DSEG starts assembly at wrong address for ATmega48/88/168
+- Conditional assembly with forward referenced label on .DW directive generates incorrect code
+- AVRA complains about "((str_start_%)<<1)" beeing invalid
+- if last line in include is a remark line, it is written twice in the listing

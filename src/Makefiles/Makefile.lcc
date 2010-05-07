@@ -1,0 +1,53 @@
+CC   = lcc.exe
+LD   = lcclnk.exe
+OBJ  = avra.o args.o stdextra.o device.o directiv.o expr.o file.o map.o mnemonic.o parser.o coff.o macro.o
+LINKOBJ  = avra.o args.o stdextra.o device.o directiv.o expr.o file.o map.o mnemonic.o parser.o coff.o macro.o
+BIN  = avra.exe
+CFLAGS = -O -errout=lcc.err
+LDFLAGS = -s
+
+all: avra.exe
+
+
+clean:
+	rm -f $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	$(LD) $(LINKOBJ) -o "avra.exe" $(LDFLAGS)
+
+avra.o: avra.c
+	$(CC) avra.c -o avra.o $(CFLAGS)
+
+args.o: args.c
+	$(CC) args.c -o args.o $(CFLAGS)
+
+stdextra.o: stdextra.c
+	$(CC) stdextra.c -o stdextra.o $(CFLAGS)
+
+device.o: device.c
+	$(CC) device.c -o device.o $(CFLAGS)
+
+directiv.o: directiv.c
+	$(CC) directiv.c -o directiv.o $(CFLAGS)
+
+expr.o: expr.c
+	$(CC) expr.c -o expr.o $(CFLAGS)
+
+file.o: file.c
+	$(CC) file.c -o file.o $(CFLAGS)
+
+map.o: map.c
+	$(CC) map.c -o map.o $(CFLAGS)
+
+mnemonic.o: mnemonic.c
+	$(CC) mnemonic.c -o mnemonic.o $(CFLAGS)
+
+parser.o: parser.c
+	$(CC) parser.c -o parser.o $(CFLAGS)
+
+coff.o: coff.c
+	$(CC) coff.c -o coff.o $(CFLAGS)
+
+macro.o: macro.c
+	$(CC) macro.c -o macro.o $(CFLAGS)
+

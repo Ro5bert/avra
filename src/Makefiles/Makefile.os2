@@ -1,0 +1,47 @@
+# $Id: Makefile.os2,v 1.1 2001/10/02 00:38:39 jonah Exp $
+#********************************************************************
+# Makefile for IBM VisualAge C++
+#********************************************************************
+
+CC = icc
+LD = icc
+
+WFLAGS = /Wall /Wppt- /Wuni- /Wext- /Wtrd- /Wppc-
+CFLAGS = /C /Fi /Gd- /Gm /Q /Ss $(WFLAGS)
+LDFLAGS = /NOLOGO /NOE /MAP
+
+SOURCES = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c
+
+OBJECTS = $(SOURCES:.c=.obj)
+
+OBJ_ALL = $(OBJECTS) args.obj stdextra.obj
+
+#********************************************************************
+
+all: avra.exe
+
+install: avra.exe
+	copy avra.exe c:\bin\
+
+clean:
+	del *.obj
+	del avra.exe
+
+avra.exe: $(OBJ_ALL)
+	$(LD) $(OBJ_ALL) $(LDFLAGS)
+
+args.obj: args.c misc.h args.h
+avra.obj: avra.c misc.h args.h avra.h device.h
+device.obj: device.c misc.h avra.h device.h
+directiv.obj: directiv.c misc.h args.h avra.h device.h
+expr.obj: expr.c misc.h avra.h
+file.obj: file.c misc.h avra.h
+macro.obj: macro.c misc.h args.h avra.h
+mnemonic.obj: mnemonic.c misc.h avra.h device.h
+parser.obj: parser.c misc.h avra.h
+stdextra.obj: stdextra.c misc.h
+
+#********************************************************************
+
+
+#********************************************************************
