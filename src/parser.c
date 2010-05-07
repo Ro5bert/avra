@@ -180,11 +180,9 @@ int parse_line(struct prog_info *pi, char *line)
 {
 	char *ptr=NULL;
 	int k;
-	int flag=0, i, j;
+	int flag=0, i;
 	int global_label = False;
-	int textarea;
 	char temp[LINEBUFFER_LENGTH];
-	char tagbuff[10];
 	struct label *label = NULL;
 	struct macro_call *macro_call;
 

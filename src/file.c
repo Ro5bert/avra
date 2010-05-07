@@ -41,7 +41,6 @@ int open_out_files(struct prog_info *pi, char *filename)
 {
 	int length;
 	char *buff;
-	time_t tp;
 	int ok = True; /* flag for coff results */
 
 	length = strlen(filename);
