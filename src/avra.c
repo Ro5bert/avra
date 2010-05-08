@@ -39,7 +39,7 @@
 
 const char *title =
   "AVRA: advanced AVR macro assembler Version %i.%i.%i Build %i (%s)\n"
-  "Copyright (C) 1998-2007. Check out README file for more info\n"
+  "Copyright (C) 1998-2010. Check out README file for more info\n"
   "\n"
   "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
   "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
