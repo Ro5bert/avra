@@ -94,6 +94,7 @@ struct device device_list[] =
   {  "ATmega163",        8192,      0x60,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
   {   "ATmega16",        8192,      0x60,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
   {  "ATmega323",       16384,      0x60,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM}, // 137 - EICALL - EIJMP - ELPM(3) - ESPM = 131 (Data sheet says 130 but it's wrong)
+  { "ATmega328P",       32768,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
   {   "ATmega32",       16384,      0x60,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
   {  "ATmega603",       32768,      0x60,     4096,   2048, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_MUL|DF_NO_MOVW|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_BREAK},
   {  "ATmega103",       65536,      0x60,     4096,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_MUL|DF_NO_MOVW|DF_NO_LPM_X|DF_NO_ELPM_X|DF_NO_SPM|DF_NO_ESPM|DF_NO_BREAK}, // 137 - EICALL - EIJMP - MUL(6) - MOVW - LPM_X(2) - ELPM_X(2) - SPM - ESPM - BREAK = 121

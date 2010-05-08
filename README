@@ -1,133 +1,62 @@
-*****************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*****************************************************************************
+README
+======
 
-    AVRA V 1.2.3 - Assember for the Atmel AVR microcontroller family
+General and licensing information
+---------------------------------
+AVRA v1.3.0 - Assember for the Atmel AVR microcontroller family
 
-           GNU General Public Liscence Copyright (C) 1998-2007
+Licensing information
+~~~~~~~~~~~~~~~~~~~~~
 
-*****************************************************************************
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-*****************************************************************************
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version. Please read below for for information.
 
+Disclaimer
+~~~~~~~~~~
 
-Table of contents
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-1. General and licensing information
-   1.1 Licensing information
-   1.2 Disclaimer
-   1.3 GNU General Public License
-   1.4 Trademarks and copyright
+GNU General Public License
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2. Introducion
-   2.1 Differences between AVRA and AVRASM23
-   2.1.1 The differences in detail
-   2.2 Compatibility
+You should have received a copy of the GNU General Public License
+along with this program; see the file "COPYING".  If not, visit
+http://www.gnu.org or write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. You can
+also contact the authors of AVRA to receive a copy of the COPYING file.
 
-3. Installation
-   3.1 Linux
-   3.2 AmigaOS
-   3.3 Win32 (Windows 95, 98, 2000, NT and XP)
-   3.4 Dev-C++ enviroment
+Trademarks and copyright
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-4. Synopsis
-   4.1 Command line usage
-   4.2 Parameter list
-   4.3 Warning supression
-
-5. Programming techniques
-   5.1 Using directives
-   5.1.1 Directive .define
-   5.1.2 Directive .if and .else
-   5.1.3 Directive .error
-   5.1.4 Directive .list and .nolist
-   5.1.5 Directive .includepath
-   5.2 Using include files
-   5.3 Using build date meta tags
-
-6. Macro features
-   6.1 Auto type conversion for macros
-   6.1.1 Macro data types
-   6.1.2 Examples for automatic type conversion
-   6.2 Overloading macros
-   6.2.1 More expamples
-   6.3 Loops within macros
-   6.3.1 Loop example
-
-7. Warnings and Errors
-   7.1 Constant out of range
-   7.2 Can't use .DB directive in data segment
-   7.3 Internal assembler error
-
-8. avra internals
-   8.1 Coding standards for avra
-  
-9. Credits
-
-9. Internet sites and links
+Atmel, AVR, AVR Studio, Intel, Windows are registered enterprises, brands
+and registered trademarks. The mentioned companies have no relation to
+AVRA and are therefore not responslible for any problems that occur when
+using AVRA. Many thanks for your products, support and efforts.
 
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+Introducion
+-----------
+
+AVRA is an assembler for Atmel AVR microcontrollers, and it is almost
+compatible with Atmel's own assembler AVRASM32. The programming
+principles and conceptions are based on the ANSI programming language "C".
+
+The initial version of AVRA was written by John Anders Haugum. He released
+all versions until v0.7. All later versions were released by Tobias Weber.
 
 
-1. General and licensing information
+Differences between AVRA and AVRASM32
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1.1 Licensing information
+There are some differences between the original Atmel assembler AVRASM32 and AVRA. Basically AVRA is designed to replace AVRASM32 without special changes in your current Atmel AVR Studio enviroment. Command line options have been adapted as far as it was possible until now. Jumping to fault containing line directly by double-clicking on the error message in the output window does work as with AVRASM32.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version. Please read below for for information.
-
-
-1.2 Disclaimer
-
-    This program is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-
-1.3 GNU General Public License
-    
-    You should have received a copy of the GNU General Public License
-    along with this program; see the file "COPYING".  If not, visit
-    http://www.gnu.org or write to the Free Software Foundation, Inc.,
-    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. You can
-    also contact the authors of AVRA to receive a copy of the COPYING file.
-
-
-1.4 Trademarks and copyright
-
-    Atmel, AVR, AVR Studio, Intel, Windows are registered enterprises, brands
-    and registered trademarks. The mentioned companies have no relation to
-    AVRA and are therefore not responslible for any problems that occur when
-    using AVRA. Many thanks for your products, support and efforts.
-
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-
-2. Introducion
-
-    AVRA is an assembler for Atmel AVR microcontrollers, and it is almost
-    compatible with Atmel's own assembler AVRASM32. The programming
-    principles and conceptions are based on the ANSI programming language "C".
-
-    The initial version of AVRA was written by John Anders Haugum. He released
-    all versions until v0.7. All later versions were released by Tobias Weber.
-
-    
-2.1 Differences between AVRA and AVRASM32
-
-    There are some differences between the original Atmel assembler AVRASM32
-    and AVRA. Basically AVRA is designed to replace AVRASM32 without special
-    changes in your current Atmel AVR Studio enviroment. Command line 
-    options have been adapted as far as it was possible until now. Jumping to
-    fault containing line directly by double-clicking on the error message in
-    the output window does work as with AVRASM32.
-
-
-2.1.1 The differences in detail
+The differences in detail
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
     - Support for some extra preprocessor directives.
 
@@ -158,61 +87,67 @@ Table of contents
       used to generate customer specific serial numbers.
 
 
-2.2 Compatibility
+Compatibility
+~~~~~~~~~~~~~
 
-    Since AVRA is written in ANSI C, it should be possible to compile it on
-    most system platforms. If you have problems compiling AVRA, please leave
-    a message on the sourceforge message board or send a mail to the
-    authors of AVRA.
-
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-
-3. Installation
-
-    To install avra you should copy the avra-executable to an apropriate
-    location. To compile you should rename the appropriate makefile, and
-    perform a make (use smake for Amiga SAS/C, and nmake for Mickeysoft
-    visual c++).
+Since AVRA is written in ANSI C, it should be possible to compile it on
+most system platforms. If you have problems compiling AVRA, please leave
+a message on the sourceforge message board or send a mail to the
+authors of AVRA.
 
 
-3.1 Linux
+Installation
+------------
 
-    To compile avra you need gcc and the automake utilities. These will create
-    a ./configure script that evaluates your system enviroment. To get the
-    avra executable, you have to issue the following commands:
-
-    aclocal
-    autoconf
-    automake -a
-    ./configure
-    make && make install
-
-3.2 AmigaOS
-
-    avra can be copied any apropriate directory. If you are using the source
-    distribution a 'make install' will do the same.
+To install avra you should copy the avra-executable to an apropriate
+location. To compile you should rename the appropriate makefile, and
+perform a make (use smake for Amiga SAS/C, and nmake for Mickeysoft
+visual c++).
 
 
-3.3 Win32 (Windows 95, 98, 2000, NT and XP)
+Linux
+~~~~~
 
-    If you received the Windows binary package, look into the \bin
-    directory where you can find avra.exe. This should be copied to any
-    apropriate location. You can also overwrite AVRASM32.EXE in your
-    Atmel AVR Studio. A 'nmake install' will copy it and avra.def to c:\bin\
+To compile avra you need gcc and the automake utilities. These will create
+a ./configure script that evaluates your system enviroment. To get the
+AVRA executable, you have to issue the following commands:
+
+aclocal
+autoconf
+automake -a
+./configure
+make && make install
+
+AmigaOS
+~~~~~~~
+
+avra can be copied any apropriate directory. If you are using the source
+distribution a 'make install' will do the same.
 
 
-3.4 Dev-C++ enviroment
+Microsoft Windows
+~~~~~~~~~~~~~~~~~
 
-    Dev-C++ is a GNU development enviroment available for MS Windows.
-    This version of AVRA has been mostly developed using this open development
-    platform. This nice software is available at http://www.bloodshed.net/
+If you received the Windows binary package, look into the \bin
+directory where you can find avra.exe. This should be copied to any
+apropriate location. You can also overwrite AVRASM32.EXE in your
+Atmel AVR Studio. A 'nmake install' will copy it and avra.def to c:\bin\
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-4. Synopsis
+Dev-C++ enviroment
+~~~~~~~~~~~~~~~~~~
 
-4.1 Command line usage
+Dev-C++ is a GNU development enviroment available for MS Windows.
+This version of AVRA has been mostly developed using this open development
+platform. This nice software is available at http://www.bloodshed.net/
+
+
+Synopsis
+--------
+
+
+Command line usage
+~~~~~~~~~~~~~~~~~~
 
     usage: AVRA [-f][O|M|I|G] output file type
              [-o <filename>] output file name
@@ -224,7 +159,9 @@ Table of contents
              [-W NoRegDef] supress register redefinition warnings
              <file to assemble>
 
-4.2 Parameter list
+
+Parameter list
+~~~~~~~~~~~~~~
 
     --listfile    -l : Create list file
     --mapfile     -m : Create map file
@@ -237,53 +174,56 @@ Table of contents
     --version        : Version information.
     --help, -h       : This help text.
 
-4.3 Warning supression
+
+Warning supression
+~~~~~~~~~~~~~~~~~~
 
     Since avra 1.1 there is a possibility to supress certain warnings. 
     Currently only register reassignment warnings can be supressed.
-    
+
     Example: avra -W NoRegDef
-    
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 
-5. Programming techniques
-
-5.1 Using directives
-
-    AVRA offers a number of directives that are not part of Atmel's
-    assembler. These directives should help you creating versatile code that
-    can be designed more modular.
+Programming techniques
+----------------------
 
 
-5.1.1 Directive .define
+Using directives
+~~~~~~~~~~~~~~~~
 
-    To define a constant, use ".define". This does the same thing as ".equ",
-    it is just a little more C style. Keep in mind that AVRA is not case
-    sensitive. Do not mix ".def" and ".define", because ".def" is used to
-    assign registers only. This is due to backward compatibility to Atmel's
-    AVRASM32. Here is an example on how .define can be used.
+AVRA offers a number of directives that are not part of Atmel's
+assembler. These directives should help you creating versatile code that
+can be designed more modular.
+
+Directive .define
+^^^^^^^^^^^^^^^^^
+
+To define a constant, use ".define". This does the same thing as ".equ",
+it is just a little more C style. Keep in mind that AVRA is not case
+sensitive. Do not mix ".def" and ".define", because ".def" is used to
+assign registers only. This is due to backward compatibility to Atmel's
+AVRASM32. Here is an example on how .define can be used.
 
     .define network 1
 
-    Now "network" is set to the value 1. You may want to assemble a specific
-    part of your code depeding on a define or switch setting. You can test
-    your defined word on existence (.ifdef and .ifndef) as well as on the
-    value it represents. The following code shows a way to prevent error
-    messages due to testing undefined constants. Conditional directives must
-    always end with an .endif directive.
+Now "network" is set to the value 1. You may want to assemble a specific
+part of your code depeding on a define or switch setting. You can test
+your defined word on existence (.ifdef and .ifndef) as well as on the
+value it represents. The following code shows a way to prevent error
+messages due to testing undefined constants. Conditional directives must
+always end with an .endif directive.
 
     .ifndef network
     .define network 0
     .endif
 
+Directive .if and .else
+^^^^^^^^^^^^^^^^^^^^^^^
 
-5.1.2 Directive .if and .else
-
-    The three lines in the last example set the default value of "network".
-    In the next example, you see how we can use default values. If a constant
-    has not defined previously, it is set to zero. Now you can test wether
-    e.g. network support is included into the assemby process.
+The three lines in the last example set the default value of "network".
+In the next example, you see how we can use default values. If a constant
+has not defined previously, it is set to zero. Now you can test wether
+e.g. network support is included into the assemby process.
 
     .if network = 1
     .include "include\tcpip.asm"
@@ -291,11 +231,11 @@ Table of contents
     .include "include\dummynet.asm"
     .endif
 
-    In the second part of the above listing you see the use of .else, which
-    defines the part of the condition that is being executed if the equation
-    of the preceding .if statement is not equal. You can also use the else
-    statement to test another equasion. For that purpose use .elif, which
-    means "else if". Always close this conditional part with ".endif"
+In the second part of the above listing you see the use of .else, which
+defines the part of the condition that is being executed if the equation
+of the preceding .if statement is not equal. You can also use the else
+statement to test another equasion. For that purpose use .elif, which
+means "else if". Always close this conditional part with ".endif"
 
 5.1.3 Directive .error
 
@@ -312,20 +252,22 @@ Table of contents
     avra discovers a .nolist while assembling, it stops output to the list file.
     After a .list directive is detected, it continues the normal list file output.
 
-5.1.5 Directive .includepath
+Directive .includepath
+^^^^^^^^^^^^^^^^^^^^^^
 
-    By default, any file that is included from within the source file must
-    either be a single filename or a complete absolute path. With the directive
-    .includepath you can set an additional include path . Furthermore you can 
-    set as many include paths as you want. Be sure not no use same filename
-    in separate includes, because then it is no longer clear which one avra
-    should take.
+By default, any file that is included from within the source file must
+either be a single filename or a complete absolute path. With the directive
+.includepath you can set an additional include path . Furthermore you can 
+set as many include paths as you want. Be sure not no use same filename
+in separate includes, because then it is no longer clear which one avra
+should take.
 
-5.2 Using include files
+Using include files
+-------------------
 
-    To avoid multiple inclusions of include files, you may use some pre-
-    processor directives. See example file stack.asm that is being included
-    into the main programm file as well as in other include files.
+To avoid multiple inclusions of include files, you may use some pre-
+processor directives. See example file stack.asm that is being included
+into the main programm file as well as in other include files.
 
     .ifndef _STACK_ASM_
     .define _STACK_ASM_
@@ -346,10 +288,11 @@ Table of contents
     .endif ; avoid multiple inclusion of stack.asm
 
 
-5.3 Using build date meta tags
+Using build date meta tags
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    If you like to implement compiler build time and date into your
-    program, you can make use of some sepcial tags that avra supports.
+If you like to implement compiler build time and date into your
+program, you can make use of some sepcial tags that avra supports.
     
     %MINUTE%  is being replaced by the current minute (00-59)
     %HOUR%    is being replaced by the current hour (00-23)
@@ -370,49 +313,48 @@ Table of contents
     The %TAG% is translated before any other parsing happens. The real
     output can be found in the list file.
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+Macro features
+--------------
 
-6 Macro features
+Sometimes you have to work with 16 bit or greater variables stored
+in 8 bit registers. The enhanced macro support allows you to write short
+and flexible macros that simplify access to big variables. The extended
+mode is active, as soon as you use parenthesis like this "[ ]" to wrap
+macro parameters.
 
-    Sometimes you have to work with 16 bit or greater variables stored
-    in 8 bit registers. The enhanced macro support allows you to write short
-    and flexible macros that simplify access to big variables. The extended
-    mode is active, as soon as you use parenthesis like this "[ ]" to wrap
-    macro parameters.
+Auto type conversion for macros
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Values representing more than 8 Bits are usualy kept in a set of byte
+wide registers. To simplify 16 Bit or greater operations, I added a new
+language definitions. Words can be written as r16:r17, whereas register
+r16 contains the higher part and register r17 the lower part of this 
+16 Bit value.
 
-6.1 Auto type conversion for macros
+Macro data types
+^^^^^^^^^^^^^^^^
 
-    Values representing more than 8 Bits are usualy kept in a set of byte
-    wide registers. To simplify 16 Bit or greater operations, I added a new
-    language definitions. Words can be written as r16:r17, whereas register
-    r16 contains the higher part and register r17 the lower part of this 
-    16 Bit value.
+There are 3 data types that can be used. They will be added as character
+separated by one underline character.
 
+    immediate values  _i
+    registers         _8,_16,_24,_32,_40,_48,_56,_64
+    void parameter    _v
 
-6.1.1 Macro data types
-
-    There are 3 data types that can be used. They will be added as character
-    separated by one underline character.
-
-	immediate values  _i
-	registers         _8,_16,_24,_32,_40,_48,_56,_64
-	void parameter    _v
-
-    16 Bit Source and Destionation registers 'dst' and 'src'
+16 Bit Source and Destionation registers 'dst' and 'src'
 
         src = YH:YL
         dst = ZH:ZL
 
-    Within the parenthesis, the two words src and dst are interpreted as YH:YL
-    and ZH:ZL. Normal code outside of the macro parameter parenthesis can
-    still make use of these special key words "src" and "dst".
+Within the parenthesis, the two words src and dst are interpreted as YH:YL
+and ZH:ZL. Normal code outside of the macro parameter parenthesis can
+still make use of these special key words "src" and "dst".
 
+Examples for automatic type conversion
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.1.2 Examples for automatic type conversion
-
-    To simplify the parameters in the demonstration below, we need to
-    redefine some registers.
+To simplify the parameters in the demonstration below, we need to
+redefine some registers.
 
         .def    a = r16   ; general purpose registers
         .def    b = r17
@@ -453,11 +395,12 @@ Table of contents
         subs    [a:b,c]
 
 
-6.2 Overloading macros
+Overloading macros
+~~~~~~~~~~~~~~~~~~
 
-    Like in you are used to C functions, you can write macros for different
-    parameter lists. If you would like to have a versatile macro, you can
-    specify a unique macro for each parameter situation. See the next sample.
+Like in you are used to C functions, you can write macros for different
+parameter lists. If you would like to have a versatile macro, you can
+specify a unique macro for each parameter situation. See the next sample.
 
         .macro  load
 
@@ -494,7 +437,8 @@ Table of contents
 	load	[a:b:c:d,15] ;uses macro load_32_i to load immediate
 
 
-6.2.1 More expamples
+More examples
+~~~~~~~~~~~~~
 
        .dseg
        counter  .byte 2
@@ -560,18 +504,17 @@ Table of contents
 
        poke     [counter,,,,9999] ;uses poke_i_v_v_v_i
 
+Loops within macros
+~~~~~~~~~~~~~~~~~~~
 
+One problem you may have experienced, is that labels defined within macros
+are defined twice if you call the macro for example two times. Now you can
+use labels for macro loops. Loops within macros must end with '_%'. the
+"%" symbol is replaced by a running number.
 
-6.3 Loops within macros
-
-    One problem you may have experienced, is that labels defined within macros
-    are defined twice if you call the macro for example two times. Now you can
-    use labels for macro loops. Loops within macros must end with '_%'. the
-    "%" symbol is replaced by a running number.
-
-
-6.3.1 Loop example
-
+Loop example
+^^^^^^^^^^^^
+----
        ; Definition of the macro
 
        .macro   write_8_8
@@ -596,88 +539,97 @@ Table of contents
             st          Z+,c
             dec         d
             brne        write_2
+----
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+Warnings and Errors
+-------------------
 
-7. Warnings and Errors
+Some errors and warnings may confuse you a little bit so we will try to
+clear some frequently asked questions about such cases.
 
-    Some errors and warnings may confuse you a little bit so we will try to
-    clear some frequently asked questions about such cases.
+Constant out of range
+~~~~~~~~~~~~~~~~~~~~~
 
-7.1 Constant out of range
+This warning occurs if a value exceeds the byte or word value of a assignment.
+Read the comment posted by Jim Galbraith:
 
-    This warning occurs if a value exceeds the byte or word value of a assignment.
-    Read the comment posted by Jim Galbraith:
+The expression (~0x80) is a Bitwise Not operation.  This 
+operator returns the input expression with all its bits 
+inverted.  If 0x80 represents -128, then 0x7f, or +127 
+should be ok.  If this is considered as a 32-bit expression 
+(AVRA internal representation), then it appears to be more 
+like oxffffffff-0x80 or 0xffffffff^0x80.  The result would then 
+be 0xffffff7f.  The assembler would then have to be told or it 
+would have to decide, based on context, how much 
+significance to assign to the higher bits.  I have also 
+encountered such conditions with various assemblers, 
+including AVRA.  To make sure the assembler does what I 
+really want, I use a construct like 0xff-0x80 or 0xff^0x80.  
+This way the bit significance cannot extend beyond bit-7 and 
+there cannot be any misunderstanding.   
 
-    The expression (~0x80) is a Bitwise Not operation.  This 
-    operator returns the input expression with all its bits 
-    inverted.  If 0x80 represents -128, then 0x7f, or +127 
-    should be ok.  If this is considered as a 32-bit expression 
-    (AVRA internal representation), then it appears to be more 
-    like oxffffffff-0x80 or 0xffffffff^0x80.  The result would then 
-    be 0xffffff7f.  The assembler would then have to be told or it 
-    would have to decide, based on context, how much 
-    significance to assign to the higher bits.  I have also 
-    encountered such conditions with various assemblers, 
-    including AVRA.  To make sure the assembler does what I 
-    really want, I use a construct like 0xff-0x80 or 0xff^0x80.  
-    This way the bit significance cannot extend beyond bit-7 and 
-    there cannot be any misunderstanding.   
+Can't use .DB directive in data segment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-7.2 Can't use .DB directive in data segment
+.DB and .DW is only used to assign constant data in eeprom or code space.
+The reason why using it within data segment is forbidden is, that you
+cannot set ram content at assembly time. The values must be programmed into
+ROM area and at boot read from ROM into RAM. This is up to the user code.
+You can only allocate memory for your variables using labels and the .byte
+directive.
 
-    .DB and .DW is only used to assign constant data in eeprom or code space.
-    The reason why using it within data segment is forbidden is, that you
-    cannot set ram content at assembly time. The values must be programmed into
-    ROM area and at boot read from ROM into RAM. This is up to the user code.
-    You can only allocate memory for your variables using labels and the .byte
-    directive.
-    
+----
     .dseg
     my_string: .byte 15
+----
 
-7.3 .BYTE directive can only be used in data segment (.DSEG)
+BYTE directive
+~~~~~~~~~~~~~~
 
-    This directive cannot be used in code or eeprom region because this only 
-    allocates memory without assgning distinct values to it. Please use .db
-    or .dw instead.
+.BYTE directive can only be used in data segment (.DSEG)
 
-7.4 Internal assembler error
+This directive cannot be used in code or eeprom region because this only 
+allocates memory without assgning distinct values to it. Please use .db
+or .dw instead.
 
-    If you get an "Internal assembler error" please contact the project maintainer
-    by sending him a code example and a description of your working enviroment.
+Internal assembler error
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you get an "Internal assembler error" please contact the project maintainer
+by sending him a code example and a description of your working enviroment.
 
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+AVRA internals
+--------------
 
-8. avra internals
+This section provides thoughts of the avra internal design. I have to admit
+that the code of avra is anything else than clean and optimized. To increase
+the code readability I will try to give you some standards that should improve
+quality. The following standards are similar to what GNU proposes. 
 
-    This section provides thoughts of the avra internal design. I have to admit
-    that the code of avra is anything else than clean and optimized. To increase
-    the code readability I will try to give you some standards that should improve
-    quality. The following standards are similar to what GNU proposes. 
+Coding standards
+~~~~~~~~~~~~~~~~
 
-8.1 Coding standards
+Tab space is always 2 spaces. The Tab character (ascii 9) is not used.
+if,while,for are always opened on the same line but closed on the next line.
+The closing bracket is in the same column as the first letter of the loop
+directive.
 
-    Tab space is always 2 spaces. The Tab character (ascii 9) is not used.
-    if,while,for are always opened on the same line but closed on the next line.
-    The closing bracket is in the same column as the first letter of the loop
-    directive.
-   
     Example:
-   
+----
     while(i > 0) { 
      do_something();
     }
+----
 
 
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+Credits
+-------
 
-9. Credits
+We would like to thank the following people for giving contributions,
+patches and bug reports, as well as suggestions and new ideas.
 
-    We would like to thank the following people for giving contributions,
-    patches and bug reports, as well as suggestions and new ideas.
-
+----
       Jon Anders Haugum (project founder)
       Tobias Weber (project maintainer)
       Burkhard Arenfeld (release 1.2.0)
@@ -711,21 +663,14 @@ Table of contents
       Roland Riegel
       Peter Katzmann
       Donald D. Davis
+      Jerry Jacobs
+----
 
+Thank you for your work and support.
 
-    Thank you for your work and support.
-
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-
-9. Internet sites and links
+Refrences
+---------
 
     http://www.suprafluid.com/avra/
     http://www.avrfreaks.de/
     http://www.atmel.com
-
-    you can reach the project maintainer via mail: avra@suprafluid.com
-
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-EOF

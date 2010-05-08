@@ -51,6 +51,31 @@ char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 	do {
 		if((c=fgetc(stream))==EOF || IS_ENDLINE(c)) 	// Terminate at chr$ 10,12,13,0 and EOF
 			break;
+        /*
+        ** concatenate lines terminated with \ only...
+        */
+        if (c == '\\')
+        {
+            /* only newline and cr may follow... */
+            if((c=fgetc(stream))==EOF)
+                break;
+
+            if(!IS_ENDLINE(c)) 	            // Terminate at chr$ 10,12,13,0 and EOF
+            {
+                *ptr++ = '\\';              // no concatenation, insert it
+            }
+            else
+            {
+                // mit be additional LF (DOS)
+                c=fgetc(stream);
+                if (IS_ENDLINE(c))
+                    c=fgetc(stream);
+
+                if (c == EOF)
+                    break;
+            }
+        }
+
 		*ptr++=c;
 	} while(--size);
 	if((c==EOF) && (ptr==s))				// EOF and no chars read -> that's all folks
@@ -311,7 +336,11 @@ int parse_line(struct prog_info *pi, char *line)
 			break;
 		}
 
+#if 0
 	if(pi->fi->scratch[0] == '.') {
+#else
+	if((pi->fi->scratch[0] == '.') || (pi->fi->scratch[0] == '#')) {
+#endif
 		pi->fi->label = label;
 		flag = parse_directive(pi);
 		if((pi->pass == PASS_2) && pi->list_on && pi->list_line) { // Diff tilpassing 

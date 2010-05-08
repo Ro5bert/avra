@@ -1,5 +1,14 @@
+Release 1.3.0 patches applied by Jerry Jacobs
+(20100508)
+        - Added ATmega328P device target.
+        - Fix bug 1934647 (Handle also '#' directives because include files don't use '.' directives).
+        - Fix bug 1970530 (Make whitespace character possible between function name and open bracket).
+        - Fix bug 1970630 (Make line continuation possible with backslash as the last character of a line).
+        - Fix bug 2929406 (Change incorrect argument --includedir to includepath)
+
 Release 1.2.3 bug fix by Burkhard Arenfeld
- (20071115) - Fix bug 1697037 (Error with single character ';')
+ (20071115)
+        - Fix bug 1697037 (Error with single character ';')
 	    - Better check for line termination. Now a single CR or a FF generates an warning message. Code with bad CR
 	      termination could appear, if you edit CR-LF terminated files (WIN/DOS) with linux (LF only) editors.
             - Fix bug 1462900 (Segfault, if error in -D parameter)
@@ -61,6 +70,7 @@ Release 1.1.1
             - LPM is supported on ATtiny26 but avra say it isn't
             - bugfix for jmp/call opcode
             - crash due to a strcmp with null pointer when parsing the cmd line args
+
 Release 1.1.0 released by Tobias Weber
  (20051227) - .DW defines were missing in the listfile.
             - Support for mega8515.

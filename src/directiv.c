@@ -70,6 +70,7 @@ enum
 	DIRECTIVE_MESSAGE,
 	DIRECTIVE_WARNING,
 	DIRECTIVE_ERROR,
+	DIRECTIVE_PRAGMA,
 	DIRECTIVE_COUNT
 };
 
@@ -107,7 +108,8 @@ char *directive_list[] =
 	"ENDIF",
 	"MESSAGE",
 	"WARNING",
-	"ERROR"
+	"ERROR",
+	"PRAGMA"
 };
 
 
@@ -539,6 +541,14 @@ int parse_directive(struct prog_info *pi)
 				pi->list_line = NULL;
 			}
 			break;
+		case DIRECTIVE_PRAGMA:
+#if 0
+			may_do_something_with_pragma_someday();
+#else
+			// if ( !flag_no_warnings )
+			print_msg(pi, MSGTYPE_MESSAGE, "PRAGMA directives currently ignored");
+#endif
+			break;
 		case DIRECTIVE_UNDEF: // TODO
 			break;
 		case DIRECTIVE_IFDEF:
@@ -551,11 +561,17 @@ int parse_directive(struct prog_info *pi)
 			/* B.A. : Forward referenc is not allowed for ifdef and ifndef */
 			/* Store undefined symbols in blacklist in pass1 and check, if they are still undefined in pass2 */
 			if(get_symbol(pi, next, NULL)) {
+#if 0
+					// If it's not defined in the first pass, but was defined later
+					// then it should be considered OK with regards to ifdef..endif and
+					// ifndef..endif code sections. Removed this code.
 				if(pi->pass==PASS_2) { /* B.A. : 'Still undefined'-test in pass 2 */
  		          if(test_blacklist(pi,next,"Forward reference (%s) not allowed in .ifdef directive")!=NULL)
 					return(False);
 				}
+#else
 				pi->conditional_depth++;
+#endif
 			} else {
 				if(pi->pass==PASS_1) { /* B.A. : Store undefined symbols in pass 1 */
           if(def_blacklist(pi, next)==False) 
@@ -576,12 +592,19 @@ int parse_directive(struct prog_info *pi)
 			/* Store undefined symbols in blacklist in pass1 and check, if they are still undefined in pass2 */
 			if(get_symbol(pi, next, NULL))
 		        {
+#if 0
 				if(pi->pass==PASS_2) { /* B.A. : 'Still undefined'-test in pass 2 */
+					// If it's not defined in the first pass, but was defined later
+					// then it should be considered OK with regards to ifdef..endif and
+					// ifndef..endif code sections. Removed this code.
  		          if(test_blacklist(pi,next,"Forward reference (%s) not allowed in .ifndef directive")!=NULL)
 					return(False);
 				}
 				if(!spool_conditional(pi, False))
 				        return(False);
+#else
+				pi->conditional_depth++;
+#endif
 				}
 			else {
 				if(pi->pass==PASS_1) { /* B.A. : Store undefined symbols in pass 1 */
@@ -850,7 +873,11 @@ int check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int
 
 	*do_next = False;
 	while(IS_HOR_SPACE(linebuff[i]) && !IS_END_OR_COMMENT(linebuff[i])) i++;
+#if 0
 	if(linebuff[i] == '.') {
+#else
+	if((linebuff[i] == '.') || (linebuff[i] == '#')){
+#endif
 	  i++;
 	  if(!nocase_strncmp(&linebuff[i], "if", 2))
 	    (*current_depth)++;

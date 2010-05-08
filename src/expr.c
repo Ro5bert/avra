@@ -82,17 +82,21 @@ struct element
 	};
 
 char *function_list[] = {
-	"low(",
-	"byte1(",
-	"high(",
-	"byte2(",
-	"byte3(",
-	"byte4(",
-	"lwrd(",
-	"hwrd(",
-	"page(",
-	"exp2(",
-	"log2("
+    /* 
+    ** allow whitespace between function name
+    ** and opening brace...
+    */
+	"low",
+	"byte1",
+	"high",
+	"byte2",
+	"byte3",
+	"byte4",
+	"lwrd",
+	"hwrd",
+	"page",
+	"exp2",
+	"log2"
 };
 
 int log_2(int value)
@@ -247,8 +251,20 @@ int get_function(char *function)
 
 	for(i = 0; i < FUNCTION_COUNT; i++) {
 		if(!nocase_strncmp(function, function_list[i], strlen(function_list[i])))
+        {
+            /*
+            ** some more checks to allow whitespace between function name
+            ** and opening brace...
+            */
+            char *tmp = function + strlen(function_list[i]);
+            while (*tmp <= ' ')
+                tmp++;
+            if (*tmp != '(')
+                continue;
+
       return(i);
   }  
+    }  
 	return(-1);
 }
 

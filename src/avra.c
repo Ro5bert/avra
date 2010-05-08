@@ -65,7 +65,7 @@ const char *usage =
 	"   --listfile    -l : Create list file\n"
 	"   --mapfile     -m : Create map file\n"
 	"   --define      -D : Define symbol.\n"
-	"   --includedir  -I : Additional include dirs.\n"
+	"   --includepath  -I : Additional include paths.\n"
 	"   --listmac        : List macro expansion in listfile.\n"
 	"   --max_errors     : Maximum number of errors before exit\n"
   "                      (default: 10)\n"
