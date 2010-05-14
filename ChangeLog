@@ -1,6 +1,10 @@
-Release 1.3.0 patches applied by Jerry Jacobs
-(20100508)
-        - Added ATmega328P device target.
+Release 1.3.0 bug fix patches and improvements by Jerry Jacobs
+ (20100508)
+        - Added new targets, ATtiny13A, ATtiny24/A, ATtiny44/A, ATtiny84,
+             ATtiny2313A, ATtiny4313, ATmega328P
+        - Added mingw32 support for building windows binairies from linux host
+        - Removed obsolete Dev-C++ for windows building
+        - Updated documentation and rewritten in asciidoc markup language
         - Fix bug 1934647 (Handle also '#' directives because include files don't use '.' directives).
         - Fix bug 1970530 (Make whitespace character possible between function name and open bracket).
         - Fix bug 1970630 (Make line continuation possible with backslash as the last character of a line).

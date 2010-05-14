@@ -52,7 +52,7 @@ const char *title =
   "\n";
 
 const char *usage =
-	"usage: AVRA [-f][O|M|I|G] output file type\n"
+	"usage: avra [-f][O|M|I|G] output file type\n"
 	"            [-o <filename>] output file name\n"
 	"            [-l <filename>] generate list file\n"
 	"            [-m <mapfile>] generate map file\n"
@@ -74,10 +74,7 @@ const char *usage =
 	"   --help, -h       : This help text.\n"
 	"\n"
   "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
-  "AVRStudio directories to avra's binary.\n"
-	"\n"
-	"Report bugs to tobiw@suprafluid.com\n"
-	"            or jonah@omegav.ntnu.no\n";
+  "AVRStudio directories to avra's binary.\n";
 
 int main(int argc, char *argv[])
 {

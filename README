@@ -53,7 +53,8 @@ all versions until v0.7. All later versions were released by Tobias Weber.
 Differences between AVRA and AVRASM32
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are some differences between the original Atmel assembler AVRASM32 and AVRA. Basically AVRA is designed to replace AVRASM32 without special changes in your current Atmel AVR Studio enviroment. Command line options have been adapted as far as it was possible until now. Jumping to fault containing line directly by double-clicking on the error message in the output window does work as with AVRASM32.
+There are some differences between the original Atmel assembler AVRASM32 and AVRA. Basically AVRA is designed to replace AVRASM32 without special changes in your current Atmel AVR Studio enviroment.
+Command line options have been adapted as far as it was possible until now. Jumping to fault containing line directly by double-clicking on the error message in the output window does work as with AVRASM32.
 
 The differences in detail
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,20 +132,21 @@ Microsoft Windows
 If you received the Windows binary package, look into the \bin
 directory where you can find avra.exe. This should be copied to any
 apropriate location. You can also overwrite AVRASM32.EXE in your
-Atmel AVR Studio. A 'nmake install' will copy it and avra.def to c:\bin\
+Atmel AVR Studio. If you want to compile it yourself you could download then
+OpenWatcom C/C++ Toolchain for windows and create a new project and add the C
+and H files to it and compile.
 
+Apple OS X
+~~~~~~~~~~
 
-Dev-C++ enviroment
-~~~~~~~~~~~~~~~~~~
-
-Dev-C++ is a GNU development enviroment available for MS Windows.
-This version of AVRA has been mostly developed using this open development
-platform. This nice software is available at http://www.bloodshed.net/
+If you recieved the Apple OS X binary package, look into the bin directory this
+file is compiled universal and should run on intel 32 and 64 bit and powerpc. If
+you want to compile it yourself go to the src directory and invoke `make -f
+makefiles/Makefiles.osx` and then the executable should be created.
 
 
 Synopsis
 --------
-
 
 Command line usage
 ~~~~~~~~~~~~~~~~~~
@@ -178,10 +180,10 @@ Parameter list
 Warning supression
 ~~~~~~~~~~~~~~~~~~
 
-    Since avra 1.1 there is a possibility to supress certain warnings. 
-    Currently only register reassignment warnings can be supressed.
+Since avra 1.1 there is a possibility to supress certain warnings. 
+Currently only register reassignment warnings can be supressed.
 
-    Example: avra -W NoRegDef
+Example: avra -W NoRegDef
 
 
 Programming techniques
