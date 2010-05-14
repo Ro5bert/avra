@@ -1,9 +1,8 @@
 #********************************************************************
-# Makefile for gcc
+# Makefile for mingw32-gcc
 #********************************************************************
-
-CC = gcc
-LD = gcc -static
+CC = i686-pc-mingw32-gcc
+LD = i686-pc-mingw32-gcc -static
 CFLAGS = -Wall -O3
 LDFLAGS = -s
 
@@ -31,10 +30,10 @@ install: avra
 	chmod +r /usr/local/man/man1/avra.1
 
 clean:
-	rm -f avra *.o *.p *~
+	rm -f avra.exe *.o *.p *~
 
 avra: $(OBJ_ALL)
-	$(LD) -o avra $(OBJ_ALL) $(LDFLAGS)
+	$(LD) -o avra.exe $(OBJ_ALL) $(LDFLAGS)
 
 args.o: args.c misc.h args.h
 avra.o: avra.c misc.h args.h avra.h device.h

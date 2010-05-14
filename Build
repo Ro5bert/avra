@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# AVRA Build and Release helper script
+# source this in the root directory of avra and then invoke one of the
+# functions to create a release. This is very hackish, but makes life easier.
+VERSION="1.3.0"
+
+# This doesn't normaly have to be changed
+ROOT_DIR="${PWD}"
+BUILD_DIR="${PWD}/release"
+SOURCE_DIR="${PWD}/src"
+ARCHIVE_DIR="${PWD}/archives"
+MISC_FILES="ChangeLog,README,README.html,COPYING,NEWS,AUTHORS"
+LINUX_BUILD="avra-${VERSION}-linux-i386"
+
+function avra-build-linux {
+	echo "Creating ${LINUX_BUILD} release"
+	asciidoc README
+	mkdir -p ${BUILD_DIR}/${LINUX_BUILD}
+	mkdir -p ${ARCHIVE_DIR}
+	cd ${SOURCE_DIR}
+	make -f makefiles/Makefile.linux
+	cp avra ${BUILD_DIR}/${LINUX_BUILD}
+	make -f makefiles/Makefile.linux clean
+	cp ${ROOT_DIR} ${BUILD_DIR}/${LINUX_BUILD}
+	cd ${BUILD_DIR}
+	tar -cjvf ${LINUX_BUILD}.tar.bz2 ${LINUX_BUILD}/
+	cp ${LINUX_BUILD}.tar.bz2 ${ARCHIVE_DIR}
+	cd ${ARCHIVE_DIR}
+	sha1sum * > ${ARCHIVE_DIR}/SHA1SUM
+	cd ${ROOT_DIR}
+	rm -R ${BUILD_DIR}
+	cat ${ARCHIVE_DIR}/SHA1SUM
+}
+
+function avra-build-apple {
+	echo "Creating avra-${VERSION}-osx release"
+	mkdir -p release/avra-${VERSION}-osx
+	cd ./src
+	make -f makefiles/Makefile.osx
+	cp avra ../release/avra-${VERSION}-osx
+	zip -r avra-${VERSION}-osx.zip . -i avra-${VERSION}-osx/
+	cd ..
+}
+
+function avra-build-windows-mingw32 {
+	echo "Creating avra-${VERSION}-win32 release"
+	mkdir -p release/avra-${VERSION}-win32
+	cd ./src
+	make -f makefiles/Makefile.mingw32
+	cp avra.exe ../release/avra-${VERSION}-win32
+	make -f makefiles/Makefile.mingw32 clean
+	cd ../release
+	zip -r  avra-${VERSION}-win32.zip . -i avra-${VERSION}-win32/
+	cd ..
+}

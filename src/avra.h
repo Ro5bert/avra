@@ -30,23 +30,21 @@
 
 #include <stdio.h>
 #include <time.h>
-/* this file is auto-updated by Dev-C++ enviroment */
-#include "avra_private.h"
 
 #ifndef VER_MAJOR
-#define VER_MAJOR	1
+#  define VER_MAJOR 1
 #endif
 #ifndef VER_MINOR
-#define VER_MINOR	3
+#  define VER_MINOR 3
 #endif
 #ifndef VER_RELEASE
-#define VER_RELEASE	0
+#  define VER_RELEASE 0
 #endif
 #ifndef VER_BUILD
-#define VER_BUILD	1
+#  define VER_BUILD 1
 #endif
 #ifndef VER_DATE
-#define VER_DATE    "8 May 2010"
+#  define VER_DATE    "8 May 2010"
 #endif
 
 #define IS_HOR_SPACE(x)	((x == ' ') || (x == 9))
