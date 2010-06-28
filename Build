@@ -4,15 +4,35 @@
 # source this in the root directory of avra and then invoke one of the
 # functions to create a release. This is very hackish, but makes life easier.
 VERSION="1.3.0" # Change to new version
-OS_TYPE="linux" # Change to linux, mingw32 or apple
+OS_TYPE="source" # Change to linux, mingw32, apple or source
 
 # This doesn't normaly have to be changed
 ROOT_DIR="${PWD}"
 BUILD_DIR="${PWD}/release"
+DOC_DIR="${PWD}/doc"
+EXAMPLES_DIR="${PWD}/examples"
+INCLUDES_DIR="${PWD}/includes"
 SOURCE_DIR="${PWD}/src"
 ARCHIVE_DIR="${PWD}/archives"
 MISC_FILES="ChangeLog,README,README.html,COPYING,NEWS,AUTHORS"
-LINUX_BUILD="avra-${VERSION}-linux-i386"
+LINUX_BUILD="avra-${VERSION}-linux-i386-static"
+SOURCE_BUILD="avra-${VERSION}-src"
+
+
+function avra-build-source {
+	echo "Creating ${SOURCE_BUILD} release"
+	mkdir -p ${BUILD_DIR}/${SOURCE_BUILD}
+	cp -Rvf ${ROOT_DIR} ${BUILD_DIR}/${SOURCE_BUILD}
+	cd ${BUILD_DIR}
+	tar -cjvf ${SOURCE_BUILD}.tar.bz2 ${SOURCE_BUILD}/
+	cp ${SOURCE_BUILD}.tar.bz2 ${ARCHIVE_DIR}
+	cd ${ARCHIVE_DIR}
+	sha1sum * > ${ARCHIVE_DIR}/SHA1SUM
+	cd ${ROOT_DIR}
+	rm -R ${BUILD_DIR}
+	cat ${ARCHIVE_DIR}/SHA1SUM
+
+}
 
 function avra-build-linux {
 	echo "Creating ${LINUX_BUILD} release"
@@ -23,7 +43,9 @@ function avra-build-linux {
 	make -f makefiles/Makefile.linux
 	cp avra ${BUILD_DIR}/${LINUX_BUILD}
 	make -f makefiles/Makefile.linux clean
-	cp ${ROOT_DIR} ${BUILD_DIR}/${LINUX_BUILD}
+	cp -R ${DOC_DIR} ${BUILD_DIR}/${LINUX_BUILD}
+	cp -R ${EXAMPLES_DIR} ${BUILD_DIR}/${LINUX_BUILD}
+	cp -R ${INCLUDES_DIR} ${BUILD_DIR}/${LINUX_BUILD}
 	cd ${BUILD_DIR}
 	tar -cjvf ${LINUX_BUILD}.tar.bz2 ${LINUX_BUILD}/
 	cp ${LINUX_BUILD}.tar.bz2 ${ARCHIVE_DIR}
@@ -58,4 +80,8 @@ function avra-build-windows-mingw32 {
 
 if [ $OS_TYPE == "linux" ]; then
 	avra-build-linux
+fi
+
+if [ $OS_TYPE == "source" ]; then
+	avra-build-source
 fi
