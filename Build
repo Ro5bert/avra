@@ -3,7 +3,8 @@
 # AVRA Build and Release helper script
 # source this in the root directory of avra and then invoke one of the
 # functions to create a release. This is very hackish, but makes life easier.
-VERSION="1.3.0"
+VERSION="1.3.0" # Change to new version
+OS_TYPE="linux" # Change to linux, mingw32 or apple
 
 # This doesn't normaly have to be changed
 ROOT_DIR="${PWD}"
@@ -54,3 +55,7 @@ function avra-build-windows-mingw32 {
 	zip -r  avra-${VERSION}-win32.zip . -i avra-${VERSION}-win32/
 	cd ..
 }
+
+if [ $OS_TYPE == "linux" ]; then
+	avra-build-linux
+fi
