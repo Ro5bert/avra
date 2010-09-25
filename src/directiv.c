@@ -590,7 +590,7 @@ int parse_directive(struct prog_info *pi)
 			get_next_token(next, TERM_END);
 			/* B.A. : Forward referenc is not allowed for ifdef and ifndef */
 			/* Store undefined symbols in blacklist in pass1 and check, if they are still undefined in pass2 */
-			if(get_symbol(pi, next, NULL))
+			if(!get_symbol(pi, next, NULL))
 		        {
 #if 0
 				if(pi->pass==PASS_2) { /* B.A. : 'Still undefined'-test in pass 2 */
@@ -611,7 +611,8 @@ int parse_directive(struct prog_info *pi)
 		          if(def_blacklist(pi, next)==False) 
 		   	        return(False);
  				}
-				pi->conditional_depth++;
+				if(!spool_conditional(pi, False))
+					return(False);
 			}
 			break;
 		case DIRECTIVE_IF:
@@ -841,6 +842,8 @@ int spool_conditional(struct prog_info *pi, int only_endif) {
 	  print_msg(pi, MSGTYPE_ERROR, "Found no closing .ENDIF in macro");
 	}
 	else {
+	  if((pi->pass == PASS_2) && pi->list_line && pi->list_on)
+		fprintf(pi->list_file, "          %s\n", pi->list_line);
 	  while(fgets_new(pi,pi->fi->buff, LINEBUFFER_LENGTH, pi->fi->fp)) {
 	  pi->fi->line_number++;
 	    if(check_conditional(pi, pi->fi->buff, &current_depth,  &do_next, only_endif)) {
