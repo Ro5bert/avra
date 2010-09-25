@@ -675,9 +675,24 @@ int get_register(struct prog_info *pi, char *data)
 		reg = atoi(&data[1]);
 		if(reg > 31)
 			print_msg(pi, MSGTYPE_ERROR, "R%d is not a valid register", reg);
+		return(reg);
 	}
-	else
-		print_msg(pi, MSGTYPE_ERROR, "No register associated with %s", data);
+	if(data[1] != '\0') {
+			print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", data);
+	}	
+	switch (data[0]) {
+		case 'x':
+			reg = 26;
+			break;
+		case 'y': 
+			reg = 28;
+			break;
+		case 'z':
+			reg = 30;
+			break;
+		default:
+			print_msg(pi, MSGTYPE_ERROR, "No register associated with %s", data);
+	}
 	return(reg);
 }
 
