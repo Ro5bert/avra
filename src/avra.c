@@ -348,7 +348,7 @@ void prepare_second_pass(struct prog_info *pi) {
   pi->eseg_addr = 0;
   //pi->macro_nstlblnr = 0;
   pi->pass=PASS_2; 			/* B.A. : Change to pass 2. Now stored in pi struct. */
-  free_defs(pi);
+  // free_defs(pi);
   // free_constants(pi);		/* B.A. : Now don't kill stored constants. We need them in the second pass now */
   free_variables(pi);
 }
