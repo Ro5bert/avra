@@ -195,7 +195,6 @@ int assemble(struct prog_info *pi) {
 	def_orglist(pi);			/* B.A. : Store first active segment and seg_addr (Default : Code, Adr=0) */
 	c = parse_file(pi, (char *)pi->args->first_data->data);
 	fix_orglist(pi);			/* B.A. : Update last active segment */
-	test_orglist(pi);	 		/* B.A.: Test for overlapping memory segments and out of chip space */
 	if(c != False) {
 #if debug == 1
 		printf("error_count = %i\n", pi->error_count);
