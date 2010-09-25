@@ -268,7 +268,7 @@ int def_var(struct prog_info *pi, char *name, int value);
 int def_blacklist(struct prog_info *pi, const char *name);
 int def_orglist(struct prog_info *pi);					/* B.A. : Test for overlapping segments */
 int fix_orglist(struct prog_info *pi);
-void print_orglist(struct prog_info *pi);
+void fprint_orglist(FILE *file, struct prog_info *pi);
 int test_orglist(struct prog_info *pi);
 int get_label(struct prog_info *pi,char *name,int *value);
 int get_constant(struct prog_info *pi,char *name,int *value);

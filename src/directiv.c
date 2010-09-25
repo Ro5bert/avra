@@ -285,6 +285,11 @@ int parse_directive(struct prog_info *pi)
 					if(pi->pass == PASS_2) {
 						write_ee_byte(pi, pi->eseg_addr, (unsigned char)i);
 						write_ee_byte(pi, pi->eseg_addr + 1, (unsigned char)(i >> 8));
+						if(pi->list_line && pi->list_on) {
+							fprintf(pi->list_file, "          %s\n", pi->list_line);
+							pi->list_line = NULL;
+							fprintf(pi->list_file, "E:%06x %04x\n", pi->eseg_addr,i);
+						}
 					}
 					pi->eseg_addr += 2;
 					if(pi->pass == PASS_1)
@@ -295,7 +300,7 @@ int parse_directive(struct prog_info *pi)
 					if((pi->pass == PASS_2) && pi->hfi) {
 						write_prog_word(pi, pi->cseg_addr, i);
 						// Actual fiddling 
-						if((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
+						if(pi->list_line && pi->list_on) {
 							fprintf(pi->list_file, "          %s\n", pi->list_line);
 							pi->list_line = NULL;
 							fprintf(pi->list_file, "C:%06x %04x\n", pi->cseg_addr,i);

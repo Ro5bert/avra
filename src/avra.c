@@ -225,7 +225,8 @@ int assemble(struct prog_info *pi) {
 				printf("Pass 2...\n");
 				parse_file(pi, (char *)pi->args->first_data->data);
 				printf("done\n\n");
-				print_orglist(pi); 	/* B.A.: List used memory segments */
+				if (pi->list_file)
+						fprint_orglist(pi->list_file, pi); 
 				if(GET_ARG(pi->args, ARG_COFF) && (pi->error_count == 0)) {
 					write_coff_file(pi);
 				}
@@ -541,23 +542,21 @@ int fix_orglist(struct prog_info *pi)
 }
 
 /* B.A.: Debug output of orglist */
-void print_orglist(struct prog_info *pi)
+void fprint_orglist(FILE *file, struct prog_info *pi)
 {
 	struct orglist *orglist=pi->first_orglist;
-	printf("Used memory blocks:\n");
+	const char const *segdesc[3][2] = {
+			{"   Code  ", "words"},
+			{"   Data  ", "bytes"},
+			{"   EEPROM", "bytes"}
+	};
+	fprintf(file, "Used memory blocks:\n");
 	while(orglist!=NULL) {
 		if(orglist->length) { /* Skip blocks with size == 0 */
-			switch(orglist->segment) {
-				case SEGMENT_CODE:
-					printf("   Code  "); break;
-				case SEGMENT_DATA:
-					printf("   Data  "); break;
-				case SEGMENT_EEPROM:
-					printf("   EEPROM"); break;
-				printf("INVALID SEGMENT DATA !\n");
-			}	
-			printf("    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-				orglist->start,orglist->start+orglist->length-1,orglist->length);
+			fprintf(file, "%s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%s)\n",
+				segdesc[orglist->segment][0],
+				orglist->start,orglist->start+orglist->length-1,orglist->length,
+				segdesc[orglist->segment][1]);
 		}
 		orglist=orglist->next;
 	}
