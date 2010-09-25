@@ -366,14 +366,14 @@ int parse_mnemonic(struct prog_info *pi)
   if(pi->pass == PASS_2) {
 	if(mnemonic <= MNEMONIC_BREAK) {
 		if(operand1) {
-			print_msg(pi, MSGTYPE_WARNING, "Garbage after instruction %s: %s", instruction_list[mnemonic].mnemonic, operand1);		}
+			print_msg(pi, MSGTYPE_WARNING, "Garbage after instruction %s: %s", instruction_list[mnemonic].mnemonic, operand1);		}
 		opcode = 0;			// No operand
 	} else if(mnemonic <= MNEMONIC_ELPM) {
 		if(operand1) {
 			operand2 = get_next_token(operand1, TERM_COMMA);
 			if(!operand2) {
 				print_msg(pi, MSGTYPE_ERROR, "%s needs a second operand", instruction_list[mnemonic].mnemonic);
-				return(True);			}
+				return(True);			}
 			get_next_token(operand2, TERM_END);
 			i = get_register(pi, operand1);
 			opcode = i << 4;
@@ -679,12 +679,12 @@ int get_register(struct prog_info *pi, char *data)
 	}
 	if(data[1] != '\0') {
 			print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", data);
-	}	
+	}	
 	switch (data[0]) {
 		case 'x':
 			reg = 26;
 			break;
-		case 'y': 
+		case 'y': 
 			reg = 28;
 			break;
 		case 'z':

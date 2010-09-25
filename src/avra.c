@@ -393,7 +393,9 @@ void print_msg(struct prog_info *pi, int type, char *fmt, ... )
 		}
 		if(fmt != NULL) {
 			va_list args;
-			va_start(args, fmt);			vfprintf(stderr, fmt, args);			va_end(args);
+			va_start(args, fmt);
+			vfprintf(stderr, fmt, args);
+			va_end(args);
 		}
 
 		if( (type != MSGTYPE_APPEND) && (type != MSGTYPE_MESSAGE_NO_LF) )  /* B.A. Added for .message directive */
