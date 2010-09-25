@@ -1,0 +1,18 @@
+DEBUG_FLAGS = -g
+SRCS = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c args.c stdextra.c
+PROG = avra
+NO_MAN = yes
+
+args.o: args.c misc.h args.h
+avra.o: avra.c misc.h args.h avra.h device.h
+device.o: device.c misc.h avra.h device.h
+directiv.o: directiv.c misc.h args.h avra.h device.h
+expr.o: expr.c misc.h avra.h
+file.o: file.c misc.h avra.h
+macro.o: macro.c misc.h args.h avra.h
+mnemonic.o: mnemonic.c misc.h avra.h device.h
+parser.o: parser.c misc.h avra.h
+stdextra.o: stdextra.c misc.h
+coff.o: coff.c coff.h
+
+.include <bsd.prog.mk>
