@@ -305,7 +305,7 @@ int par_length(char *data);
 
 /* mnemonic.c */
 int parse_mnemonic(struct prog_info *pi);
-int get_mnemonic_type(char *mnemonic);
+int get_mnemonic_type(struct prog_info *pi);
 int get_register(struct prog_info *pi, char *data);
 int get_bitnum(struct prog_info *pi, char *data, int *ret);
 int get_indirect(struct prog_info *pi, char *operand);

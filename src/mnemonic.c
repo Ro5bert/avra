@@ -179,6 +179,8 @@ enum {
 	MNEMONIC_LDD_Z,    // Rd, Z+q  10q0 qq0d dddd 0qqq
 	MNEMONIC_STD_Y,    // Y+q, Rr  10q0 qq1r rrrr 1qqq
 	MNEMONIC_STD_Z,    // Z+q, Rr  10q0 qq1r rrrr 0qqq
+	MNEMONIC_LDS_AVR8L,// Rd, k    1010 0kkk dddd kkkk
+	MNEMONIC_STS_AVR8L,// Rd, k    1010 1kkk dddd kkkk
 	MNEMONIC_END
 };
 
@@ -279,8 +281,8 @@ struct instruction instruction_list[] = {
 	{"fmul",  0x0308, DF_NO_MUL},
 	{"fmuls", 0x0380, DF_NO_MUL},
 	{"fmulsu",0x0388, DF_NO_MUL},
-	{"adiw",  0x9600,  DF_TINY1X},
-	{"sbiw",  0x9700,  DF_TINY1X},
+	{"adiw",  0x9600,  DF_TINY1X | DF_AVR8L},
+	{"sbiw",  0x9700,  DF_TINY1X | DF_AVR8L},
 	{"subi",  0x5000,          0},
 	{"sbci",  0x4000,          0},
 	{"andi",  0x7000,          0},
@@ -299,8 +301,8 @@ struct instruction instruction_list[] = {
 	{"sbis",  0x9b00,          0},
 	{"sbi",   0x9a00,          0},
 	{"cbi",   0x9800,          0},
-	{"lds",   0x9000,  DF_TINY1X},
-	{"sts",   0x9200,  DF_TINY1X},
+	{"lds",   0x9000,  DF_TINY1X | DF_AVR8L},
+	{"sts",   0x9200,  DF_TINY1X | DF_AVR8L},
 	{"ld",    0,          0},
 	{"st",    0,          0},
 	{"ldd",   0,  DF_TINY1X},
@@ -332,6 +334,8 @@ struct instruction instruction_list[] = {
 	{"ldd",   0x8000, DF_TINY1X},
 	{"std",   0x8208, DF_TINY1X},
 	{"std",   0x8200, DF_TINY1X},
+	{"lds",   0xa000, DF_TINY1X},
+	{"sts",   0xa800, DF_TINY1X},
 	{"end", 0, 0}
 	};
 
@@ -353,7 +357,7 @@ int parse_mnemonic(struct prog_info *pi)
   char temp[MAX_MNEMONIC_LEN + 1];
 
   operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  // we get the first word on line
-  mnemonic = get_mnemonic_type(my_strlwr(pi->fi->scratch));
+  mnemonic = get_mnemonic_type(pi);
   if(mnemonic == -1) {				// if -1 this must be a macro name
 	macro = get_macro(pi, pi->fi->scratch); // and so, we try to get the corresponding macro struct.
 	if(macro) {
@@ -539,21 +543,44 @@ int parse_mnemonic(struct prog_info *pi)
 		} else if(mnemonic == MNEMONIC_LDS) {
 			i = get_register(pi, operand1);
 			opcode = i << 4;
+			/* AVR8L has one word LDS. High nibble of k in funny order */
+			if (pi->device->flag & DF_AVR8L) {
+				mnemonic = MNEMONIC_LDS_AVR8L;
+				opcode &= 0x00f0;
+			}
 			if(!get_expr(pi, operand2, &i))
 				return(False);
-			if((i < 0) || (i > 65535))
-				print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
-			opcode2 = i;
-			instruction_long = True;
+			if (pi->device->flag & DF_AVR8L) {
+				if((i < 0x40) || (i > 0xbf))
+					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
+				opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
+			} else {
+				if((i < 0) || (i > 65535))
+					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
+				opcode2 = i;
+				instruction_long = True;
+			}
 		} else if(mnemonic == MNEMONIC_STS) {
 			if(!get_expr(pi, operand1, &i))
 				return(False);
-			if((i < 0) || (i > 65535))
-				print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
-			opcode2 = i;
+			/* AVR8L has one word STS. High nibble of k in funny order */
+			if (pi->device->flag & DF_AVR8L) {
+				mnemonic = MNEMONIC_STS_AVR8L;
+				if((i < 0x40) || (i > 0xbf))
+					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
+				opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
+			} else {
+				if((i < 0) || (i > 65535))
+					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
+				opcode2 = i;
+				instruction_long = True;
+			}
 			i = get_register(pi, operand2);
-			opcode = i << 4;
-			instruction_long = True;
+			if (pi->device->flag & DF_AVR8L)
+				opcode |= ((i << 4) & 0x00f0);
+			else
+				opcode = i << 4;
+			//print_msg(pi, MSGTYPE_MESSAGE, "operand2 0x%04x opcode 0x%04x", i, opcode);
 		} else if(mnemonic == MNEMONIC_LD) {
 			i = get_register(pi, operand1);
 			opcode = i << 4;
@@ -628,6 +655,8 @@ int parse_mnemonic(struct prog_info *pi)
 	else
 		pi->cseg_addr++;
   } else { // Pass 1
+	if (pi->device->flag & DF_AVR8L)
+		mnemonic = MNEMONIC_LDS_AVR8L;
 	if((mnemonic == MNEMONIC_JMP) || (mnemonic == MNEMONIC_CALL) 
         	|| (mnemonic == MNEMONIC_LDS) || (mnemonic == MNEMONIC_STS)) {
 		pi->cseg_addr += 2;
@@ -640,10 +669,12 @@ int parse_mnemonic(struct prog_info *pi)
   return(True);
 }
 
-
-int get_mnemonic_type(char *mnemonic)
+int get_mnemonic_type(struct prog_info *pi)
 {
 	int i;
+	char *mnemonic;
+
+	mnemonic = my_strlwr(pi->fi->scratch);
 
 	for(i = 0; i < MNEMONIC_COUNT; i++) {
 		if(!strcmp(mnemonic, instruction_list[i].mnemonic)) {
@@ -693,9 +724,11 @@ int get_register(struct prog_info *pi, char *data)
 		default:
 			print_msg(pi, MSGTYPE_ERROR, "No register associated with %s", data);
 	}
+	if ((reg < 16) && (pi->device->flag & DF_AVR8L))
+		print_msg(pi, MSGTYPE_ERROR, "%s can only use a high registers (r16 - r31)", pi->device->name);
+
 	return(reg);
 }
-
 
 int get_bitnum(struct prog_info *pi, char *data, int *ret)
 {
@@ -782,11 +815,10 @@ int get_indirect(struct prog_info *pi, char *operand)
 /* Return 1 if instruction name is supported by the current device,
    0 if unsupported, -1 if it is invalid */
 int is_supported(struct prog_info *pi, char *name) {
-   char temp[MAX_MNEMONIC_LEN+1];
    int mnemonic;
 
-   strncpy(temp,name,MAX_MNEMONIC_LEN);
-   mnemonic = get_mnemonic_type(my_strlwr(temp));
+   strncpy(pi->fi->scratch,name,MAX_MNEMONIC_LEN);
+   mnemonic = get_mnemonic_type(pi);
    if (mnemonic == -1) return -1;
    if (pi->device->flag & instruction_list[mnemonic].flag) return 0;
    return 1;
