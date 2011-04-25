@@ -33,11 +33,17 @@ enum {
 	ARGTYPE_STRING,            /* Stringpointer in Data     */
 	ARGTYPE_STRING_MULTI,      /* List of strings in Data   */
 	ARGTYPE_STRING_MULTISINGLE, /* List of strings in Data. requires an option for each element */
-	ARGTYPE_CHAR_ATTACHED
+	ARGTYPE_CHAR_ATTACHED,
+	ARGTYPE_CHOICE,
+	ARGTYPE_NUMERIC
 };
 
-#define GET_ARG(args, argnum) (args->arg[argnum].data)
-#define SET_ARG(args, argnum, value) (args->arg[argnum].data = (void *)value)
+#define GET_ARG_I(args, argnum) (args->arg[argnum].data.i)
+#define SET_ARG_I(args, argnum, value) (args->arg[argnum].data.i = (value))
+#define GET_ARG_P(args, argnum) (args->arg[argnum].data.p)
+#define SET_ARG_P(args, argnum, value) (args->arg[argnum].data.p = (value))
+#define GET_ARG_LIST(args, argnum) (args->arg[argnum].data.dl)
+#define SET_ARG_LIST(args, argnum, value) (args->arg[argnum].data.dl = (value))
 
 struct args {
 	struct arg *arg;
@@ -45,23 +51,34 @@ struct args {
 	struct data_list *first_data;
 };
 
+struct dataset {
+	int   dset_value;
+	const char *dset_name;
+};
+
 struct arg {
 	int   type;
 	char  letter;
 	char *longarg;
-	void *data;
+	union {
+		int i;
+		const char *p;
+		struct data_list *dl;
+	} data;
+	const struct dataset const *dataset;
 };
 
 struct data_list {
 	struct data_list *next;
-	void *data;
+	const char *data;
 };
 
 struct args *alloc_args(int arg_count);
-int read_args(struct args *args, int argc, char *argv[]);
-int add_arg(struct data_list **last_data, char *argv);
+int read_args(struct args *args, int argc, const char *argv[]);
+int add_arg(struct data_list **last_data, const char *argv);
 void free_args(struct args *args);
-void define_arg(struct args *args, int index, int type, char letter, char *longarg, void *def_value);
+void define_arg(struct args *args, int index, int type, char letter, char *longarg, const char *def_value, const struct dataset dataset[]);
+void define_arg_int(struct args *args, int index, int type, char letter, char *longarg, int def_value, const struct dataset dataset[]);
 
 #endif /* end of args.h */
 

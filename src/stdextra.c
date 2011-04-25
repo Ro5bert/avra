@@ -39,7 +39,7 @@
  * Case insensetive strcmp()
  */
 
-int nocase_strcmp(char *s, char *t)
+int nocase_strcmp(const char *s, const char *t)
 {
 	int i;
 

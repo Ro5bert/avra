@@ -16,6 +16,7 @@
 #define DF_NO_BREAK  0x00001000 // No BREAK instruction
 #define DF_NO_EICALL 0x00002000 // No EICALL instruction
 #define DF_NO_EIJMP  0x00004000 // No EIJMP instruction
+#define DF_AVR8L     0x00008000	/* ATtiny10, 20, 40 set No ADIW, SBIW, one word LDS/STS */
 
 struct device
 	{

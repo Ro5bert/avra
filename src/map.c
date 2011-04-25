@@ -42,7 +42,7 @@ void write_map_file(struct prog_info *pi)
       return;
     }
 
-    strcpy(Filename, GET_ARG(pi->args, ARG_MAPFILE));
+    strcpy(Filename, GET_ARG_P(pi->args, ARG_MAPFILE));
 	fp = fopen(Filename,"w");
 	if( fp == NULL ) {
 		fprintf(stderr,"Error: cannot create map file\n");

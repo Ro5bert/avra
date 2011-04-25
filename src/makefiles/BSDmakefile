@@ -1,4 +1,4 @@
-DEBUG_FLAGS = -g
+DEBUG_FLAGS = -g -Wall
 SRCS = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c args.c stdextra.c
 PROG = avra
 NO_MAN = yes

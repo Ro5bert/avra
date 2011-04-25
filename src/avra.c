@@ -76,7 +76,7 @@ const char *usage =
   "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
   "AVRStudio directories to avra's binary.\n";
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
   int show_usage = False;
   struct prog_info *pi=NULL;
@@ -95,30 +95,30 @@ int main(int argc, char *argv[])
 
   args = alloc_args(ARG_COUNT);
   if(args) {
-    define_arg(args, ARG_DEFINE,      ARGTYPE_STRING_MULTISINGLE,  'D', "define",      NULL);
-    define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includepath", NULL);
-    define_arg(args, ARG_LISTMAC,     ARGTYPE_BOOLEAN,              0,  "listmac",     "1");
-    define_arg(args, ARG_MAX_ERRORS,  ARGTYPE_STRING,               0,  "max_errors",  "10");
-    define_arg(args, ARG_COFF,        ARGTYPE_BOOLEAN,              0,  "coff",        NULL);
-    define_arg(args, ARG_DEVICES,     ARGTYPE_BOOLEAN,              0,  "devices",     NULL);
-    define_arg(args, ARG_VER,         ARGTYPE_BOOLEAN,              0,  "version",     NULL);
-    define_arg(args, ARG_HELP,        ARGTYPE_BOOLEAN,             'h', "help",        NULL);
-    define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL);	// Not implemented ? B.A.
-    define_arg(args, ARG_WARNINGS,    ARGTYPE_STRING_MULTISINGLE,  'W', "warn",        NULL);
-    define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0");	// Not implemented ? B.A.
-    define_arg(args, ARG_LISTFILE,    ARGTYPE_STRING,              'l', "listfile",    NULL);
-    define_arg(args, ARG_OUTFILE,     ARGTYPE_STRING,              'o', "outfile",     NULL);	// Not implemented ? B.A.
-    define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL);
-    define_arg(args, ARG_DEBUGFILE,   ARGTYPE_STRING,              'd', "debugfile",   NULL);	// Not implemented ? B.A.
-    define_arg(args, ARG_EEPFILE,     ARGTYPE_STRING,              'e', "eepfile",     NULL);	// Not implemented ? B.A.
+    define_arg(args, ARG_DEFINE,      ARGTYPE_STRING_MULTISINGLE,  'D', "define",      NULL, NULL);
+    define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includepath", NULL, NULL);
+    define_arg(args, ARG_LISTMAC,     ARGTYPE_BOOLEAN,              0,  "listmac",     "1",  NULL);
+    define_arg_int(args, ARG_MAX_ERRORS,  ARGTYPE_NUMERIC,               0,  "max_errors",  10, NULL);
+    define_arg(args, ARG_COFF,        ARGTYPE_BOOLEAN,              0,  "coff",        NULL, NULL);
+    define_arg(args, ARG_DEVICES,     ARGTYPE_BOOLEAN,              0,  "devices",     NULL, NULL);
+    define_arg(args, ARG_VER,         ARGTYPE_BOOLEAN,              0,  "version",     NULL, NULL);
+    define_arg(args, ARG_HELP,        ARGTYPE_BOOLEAN,             'h', "help",        NULL, NULL);
+    define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL, NULL);	// Not implemented ? B.A.
+    define_arg(args, ARG_WARNINGS,    ARGTYPE_STRING_MULTISINGLE,  'W', "warn",        NULL, NULL);
+    define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0",	 NULL);	// Not implemented ? B.A.
+    define_arg(args, ARG_LISTFILE,    ARGTYPE_STRING,              'l', "listfile",    NULL, NULL);
+    define_arg(args, ARG_OUTFILE,     ARGTYPE_STRING,              'o', "outfile",     NULL, NULL);	// Not implemented ? B.A.
+    define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL, NULL);
+    define_arg(args, ARG_DEBUGFILE,   ARGTYPE_STRING,              'd', "debugfile",   NULL, NULL);	// Not implemented ? B.A.
+    define_arg(args, ARG_EEPFILE,     ARGTYPE_STRING,              'e', "eepfile",     NULL, NULL);	// Not implemented ? B.A.
 
 
     c = read_args(args, argc, argv);
     
     if(c != 0) {
-	  if(!GET_ARG(args, ARG_HELP) && (argc != 1))	{
-	    if(!GET_ARG(args, ARG_VER)) {
-		  if(!GET_ARG(args, ARG_DEVICES)) {
+	  if(!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
+	    if(!GET_ARG_I(args, ARG_VER)) {
+		  if(!GET_ARG_I(args, ARG_DEVICES)) {
             pi = get_pi(args);
 		    if(pi) {
               get_rootpath(pi, args);  /* get assembly root path */
@@ -226,7 +226,7 @@ int assemble(struct prog_info *pi) {
 				printf("done\n\n");
 				if (pi->list_file)
 						fprint_orglist(pi->list_file, pi); 
-				if(GET_ARG(pi->args, ARG_COFF) && (pi->error_count == 0)) {
+				if(GET_ARG_I(pi->args, ARG_COFF) && (pi->error_count == 0)) {
 					write_coff_file(pi);
 				}
 				write_map_file(pi);
@@ -259,7 +259,7 @@ int load_arg_defines(struct prog_info *pi)
   char buff[256];
   struct data_list *define;
 
-  for(define = GET_ARG(pi->args, ARG_DEFINE); define; define = define->next) {
+  for(define = GET_ARG_LIST(pi->args, ARG_DEFINE); define; define = define->next) {
 	  strcpy(buff, define->data);
 	  expr = get_next_token( buff, TERM_EQUAL);
 	  if(expr) {
@@ -308,23 +308,23 @@ struct prog_info *get_pi(struct args *args) {
 	memset(pi, 0, sizeof(struct prog_info));
 	pi->args = args;
 	pi->device = get_device(pi,NULL);
-	if(GET_ARG(args, ARG_LISTFILE) == NULL) {
+	if(GET_ARG_P(args, ARG_LISTFILE) == NULL) {
 		pi->list_on = False;
 	} else {
 		pi->list_on = True;
 	}
-	if(GET_ARG(args, ARG_MAPFILE) == NULL) {
+	if(GET_ARG_P(args, ARG_MAPFILE) == NULL) {
 		pi->map_on = False;
 	} else {
 		pi->map_on = True;
 	}
-	for(warnings = GET_ARG(args, ARG_WARNINGS); warnings; warnings = warnings->next) {
+	for(warnings = GET_ARG_LIST(args, ARG_WARNINGS); warnings; warnings = warnings->next) {
 		if(!nocase_strcmp(warnings->data, "NoRegDef"))
 			pi->NoRegDef = 1;
 	}
 	pi->segment = SEGMENT_CODE;
 	pi->dseg_addr = pi->device->ram_start;
-	pi->max_errors = atoi(GET_ARG(args, ARG_MAX_ERRORS));
+	pi->max_errors = GET_ARG_I(args, ARG_MAX_ERRORS);
 	pi->pass=PASS_1; 		/* B.A. : The pass variable is now stored in the pi struct */
 	pi->time=time(NULL); 		/* B.A. : Now use a global timestamp  */
 	return(pi);

@@ -305,7 +305,7 @@ int par_length(char *data);
 
 /* mnemonic.c */
 int parse_mnemonic(struct prog_info *pi);
-int get_mnemonic_type(char *mnemonic);
+int get_mnemonic_type(struct prog_info *pi);
 int get_register(struct prog_info *pi, char *data);
 int get_bitnum(struct prog_info *pi, char *data, int *ret);
 int get_indirect(struct prog_info *pi, char *operand);
@@ -330,24 +330,24 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line);
 
 
 /* file.c */
-int open_out_files(struct prog_info *pi, char *filename);
+int open_out_files(struct prog_info *pi, const char *filename);
 void close_out_files(struct prog_info *pi);
-struct hex_file_info *open_hex_file(char *filename);
+struct hex_file_info *open_hex_file(const char *filename);
 void close_hex_file(struct hex_file_info *hfi);
 void write_ee_byte(struct prog_info *pi, int address, unsigned char data);
 void write_prog_word(struct prog_info *pi, int address, int data);
 void do_hex_line(struct hex_file_info *hfi);
-FILE *open_obj_file(struct prog_info *pi, char *filename);
+FILE *open_obj_file(struct prog_info *pi, const char *filename);
 void close_obj_file(struct prog_info *pi, FILE *fp);
 void write_obj_record(struct prog_info *pi, int address, int data);
-void unlink_out_files(struct prog_info *pi, char *filename);
+void unlink_out_files(struct prog_info *pi, const char *filename);
 
 /* map.c */
 void write_map_file(struct prog_info *pi);
 char *Space(char *n);
 
 /* stdextra.c */
-char *nocase_strcmp(char *s, char *t);
+char *nocase_strcmp(const char *s, const char *t);
 char *nocase_strncmp(char *s, char *t, int n);
 char *nocase_strstr(char *s, char *t);
 int atox(char *s);

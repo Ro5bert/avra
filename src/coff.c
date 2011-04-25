@@ -424,7 +424,7 @@ void write_coff_file(struct prog_info *pi){
 
 void write_coff_eeprom( struct prog_info *pi, int address, unsigned char data){
 
-    if ( !GET_ARG(pi->args, ARG_COFF) )
+    if ( !GET_ARG_I(pi->args, ARG_COFF) )
         return;
 
     /* Coff output keeps track of binary data in memory buffers */
@@ -445,7 +445,7 @@ void write_coff_program( struct prog_info *pi, int address, unsigned int data){
 
     unsigned char *pByte;
 
-    if ( !GET_ARG(pi->args, ARG_COFF) )
+    if ( !GET_ARG_I(pi->args, ARG_COFF) )
         return;
 
     /* Coff output keeps track of binary data in memory buffers, address is in bytes not words */
@@ -501,7 +501,7 @@ int parse_stabs( struct prog_info *pi, char *p ){
     char *pString, *p2, *p3, *p4, *p5, *pType, *pEnd, *pp, *pJoined;
 
 
-    if ( !GET_ARG(pi->args, ARG_COFF) || ( pi->pass == PASS_1 ) )
+    if ( !GET_ARG_I(pi->args, ARG_COFF) || ( pi->pass == PASS_1 ) )
         return(True);
 
     /* stabs debugging information is in the form:
@@ -662,7 +662,7 @@ int parse_stabn( struct prog_info *pi, char *p ){
     N_SLINE	0x44		src line: 0,,0,linenumber,address
     */
 
-    if ( !GET_ARG(pi->args, ARG_COFF) || ( pi->pass == PASS_1 ) )
+    if ( !GET_ARG_I(pi->args, ARG_COFF) || ( pi->pass == PASS_1 ) )
         return(True);
 
     /* Parse the tokens in the stabn line buffer */

@@ -387,7 +387,7 @@ int parse_directive(struct prog_info *pi)
 			ok = test_include(next);
 			data = NULL;
 			if(!ok)
-				for(incpath = GET_ARG(pi->args, ARG_INCLUDEPATH); incpath && !ok; incpath = incpath->next) {
+				for(incpath = GET_ARG_LIST(pi->args, ARG_INCLUDEPATH); incpath && !ok; incpath = incpath->next) {
 					i = strlen(incpath->data);
 					if(data)
 						free(data);
@@ -428,7 +428,7 @@ int parse_directive(struct prog_info *pi)
 			}
 			next = term_string(pi, next);
 			/* get arg list start pointer */
-			incpath = GET_ARG(pi->args, ARG_INCLUDEPATH);
+			incpath = GET_ARG_LIST(pi->args, ARG_INCLUDEPATH);
         /* search for last element */
         if(incpath == NULL) {
          	dl = malloc(sizeof(struct data_list));
@@ -437,7 +437,7 @@ int parse_directive(struct prog_info *pi)
          		dl->next = NULL;
          		strcpy(data, next);
 		        dl->data = data;
-            SET_ARG(pi->args, ARG_INCLUDEPATH, dl);
+            SET_ARG_LIST(pi->args, ARG_INCLUDEPATH, dl);
          	}
          	else {
          		printf("Error: Unable to allocate memory\n");
@@ -454,7 +454,7 @@ int parse_directive(struct prog_info *pi)
 			break;
 		case DIRECTIVE_LISTMAC:
 			if(pi->pass == PASS_2)
-				SET_ARG(pi->args, ARG_LISTMAC, True);
+				SET_ARG_I(pi->args, ARG_LISTMAC, True);
 			break;
 		case DIRECTIVE_MACRO:
 			return(read_macro(pi, next));
