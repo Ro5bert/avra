@@ -37,7 +37,7 @@
 #include "args.h"
 
 
-int open_out_files(struct prog_info *pi, char *filename)
+int open_out_files(struct prog_info *pi, const char *filename)
 {
 	int length;
 	char *buff;
@@ -83,7 +83,7 @@ int open_out_files(struct prog_info *pi, char *filename)
 	pi->coff_file = open_coff_file(pi, buff);
   /* open list file */
 	if (pi->list_on) {
-    strcpy(buff, GET_ARG(pi->args, ARG_LISTFILE));
+    strcpy(buff, GET_ARG_P(pi->args, ARG_LISTFILE));
     pi->list_file = fopen(buff, "w");
     if(pi->list_file == NULL) {
 			print_msg(pi, MSGTYPE_ERROR, "Could not create list file!");
@@ -105,7 +105,7 @@ int open_out_files(struct prog_info *pi, char *filename)
 }
 
 /* delete all output files */
-void unlink_out_files(struct prog_info *pi, char *filename)
+void unlink_out_files(struct prog_info *pi, const char *filename)
 {
 	char *buff;
 	int length;
@@ -170,7 +170,7 @@ void close_out_files(struct prog_info *pi)
 }
 
 
-struct hex_file_info *open_hex_file(char *filename)
+struct hex_file_info *open_hex_file(const char *filename)
 {
 	struct hex_file_info *hfi;
 
@@ -254,7 +254,7 @@ void do_hex_line(struct hex_file_info *hfi)
 }
 
 
-FILE *open_obj_file(struct prog_info *pi, char *filename)
+FILE *open_obj_file(struct prog_info *pi, const char *filename)
 {
 	int i;
 	FILE *fp;

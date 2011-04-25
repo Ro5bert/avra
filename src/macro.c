@@ -464,7 +464,7 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 
   for(pi->macro_line = macro->first_macro_line; pi->macro_line && ok; pi->macro_line = pi->macro_line->next) {
     macro_call->line_index++;
-	if(GET_ARG(pi->args, ARG_LISTMAC))
+	if(GET_ARG_I(pi->args, ARG_LISTMAC))
 	  pi->list_line = buff;
 	else
 	  pi->list_line = NULL;
