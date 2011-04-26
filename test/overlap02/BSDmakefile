@@ -1,0 +1,2 @@
+NAME=	Checking if PRAGMA NONEXISTENT gets ignored
+.include "../Makefile.common"

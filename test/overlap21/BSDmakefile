@@ -1,0 +1,2 @@
+NAME=	Check if .NOOVERLAP works
+.include "../Makefile.common"

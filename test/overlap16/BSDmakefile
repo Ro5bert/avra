@@ -1,0 +1,2 @@
+NAME=		Checking if code and data segments can overlap
+.include "../Makefile.common"

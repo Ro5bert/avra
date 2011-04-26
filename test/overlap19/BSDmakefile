@@ -1,0 +1,2 @@
+NAME=	Check if .OVERLAP works
+.include "../Makefile.common"

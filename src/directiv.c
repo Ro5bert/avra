@@ -76,7 +76,7 @@ enum
 	DIRECTIVE_COUNT
 };
 
-char *directive_list[] =
+static const char * const directive_list[] =
 {
 	"BYTE",
 	"CSEG",
@@ -113,16 +113,34 @@ char *directive_list[] =
 	"ERROR",
 	"PRAGMA",
 	"OVERLAP",
-	"NOOVERLAP"
+	"NOOVERLAP",
+	NULL
 };
 
+enum {
+	PRAGMA_OVERLAP,
+	PRAGMA_COUNT
+};
+
+static const char * const pragma_list[] = {
+	"OVERLAP",
+	NULL
+};
+
+static const char * const overlap_value[] = {
+	"DEFAULT",
+	"IGNORE",
+	"WARNING",
+	"ERROR",
+	NULL
+};
 
 int parse_directive(struct prog_info *pi)
 {
-	int directive;
+	int directive, pragma;
 	int ok = True;
 	int i;
-	char *next, *data;
+	char *next, *data, buf[140];
 	struct file_info *fi_bak;
 
 	struct def *def;
@@ -130,10 +148,8 @@ int parse_directive(struct prog_info *pi)
 
 	next = get_next_token(pi->fi->scratch, TERM_SPACE);
 
-	for(i = 0; pi->fi->scratch[i] != '\0'; i++) {
-		pi->fi->scratch[i] = toupper(pi->fi->scratch[i]);
-	}
-	directive = get_directive_type(pi->fi->scratch + 1);
+	my_strupr(pi->fi->scratch);
+	directive = lookup_keyword(directive_list, pi->fi->scratch + 1, True);
 	if(directive == -1) {
 		print_msg(pi, MSGTYPE_ERROR, "Unknown directive: %s", pi->fi->scratch);
 		return(True);
@@ -550,13 +566,63 @@ int parse_directive(struct prog_info *pi)
 				pi->list_line = NULL;
 			}
 			break;
+		case DIRECTIVE_NOOVERLAP:
+			if (pi->pass == PASS_1) {
+				fix_orglist(pi);
+				pi->segment_overlap = SEG_DONT_OVERLAP;
+				def_orglist(pi);
+			}
+			break;
+		case DIRECTIVE_OVERLAP:
+			if (pi->pass == PASS_1) {
+				fix_orglist(pi);
+				pi->segment_overlap = SEG_ALLOW_OVERLAP;
+				def_orglist(pi);
+			}
+			break;
 		case DIRECTIVE_PRAGMA:
-#if 0
-			may_do_something_with_pragma_someday();
-#else
-			// if ( !flag_no_warnings )
-			print_msg(pi, MSGTYPE_MESSAGE, "PRAGMA directives currently ignored");
-#endif
+			if (!next) {
+				print_msg(pi, MSGTYPE_ERROR, "PRAGMA needs an operand, %s should be specified",
+					snprint_list(buf, sizeof(buf), pragma_list));
+				return(True);
+			}
+			my_strupr(next);
+			data = get_next_token(next, TERM_SPACE);
+			pragma = lookup_keyword(pragma_list, next, False);
+			switch (pragma) {
+
+				case PRAGMA_OVERLAP:
+					if (pi->pass == PASS_1) {
+						int overlap_setting = OVERLAP_UNDEFINED;
+						if (data) {
+								my_strupr(data);
+								overlap_setting = lookup_keyword(overlap_value, data, False);
+						};
+						switch (overlap_setting) {
+								case OVERLAP_DEFAULT:
+									pi->effective_overlap = GET_ARG_I(pi->args, ARG_OVERLAP);
+									break;
+
+								case OVERLAP_IGNORE:
+								case OVERLAP_WARNING:
+								case OVERLAP_ERROR:
+									pi->effective_overlap = overlap_setting;
+									break;
+
+								default:
+									print_msg(pi, MSGTYPE_ERROR, "For PRAGMA %s directive" 
+										" %s should be specified as the parameter", next, 
+										snprint_list(buf, sizeof(buf), overlap_value));
+									return(False);
+						}
+					}
+					return(True);
+					break;
+				default:
+					if(pi->pass == PASS_2)
+						print_msg(pi, MSGTYPE_MESSAGE, "PRAGMA %s directive currently ignored", next);
+					return(True);
+			}
 			break;
 		case DIRECTIVE_UNDEF: // TODO
 			break;
@@ -710,15 +776,21 @@ int parse_directive(struct prog_info *pi)
 }
 
 
-int get_directive_type(char *directive) {
+int
+lookup_keyword(const char * const keyword_list[], const char * const keyword, int strict) {
   int i;
 
-  for(i = 0; i < DIRECTIVE_COUNT; i++) {
-	if(!strcmp(directive, directive_list[i])) return(i);
+  for (i = 0; keyword_list[i] != NULL; i++) {
+	if (strict) {
+		if (!strcmp(keyword, keyword_list[i]))
+			return(i);
+	} else {
+		if (!strncmp(keyword, keyword_list[i], strlen(keyword_list[i])))
+			return(i);
+	}
   }
   return(-1);
 }
-
 
 char *term_string(struct prog_info *pi, char *string) {
   int i;

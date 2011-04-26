@@ -187,5 +187,56 @@ char *my_strupr(char *in)
   return(in);
 }
 
+static int
+snprint(char ** buf, size_t *limit, const char * const str) {
+	int rc;
+	rc = snprintf(*buf, *limit, "%s", str);
+	if (rc <= *limit) 
+		*buf += rc, *limit -= rc;
+	else
+		*limit = 0;
+	return rc;
+}
+
+char *
+snprint_list(char * buf, size_t limit, const char * const str_list[]) {
+  int i, rc;
+  char *ptr = buf;
+  if (str_list[0] != NULL)
+		  if (str_list[1] != NULL)
+				  snprint(&ptr, &limit, "either "); 
+  for (i = 0; str_list[i] != NULL; i++) {
+	if (i > 0) {
+		if (str_list[i+1] == NULL)
+			snprint(&ptr, &limit, " or ");
+		else
+			snprint(&ptr, &limit, ", ");
+	}
+	rc = snprintf(ptr, limit, "\"%s\"", str_list[i]);
+	if (rc <= limit)
+		ptr += rc, limit -= rc;
+	else
+		limit = 0;
+  }
+  return buf;
+}
+
+void
+test_print_list() {
+	static const char * const test_value[] = {
+		"DEFAULT",
+		"IGNORE",
+		"ERROR",
+		"ABCD",
+		"123",
+		"QQ",
+		"Z",
+		NULL
+	};
+	char buf[73] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+	int i;
+	for (i = 0; i < sizeof(buf); i++) 
+			fprintf(stderr, "(%s)\n", snprint_list(buf, i, test_value));
+}
 /* stdextra.c */
 

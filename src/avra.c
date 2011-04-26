@@ -56,8 +56,10 @@ const char *usage =
 	"            [-o <filename>] output file name\n"
 	"            [-l <filename>] generate list file\n"
 	"            [-m <mapfile>] generate map file\n"
-  "[--define <symbol>[=<value>]]  [--includedir <dir>] [--listmac]\n"
+	"            [--define <symbol>[=<value>]]\n" 
+	"            [--includedir <dir>] [--listmac]\n"
 	"            [--max_errors <number>] [--devices] [--version]\n"
+	"            [-O e|w|i]\n"
 	"            [-h] [--help] general help\n"
 	"            "
 	"            <file to assemble>\n"
@@ -68,13 +70,21 @@ const char *usage =
 	"   --includepath  -I : Additional include paths.\n"
 	"   --listmac        : List macro expansion in listfile.\n"
 	"   --max_errors     : Maximum number of errors before exit\n"
-  "                      (default: 10)\n"
+	"                      (default: 10)\n"
 	"   --devices        : List out supported devices.\n"
 	"   --version        : Version information.\n"
+	"   -O e|w|i         : Issue error/warning/ignore overlapping code.\n"
 	"   --help, -h       : This help text.\n"
 	"\n"
   "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
   "AVRStudio directories to avra's binary.\n";
+
+const struct dataset const overlap_choice[4] = {
+	{ OVERLAP_ERROR,   "e"}, 
+	{ OVERLAP_WARNING, "w"}, 
+	{ OVERLAP_IGNORE,  "i"}, 
+	{ -1, NULL}
+};
 
 int main(int argc, const char *argv[])
 {
@@ -111,6 +121,7 @@ int main(int argc, const char *argv[])
     define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL, NULL);
     define_arg(args, ARG_DEBUGFILE,   ARGTYPE_STRING,              'd', "debugfile",   NULL, NULL);	// Not implemented ? B.A.
     define_arg(args, ARG_EEPFILE,     ARGTYPE_STRING,              'e', "eepfile",     NULL, NULL);	// Not implemented ? B.A.
+	define_arg_int(args, ARG_OVERLAP, ARGTYPE_CHOICE,              'O', "overlap",     OVERLAP_ERROR, overlap_choice);
 
 
     c = read_args(args, argc, argv);
@@ -195,6 +206,7 @@ int assemble(struct prog_info *pi) {
 	def_orglist(pi);			/* B.A. : Store first active segment and seg_addr (Default : Code, Adr=0) */
 	c = parse_file(pi, (char *)pi->args->first_data->data);
 	fix_orglist(pi);			/* B.A. : Update last active segment */
+	test_orglist(pi);
 	if(c != False) {
 #if debug == 1
 		printf("error_count = %i\n", pi->error_count);
@@ -327,6 +339,8 @@ struct prog_info *get_pi(struct args *args) {
 	pi->max_errors = GET_ARG_I(args, ARG_MAX_ERRORS);
 	pi->pass=PASS_1; 		/* B.A. : The pass variable is now stored in the pi struct */
 	pi->time=time(NULL); 		/* B.A. : Now use a global timestamp  */
+	pi->effective_overlap = GET_ARG_I(pi->args, ARG_OVERLAP);
+	pi->segment_overlap = SEG_DONT_OVERLAP;
 	return(pi);
 }
 
@@ -514,6 +528,7 @@ int def_orglist(struct prog_info *pi)
 			orglist->start = pi->eseg_addr;
 	}
 	orglist->length=0;
+	orglist->segment_overlap = pi->segment_overlap;
 	return(True);
 }
 
@@ -551,11 +566,12 @@ void fprint_orglist(FILE *file, struct prog_info *pi)
 	};
 	fprintf(file, "Used memory blocks:\n");
 	while(orglist!=NULL) {
-		if(orglist->length) { /* Skip blocks with size == 0 */
-			fprintf(file, "%s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%s)\n",
+		if(orglist->length) { /* Skip blocks with size == 0 */ 
+			fprintf(file, "%s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%s), Overlap=%c\n",
 				segdesc[orglist->segment][0],
 				orglist->start,orglist->start+orglist->length-1,orglist->length,
-				segdesc[orglist->segment][1]);
+				segdesc[orglist->segment][1],
+				orglist->segment_overlap == SEG_ALLOW_OVERLAP ? 'Y' : 'N');
 		}
 		orglist=orglist->next;
 	}
@@ -617,31 +633,40 @@ int test_orglist(struct prog_info *pi)
 					break;
 			}
 			/* Overlap-test */
-			orglist2=orglist->next;
-			while(orglist2!=NULL) {
-				if((orglist != orglist2) && (orglist2->length) && (orglist->segment == orglist2->segment)) {
-					// printf("<> Segment %d,  Start = %5d, Length = %5d\n",orglist2->segment,orglist2->start,orglist2->length);
-					if((orglist->start  < (orglist2->start + orglist2->length)) &&
-					   (orglist2->start < ( orglist->start +  orglist->length))) {
-						fprintf(stderr,"Error: Overlapping ");
-						switch(orglist->segment) {
-							case SEGMENT_CODE:
-								fprintf(stderr,"Code"); break;
-							case SEGMENT_DATA:
-								fprintf(stderr,"Data"); break;
-							case SEGMENT_EEPROM:
-								fprintf(stderr,"EEPROM"); break;
+			if ((pi->effective_overlap != OVERLAP_IGNORE) &&
+				(orglist->segment_overlap == SEG_DONT_OVERLAP)) {
+				orglist2=orglist->next;
+				while(orglist2!=NULL) {
+					if((orglist != orglist2) && (orglist2->length) 
+						&& (orglist->segment == orglist2->segment)
+						&& (orglist2->segment_overlap == SEG_DONT_OVERLAP)) {
+						// printf("<> Segment %d,  Start = %5d, Length = %5d\n",orglist2->segment,orglist2->start,orglist2->length);
+						if((orglist->start  < (orglist2->start + orglist2->length)) &&
+						   (orglist2->start < ( orglist->start +  orglist->length))) {
+							fprintf(stderr,"%s: Overlapping ", 
+								pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning");
+							switch(orglist->segment) {
+								case SEGMENT_CODE:
+									fprintf(stderr,"Code"); break;
+								case SEGMENT_DATA:
+									fprintf(stderr,"Data"); break;
+								case SEGMENT_EEPROM:
+									fprintf(stderr,"EEPROM"); break;
+							}
+							fprintf(stderr,"-segments :\n");
+							fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
+								orglist->start,orglist->start+orglist->length-1,orglist->length);
+							fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
+								orglist2->start,orglist2->start+orglist2->length-1,orglist2->length);
+							fprintf(stderr,"Please check your .ORG directives !\n");
+							if (pi->effective_overlap == OVERLAP_ERROR)
+									error_count++;
+							else
+									pi->warning_count++;
 						}
-						fprintf(stderr,"-segments :\n");
-						fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-							orglist->start,orglist->start+orglist->length-1,orglist->length);
-						fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-							orglist2->start,orglist2->start+orglist2->length-1,orglist2->length);
-						fprintf(stderr,"Please check your .ORG directives !\n");
-						error_count++;
-					}
-				}				
-				orglist2=orglist2->next;
+					}				
+					orglist2=orglist2->next;
+				}
 			}
 		}
 		orglist=orglist->next;

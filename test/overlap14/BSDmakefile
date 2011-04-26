@@ -1,0 +1,3 @@
+NAME=		Checking if simple overlap causes warning with -O w
+AFLAGS+=	-O w
+.include "../Makefile.common"

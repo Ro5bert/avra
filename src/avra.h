@@ -78,6 +78,7 @@ enum {
 	ARG_MAPFILE,		/* --mapfile   */
 	ARG_DEBUGFILE,		/* --debugfile */
 	ARG_EEPFILE,		/* --eepfile   */
+	ARG_OVERLAP,		/* -O [w|e|i]  */
 	ARG_COUNT
 };
 
@@ -100,6 +101,19 @@ enum {
 	SEGMENT_CODE = 0,
 	SEGMENT_DATA,
 	SEGMENT_EEPROM
+};
+
+enum {
+	OVERLAP_UNDEFINED = -1,
+	OVERLAP_DEFAULT = 0,
+	OVERLAP_IGNORE,
+	OVERLAP_WARNING,
+	OVERLAP_ERROR
+};
+
+enum {
+	SEG_DONT_OVERLAP = 0,
+	SEG_ALLOW_OVERLAP
 };
 
 enum {
@@ -157,6 +171,8 @@ struct prog_info
 	struct macro_call *last_macro_call;
 	struct orglist *first_orglist;	/* B.A. : List of used memory segments. Needed for overlap-check */
 	struct orglist *last_orglist;
+	int effective_overlap; /* as specified by #pragma overlap */
+	int segment_overlap;   /* set by .NOOVERLAP, .OVERLAP     */
 	int conditional_depth;
 	time_t time;			/* B.A. : Use a global timestamp for listing header and %hour% ... tags */
 	/* coff additions */
@@ -251,6 +267,7 @@ struct orglist
 	int segment;
 	int start;
 	int length;
+	int segment_overlap;
 };
 
 /* Prototypes */
@@ -314,7 +331,7 @@ int count_supported_instructions(int flags);
 
 /* directiv.c */
 int parse_directive(struct prog_info *pi);
-int get_directive_type(char *directive);
+int lookup_keyword(const char * const keyword_list[], const char * const keyword, int strict);
 char *term_string(struct prog_info *pi, char *string);
 int parse_db(struct prog_info *pi, char *next);
 void write_db(struct prog_info *pi, char byte, char *prev, int count);
@@ -355,6 +372,7 @@ int atoi_n(char *s, int n);
 int atox_n(char *s, int n);
 char *my_strlwr(char *in);
 char *my_strupr(char *in);
+char *snprint_list(char * buf, size_t limit, const char * const list[]);
 
 /* coff.c */
 FILE *open_coff_file(struct prog_info *pi, char *filename);

@@ -1,0 +1,2 @@
+NAME=	Checking if PRAGMA OVERLAP WARNING is accepted
+.include "../Makefile.common"

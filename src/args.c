@@ -65,6 +65,24 @@ match_dataset(const struct dataset const datasets[], const char *key)
 	return NULL;
 }
 
+void
+print_dataset(const struct dataset const datasets[])
+{
+	const struct dataset *ds;
+	printf("either ");
+	for (ds = datasets;
+		ds->dset_name != NULL; ds++) {
+		if (ds != datasets) {
+			if (ds[1].dset_name == NULL)
+				printf(" or ");
+			else
+				printf(", ");
+		}
+		printf("\"%s\"", ds->dset_name);
+	}
+	printf(".\n");
+}
+
 int 
 process_optvalue(const char *optname, struct arg *cur, const char *optval)
 {
@@ -94,7 +112,8 @@ process_optvalue(const char *optname, struct arg *cur, const char *optval)
 		if (ds) {
 			cur->data.i = ds->dset_value;
 		} else {
-			printf("Error: Illegal value for %s: %s\n", optname, optval);
+			printf("Error: Illegal value for %s: %s, should be ", optname, optval);
+			print_dataset(cur->dataset);
 			ok = False;
 		}
 	}

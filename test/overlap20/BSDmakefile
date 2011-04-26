@@ -1,0 +1,3 @@
+NAME=	Checking if overlap19 without .NOOVERLAP fails
+SHOULDFAIL=	-
+.include "../Makefile.common"

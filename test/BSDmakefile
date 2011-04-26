@@ -1,0 +1,6 @@
+SUBDIR=		overlap01 overlap02 overlap03 overlap04 overlap05 \
+			overlap06 overlap07 overlap08 overlap09 overlap10 \
+			overlap11 overlap12 overlap13 overlap14 overlap15 \
+			overlap16 overlap17 overlap18 overlap19 overlap20 \
+			overlap21
+.include <bsd.subdir.mk>

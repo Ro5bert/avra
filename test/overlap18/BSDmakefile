@@ -1,0 +1,2 @@
+NAME=	Checking if 1 word overlap gets detected
+.include "../Makefile.common"

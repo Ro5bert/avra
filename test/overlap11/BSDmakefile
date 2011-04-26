@@ -1,0 +1,4 @@
+NAME=		Checking if -O x fails
+SHOULDFAIL=	-
+AFLAGS+=	-O x
+.include "../Makefile.common"

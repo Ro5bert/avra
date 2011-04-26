@@ -1,0 +1,3 @@
+NAME=		Checking if misspelt PRAGMA OVERLAP parameter fails
+SHOULDFAIL=	-
+.include "../Makefile.common"

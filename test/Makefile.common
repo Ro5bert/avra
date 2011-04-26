@@ -1,0 +1,9 @@
+TESTNAME=	test
+all: $(TESTNAME).hex
+
+$(TESTNAME).hex: $(TESTNAME).asm
+	@echo ==== $(NAME) ====
+	$(SHOULDFAIL)/usr/obj/usr/home/saper/hggit/avra/src/avra $(AFLAGS) $(TESTNAME).asm
+
+clean:
+		rm -f $(TESTNAME).cof $(TESTNAME).eep.hex $(TESTNAME).hex $(TESTNAME).obj $(TESTNAME).lst

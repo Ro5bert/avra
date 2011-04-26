@@ -1,0 +1,4 @@
+NAME=	Checking if simple overlap in code gets detected with -O e
+SHOULDFAIL=	-
+AFLAGS+=	-O e
+.include "../Makefile.common"

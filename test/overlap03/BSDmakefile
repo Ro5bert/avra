@@ -1,0 +1,3 @@
+NAME=	Checking if empty PRAGMA fails
+SHOULDFAIL=	-
+.include "../Makefile.common"

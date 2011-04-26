@@ -1,0 +1,3 @@
+NAME=		Checking if simple overlap gets ignored with -O i
+AFLAGS+=	-O i
+.include "../Makefile.common"

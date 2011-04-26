@@ -3,3 +3,7 @@ releases
 patches
 *.o
 *.exe
+*.obj
+*.hex
+*.cof
+*.lst

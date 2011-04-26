@@ -1,0 +1,3 @@
+NAME=		Checking if -O i works
+AFLAGS+=	-O i
+.include "../Makefile.common"
