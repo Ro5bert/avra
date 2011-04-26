@@ -1,7 +1,0 @@
-#!/bin/sh
-# This script configures, compiles and installs avra using automake utilities
-cp ../{AUTHORS,ChangeLog,NEWS,README} .
-aclocal
-autoconf
-automake -a
-echo "Now you can run ./configure"
