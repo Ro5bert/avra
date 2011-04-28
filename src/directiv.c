@@ -156,27 +156,25 @@ int parse_directive(struct prog_info *pi)
 	}
 	switch(directive) {
 		case DIRECTIVE_BYTE:
-			if(!next) {
+			if (!next) {
 				print_msg(pi, MSGTYPE_ERROR, ".BYTE needs a size operand");
 				return(True);
 			}
-			if(pi->segment != SEGMENT_DATA)
-				print_msg(pi, MSGTYPE_ERROR, ".BYTE directive can only be used in data segment (.DSEG)");
+			if ((pi->segment->flags & SEG_BSS_DATA) == 0)
+				print_msg(pi, MSGTYPE_ERROR, ".BYTE directive can only be used in uninitialized data segment (.DSEG)");
 			get_next_token(next, TERM_END);
-			if(!get_expr(pi, next, &i))
+			if (!get_expr(pi, next, &i))
 				return(False);
-			if((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
-				fprintf(pi->list_file, "D:%06x    %s\n", pi->dseg_addr, pi->list_line);
+			if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
+				fprintf(pi->list_file, "%c:%06x    %s\n", 
+					pi->segment->ident, pi->segment->addr, pi->list_line);
 				pi->list_line = NULL;
 			}
-			pi->dseg_addr += i;
-			if(pi->pass == PASS_1)
-				pi->dseg_count += i;
+			advance_ip(pi->segment, i);
 			break;
 		case DIRECTIVE_CSEG:
-			fix_orglist(pi);
-			pi->segment = SEGMENT_CODE;
-			def_orglist(pi);
+			fix_orglist(pi->segment);
+			def_orglist(pi->cseg);
 			break;
 		case DIRECTIVE_CSEGSIZE:
 			break;
@@ -253,20 +251,24 @@ int parse_directive(struct prog_info *pi)
 				print_msg(pi, MSGTYPE_ERROR, ".DEVICE needs an operand");
 				return(True);
 			}
-			if(pi->device->name!=NULL) { /* B.A.: Check for multiple device definitions */
+			if (pi->device->name != NULL) { /* B.A.: Check for multiple device definitions */
 				print_msg(pi, MSGTYPE_ERROR, "More than one .DEVICE definition");
 			}
-			if(pi->cseg_count || pi->dseg_count || pi->eseg_count) { /* B.A.: Check if something was already assembled */
+			if (pi->cseg->count || pi->dseg->count || pi->eseg->count) { 
+				/* B.A.: Check if something was already assembled */
 				print_msg(pi, MSGTYPE_ERROR, ".DEVICE definition must be before any code lines");
 			} else {
-				if(pi->cseg_addr  || pi->eseg_addr || (pi->dseg_addr != pi->device->ram_start)) { /* B.A.: Check if something was already assembled */
+				if ((pi->cseg->addr != pi->cseg->lo_addr ) 
+				 || (pi->dseg->addr != pi->dseg->lo_addr )
+				 || (pi->eseg->addr != pi->eseg->lo_addr )) { 
+					/* B.A.: Check if something was already assembled XXX probably redundant */
 					print_msg(pi, MSGTYPE_ERROR, ".DEVICE definition must be before any .ORG directive");
 				}
 			}
 
 			get_next_token(next, TERM_END);
 			pi->device = get_device(pi,next);
-			if(!pi->device) {
+			if (!pi->device) {
 				print_msg(pi, MSGTYPE_ERROR, "Unknown device: %s", next);
 				pi->device = get_device(pi,NULL); /* B.A.: Fix segmentation fault if device is unknown */
 			}
@@ -274,26 +276,24 @@ int parse_directive(struct prog_info *pi)
 			/* Now that we know the device type, we can
 			 * start memory allocation from the correct offsets.
 			 */
-			fix_orglist(pi);
-			pi->cseg_addr = 0;
-			pi->dseg_addr = pi->device->ram_start;
-			pi->eseg_addr = 0;
-			def_orglist(pi);
+			fix_orglist(pi->segment);
+			rewind_segments(pi);
+			def_orglist(pi->segment);
 			break;
 		case DIRECTIVE_DSEG:
-			fix_orglist(pi);
-			pi->segment = SEGMENT_DATA;
-			def_orglist(pi);
-			if(pi->device->ram_size == 0) {
+			fix_orglist(pi->segment);
+			def_orglist(pi->dseg);
+			if (pi->dseg->hi_addr == 0) {
+				/* XXX move to emit */
 				print_msg(pi, MSGTYPE_ERROR, "Can't use .DSEG directive because device has no RAM");
 			}
 			break;
 		case DIRECTIVE_DW:
-			if(pi->segment == SEGMENT_DATA) {
+			if (pi->segment->flags & SEG_BSS_DATA) {
 				print_msg(pi, MSGTYPE_ERROR, "Can't use .DW directive in data segment (.DSEG)");
 				return(True);
 			}
-			while(next) {
+			while (next) {
 				data = get_next_token(next, TERM_COMMA);
 				if(pi->pass == PASS_2) {
 				  if(!get_expr(pi, next, &i))
@@ -301,35 +301,25 @@ int parse_directive(struct prog_info *pi)
 				  if((i < -32768) || (i > 65535))
 				    print_msg(pi, MSGTYPE_WARNING, "Value %d is out of range (-32768 <= k <= 65535). Will be masked", i);
                 }
-				if(pi->segment == SEGMENT_EEPROM) {
-					if(pi->pass == PASS_2) {
-						write_ee_byte(pi, pi->eseg_addr, (unsigned char)i);
-						write_ee_byte(pi, pi->eseg_addr + 1, (unsigned char)(i >> 8));
-						if(pi->list_line && pi->list_on) {
-							fprintf(pi->list_file, "          %s\n", pi->list_line);
-							pi->list_line = NULL;
-							fprintf(pi->list_file, "E:%06x %04x\n", pi->eseg_addr,i);
-						}
+				if (pi->pass == PASS_2) {
+					if (pi->list_line && pi->list_on) {
+						fprintf(pi->list_file, "          %s\n", pi->list_line);
+						pi->list_line = NULL;
+						fprintf(pi->list_file, "%c:%06x %04x\n", 
+							pi->segment->ident, pi->segment->addr, i);
 					}
-					pi->eseg_addr += 2;
-					if(pi->pass == PASS_1)
-						pi->eseg_count += 2;
-				}
-				// Modified by David Burke to print DW word in list file 4/Nov/2005
-				else {
-					if((pi->pass == PASS_2) && pi->hfi) {
-						write_prog_word(pi, pi->cseg_addr, i);
-						// Actual fiddling 
-						if(pi->list_line && pi->list_on) {
-							fprintf(pi->list_file, "          %s\n", pi->list_line);
-							pi->list_line = NULL;
-							fprintf(pi->list_file, "C:%06x %04x\n", pi->cseg_addr,i);
-						}
+					if (pi->segment == pi->eseg) {
+						write_ee_byte(pi, pi->eseg->addr, (unsigned char)i);
+						write_ee_byte(pi, pi->eseg->addr + 1, (unsigned char)(i >> 8));
 					}
-					pi->cseg_addr++;
-					if(pi->pass == PASS_1) pi->cseg_count++;
+					if (pi->segment == pi->cseg) {
+						write_prog_word(pi, pi->cseg->addr, i);
+					}
 				}
-				// End of Modification by David Burke
+				if (pi->segment == pi->eseg) 
+					advance_ip(pi->eseg, 2);
+				if (pi->segment == pi->cseg) 
+					advance_ip(pi->cseg, 1);
 				next = data;
 			}
 			break;
@@ -378,10 +368,9 @@ int parse_directive(struct prog_info *pi)
 			}
 			break;
 		case DIRECTIVE_ESEG:
-			fix_orglist(pi);
-			pi->segment = SEGMENT_EEPROM;
-			def_orglist(pi);
-			if(pi->device->eeprom_size == 0) {
+			fix_orglist(pi->segment);
+			def_orglist(pi->eseg);
+			if(pi->device->eeprom_size == 0) { /* XXX */
 				print_msg(pi, MSGTYPE_ERROR, "Can't use .ESEG directive because device has no EEPROM");
 			}
 			break;
@@ -487,18 +476,9 @@ int parse_directive(struct prog_info *pi)
 			get_next_token(next, TERM_END);
 			if(!get_expr(pi, next, &i))
 				return(False);
-			fix_orglist(pi);		/* Update last segment */
-			switch(pi->segment) {
-				case SEGMENT_CODE:
-					pi->cseg_addr = i;
-					break;
-				case SEGMENT_DATA:
-					pi->dseg_addr = i;
-					break;
-				case SEGMENT_EEPROM:
-					pi->eseg_addr = i;
-			}
-			def_orglist(pi);		/* Create new segment */
+			fix_orglist(pi->segment);
+			pi->segment->addr = i; /* XXX advance */
+			def_orglist(pi->segment);
 			if(pi->fi->label)
 				pi->fi->label->value = i;
 			if((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
@@ -568,16 +548,16 @@ int parse_directive(struct prog_info *pi)
 			break;
 		case DIRECTIVE_NOOVERLAP:
 			if (pi->pass == PASS_1) {
-				fix_orglist(pi);
+				fix_orglist(pi->segment);
 				pi->segment_overlap = SEG_DONT_OVERLAP;
-				def_orglist(pi);
+				def_orglist(pi->segment);
 			}
 			break;
 		case DIRECTIVE_OVERLAP:
 			if (pi->pass == PASS_1) {
-				fix_orglist(pi);
+				fix_orglist(pi->segment);
 				pi->segment_overlap = SEG_ALLOW_OVERLAP;
-				def_orglist(pi);
+				def_orglist(pi->segment);
 			}
 			break;
 		case DIRECTIVE_PRAGMA:
@@ -763,10 +743,7 @@ int parse_directive(struct prog_info *pi)
 				return(True);
 		    }
 			next = term_string(pi, next);		
-			/* B.A. : Don't use this. It may cause segfaults if the 'next' contains printf control sequences %s,%d etc. 
-			print_msg(pi, MSGTYPE_ERROR, next); 
-			*/
-			print_msg(pi, MSGTYPE_ERROR,"%s",next); /* B.A. : This is '%s' save :-) */
+			print_msg(pi, MSGTYPE_ERROR, "%s", next);
             pi->error_count = pi->max_errors;
 			if(pi->pass == PASS_1)
 				return(True);
@@ -818,20 +795,17 @@ int parse_db(struct prog_info *pi, char *next) {
   char prev = 0;
 
   /* check if .db is allowed in this segment type */
-  if(pi->segment == SEGMENT_DATA) {
+  if (pi->segment->flags & SEG_BSS_DATA) {
 	  print_msg(pi, MSGTYPE_ERROR, "Can't use .DB directive in data segment (.DSEG) !");
-	  return(True);
+	  return True ;
   }
 
   count = 0;
   if(pi->pass == PASS_2 && pi->list_on) {
-    if(pi->segment == SEGMENT_EEPROM)
-      fprintf(pi->list_file, "E:%06X ", pi->eseg_addr);
-    if(pi->segment == SEGMENT_CODE)
-      fprintf(pi->list_file, "C:%06X ", pi->cseg_addr);
+      fprintf(pi->list_file, "%c:%06X ", pi->segment->ident, pi->segment->addr);
   }
   /* get each db token */
-  while(next) {
+  while (next) {
 	data = get_next_token(next, TERM_COMMA);
 	/* string parsing */
 	if(next[0] == '\"') {
@@ -839,7 +813,7 @@ int parse_db(struct prog_info *pi, char *next) {
 	    while(*next != '\0') {
 		count++;
 		write_db(pi, *next, &prev, count);
-        	if(pi->pass == PASS_2 && pi->list_on)
+        	if (pi->pass == PASS_2 && pi->list_on)
           		fprintf(pi->list_file, "%02X", (unsigned char)*next);	// B.A.: Patch for chars with bit 7 = 1 (Example: °)
 		if((unsigned char)*next > 127 && pi->pass == PASS_2)
 			print_msg(pi, MSGTYPE_WARNING, "Found .DB string with characters > code 127. Be careful !"); // B.A.: Print warning for codes > 127
@@ -859,51 +833,41 @@ int parse_db(struct prog_info *pi, char *next) {
 	  }
 	next = data;
   }
-  if(pi->segment == SEGMENT_CODE) {
+  if(pi->segment == pi->cseg) { /* XXX PAD */
 	if((count % 2) == 1) {
 	  if(pi->pass == PASS_2)  {
         if(pi->list_on) fprintf(pi->list_file, "00 ; zero byte added");
-		write_prog_word(pi, pi->cseg_addr, prev & 0xFF);
+		write_prog_word(pi, pi->segment->addr, prev & 0xFF);
 		print_msg(pi, MSGTYPE_WARNING, "A .DB segment with an odd number of bytes is detected. A zero byte is added.");
 	  }
-	  pi->cseg_addr++;
-	  if(pi->pass == PASS_1) {
-		pi->cseg_count++;
-	  }
+      advance_ip(pi->cseg, 1);
 	}
   }
   if(pi->pass == PASS_2 && pi->list_on) {
     fprintf(pi->list_file, "\n");
     pi->list_line = NULL;
   }
-  return(True);
+  return True;
 }
 
 
 void write_db(struct prog_info *pi, char byte, char *prev, int count) {
-  if(pi->segment == SEGMENT_EEPROM)	{
-    if(pi->pass == PASS_2) {
-      write_ee_byte(pi, pi->eseg_addr, byte);
+	if (pi->segment == pi->eseg)	{
+		if (pi->pass == PASS_2) {
+			write_ee_byte(pi, pi->eseg->addr, byte);
+		}
+		advance_ip(pi->eseg, 1);
 	}
-	pi->eseg_addr++;
-	if(pi->pass == PASS_1) {
-	  pi->eseg_count++;
-	} 
-  }
-  else { /* pi->segment == SEGMENT_CODE */
-    if((count % 2) == 0) {
-	  if(pi->pass == PASS_2) {
-		write_prog_word(pi, pi->cseg_addr, (byte << 8) | (*prev & 0xff));
-	  }
-	  pi->cseg_addr++;
-	  if(pi->pass == PASS_1) {
-		pi->cseg_count++;
-	  }
+	if (pi->segment == pi->cseg) {
+		if((count % 2) == 0) {
+			if(pi->pass == PASS_2) {
+				write_prog_word(pi, pi->cseg->addr, (byte << 8) | (*prev & 0xff));
+			}
+		advance_ip(pi->cseg, 1);
+		} else {
+			*prev = byte;
+		}
 	}
-	else {
-	  *prev = byte;
-	}
-  }
 }
 
 

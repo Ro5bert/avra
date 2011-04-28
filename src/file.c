@@ -37,7 +37,8 @@
 #include "args.h"
 
 
-int open_out_files(struct prog_info *pi, const char *filename)
+int
+open_out_files(struct prog_info *pi, const char *filename)
 {
 	int length;
 	char *buff;
@@ -45,196 +46,203 @@ int open_out_files(struct prog_info *pi, const char *filename)
 
 	length = strlen(filename);
 	buff = malloc(length + 9);
-	if(buff == NULL) {
-	  print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-    return(False);
-  }
-  strcpy(buff, filename);
-  if(length < 4) {
-    printf("Error: wrong input file name\n");
-  }
-  if(!nocase_strcmp(&buff[length - 4], ".asm")) {
-	  length -= 4;
-	  buff[length] = '\0';
+	if (buff == NULL) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return(False);
 	}
-  //printf("pi->cseg_count = %i\n", pi->cseg_count);
-  //printf("pi->eseg_count = %i\n", pi->eseg_count);
+	strcpy(buff, filename);
+	if (length < 4) {
+		printf("Error: wrong input file name\n");
+	}
+	if (!nocase_strcmp(&buff[length - 4], ".asm")) {
+		length -= 4;
+		buff[length] = '\0';
+	}
 	
 	/* open files for code output */
-  strcpy(&buff[length], ".hex");
-	if(!(pi->hfi = open_hex_file(buff))) { /* check if open failed */
-    print_msg(pi, MSGTYPE_ERROR, "Could not create output hex file!");
-    ok = False;
-  }
-  strcpy(&buff[length], ".obj");
-  if(!(pi->obj_file = open_obj_file(pi, buff))) {
-    print_msg(pi, MSGTYPE_ERROR, "Could not create object file!");
-    ok = False;
-  }  
+	strcpy(&buff[length], ".hex");
+	if (!(pi->cseg->hfi = open_hex_file(buff))) {
+		print_msg(pi, MSGTYPE_ERROR, "Could not create output hex file!");
+		ok = False;
+	}
+
+	strcpy(&buff[length], ".obj");
+	if (!(pi->obj_file = open_obj_file(pi, buff))) {
+		print_msg(pi, MSGTYPE_ERROR, "Could not create object file!");
+		ok = False;
+	}  
 	
 	/* open files for eeprom output */
-  strcpy(&buff[length], ".eep.hex");
-  if(!(pi->eep_hfi = open_hex_file(buff))) {
+	strcpy(&buff[length], ".eep.hex");
+	if(!(pi->eseg->hfi = open_hex_file(buff))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create eeprom hex file!");
-    ok = False;
-  }  
-  /* coff file is always generated */
-  strcpy(&buff[length], ".cof");
-	pi->coff_file = open_coff_file(pi, buff);
-  /* open list file */
-	if (pi->list_on) {
-    strcpy(buff, GET_ARG_P(pi->args, ARG_LISTFILE));
-    pi->list_file = fopen(buff, "w");
-    if(pi->list_file == NULL) {
-			print_msg(pi, MSGTYPE_ERROR, "Could not create list file!");
-      ok = False;
-    }
-    /* write list file header */
-    fprintf(pi->list_file, "\nAVRA   Ver. %i.%i.%i %s %s\n\n",VER_MAJOR, VER_MINOR, VER_RELEASE, filename, ctime(&pi->time));
-  }
-  else {
-    pi->list_file = NULL;
-  }
-  free(buff);
+		ok = False;
+	}  
 
-	if(ok)
-	  return(True);
-  else
-	  close_out_files(pi);
-  return(False);
+	if (GET_ARG_I(pi->args, ARG_COFF) == True) {
+			strcpy(&buff[length], ".cof");
+			pi->coff_file = open_coff_file(pi, buff);
+	} else
+			pi->coff_file = 0;
+
+	/* open list file */
+	if (pi->list_on) {
+		pi->list_file = fopen(GET_ARG_P(pi->args, ARG_LISTFILE), "w");
+		if (pi->list_file == NULL) {
+			print_msg(pi, MSGTYPE_ERROR, "Could not create list file!");
+			ok = False;
+		}
+		/* write list file header */
+		fprintf(pi->list_file, 
+			"\nAVRA   Ver. %i.%i.%i %s %s\n\n",
+			VER_MAJOR, VER_MINOR, VER_RELEASE, filename, ctime(&pi->time));
+	} else {
+		pi->list_file = NULL;
+	}
+	free(buff);
+
+	if (ok)
+		return True;
+	else {
+		close_out_files(pi);
+		return False;
+	}
 }
 
 /* delete all output files */
-void unlink_out_files(struct prog_info *pi, const char *filename)
+void
+unlink_out_files(struct prog_info *pi, const char *filename)
 {
 	char *buff;
 	int length;
 
-  close_out_files(pi);
+	close_out_files(pi);
 
 	length = strlen(filename);
 	buff = malloc(length + 9);
-	if(buff == NULL) {
-	  print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-    return;
-  }
-  strcpy(buff, filename);
-  if(!nocase_strcmp(&buff[length - 4], ".asm")) {
-	  length -= 4;
-	  buff[length] = '\0';
+	if (buff == NULL) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return;
 	}
-#if debug == 1
-  printf("unlinking files");
-#endif
-  strcpy(&buff[length], ".hex");
-  unlink(buff);
-  strcpy(&buff[length], ".obj");
-  unlink(buff);
-  strcpy(&buff[length], ".eep.hex");
-  unlink(buff);
-  strcpy(&buff[length], ".cof");
-  unlink(buff);
-  strcpy(&buff[length], ".lst");
-  unlink(buff);
-  strcpy(&buff[length], ".map");
-  unlink(buff);
-}  
+	strcpy(buff, filename);
+	if(!nocase_strcmp(&buff[length - 4], ".asm")) {
+		length -= 4;
+		buff[length] = '\0';
+	}
+	strcpy(&buff[length], ".hex");
+	unlink(buff);
+	strcpy(&buff[length], ".obj");
+	unlink(buff);
+	strcpy(&buff[length], ".eep.hex");
+	unlink(buff);
+	strcpy(&buff[length], ".cof");
+	unlink(buff);
+	strcpy(&buff[length], ".lst");
+	unlink(buff);
+	strcpy(&buff[length], ".map");
+	unlink(buff);
+}
 
-void close_out_files(struct prog_info *pi)
+void
+close_out_files(struct prog_info *pi)
 {
-  char stmp[2048];
-  
-	if(pi->error_count == 0) {
-		sprintf(stmp,
-      "Segment usage:\n"
-		  "   Code      :   %7d words (%d bytes)\n"
-		  "   Data      :   %7d bytes\n"
-		  "   EEPROM    :   %7d bytes\n",
-		  pi->cseg_count, pi->cseg_count * 2, pi->dseg_count, pi->eseg_count);
-    printf("%s", stmp);
+	char stmp[2048];
+
+	if (pi->error_count == 0) {
+		snprintf(stmp, sizeof(stmp),
+			"Segment usage:\n"
+			"   Code      :   %7d words (%d bytes)\n"
+			"   Data      :   %7d bytes\n"
+			"   EEPROM    :   %7d bytes\n",
+			pi->cseg->count, pi->cseg->count * 2, pi->dseg->count, pi->eseg->count);
+		printf("%s", stmp);
 	}
-	if(pi->hfi)
-    close_hex_file(pi->hfi);
-	if(pi->eep_hfi)
-    close_hex_file(pi->eep_hfi);
-	if(pi->list_file) {
-	  fprintf(pi->list_file, "\n\n%s", stmp);
+	if (pi->cseg->hfi)
+		close_hex_file(pi->cseg->hfi);
+	if (pi->eseg->hfi)
+		close_hex_file(pi->eseg->hfi);
+	if (pi->list_file) {
+		fprintf(pi->list_file, "\n\n%s", stmp);
 		if(pi->error_count == 0)
 			fprintf(pi->list_file, "\nAssembly completed with no errors.\n");
 		fclose(pi->list_file);
 	}
-	if(pi->obj_file)
-    close_obj_file(pi, pi->obj_file);
-	if(pi->coff_file)
-    close_coff_file(pi, pi->coff_file);
+	if (pi->obj_file)
+    	close_obj_file(pi, pi->obj_file);
+	if (pi->coff_file)
+    	close_coff_file(pi, pi->coff_file);
 }
 
-
-struct hex_file_info *open_hex_file(const char *filename)
+struct hex_file_info *
+open_hex_file(const char *filename)
 {
 	struct hex_file_info *hfi;
 
 	hfi = calloc(1, sizeof(struct hex_file_info));
-	if(hfi) {
+	if (hfi) {
 		hfi->segment = -1;
 		hfi->fp = fopen(filename, "wb");
-		if(!hfi->fp) {
+		if (!hfi->fp) {
 			close_hex_file(hfi);
 			hfi = NULL;
 		}
 	}
-	return(hfi);
+	return hfi;
 }
 
-
-void close_hex_file(struct hex_file_info *hfi)
+void
+close_hex_file(struct hex_file_info *hfi)
 {
-	if(hfi->fp) {
-		if(hfi->count != 0)
-		  do_hex_line(hfi);
+	if (hfi->fp) {
+		if (hfi->count != 0)
+			do_hex_line(hfi);
 		fprintf(hfi->fp, ":00000001FF\x0d\x0a");
 		fclose(hfi->fp);
 	}
 	free(hfi);
 }
 
-
-void write_ee_byte(struct prog_info *pi, int address, unsigned char data)
+void
+write_ee_byte(struct prog_info *pi, int address, unsigned char data)
 {
-	if((pi->eep_hfi->count == 16) || ((address != (pi->eep_hfi->linestart_addr + pi->eep_hfi->count)) && (pi->eep_hfi->count != 0)))
-		do_hex_line(pi->eep_hfi);
-	if(pi->eep_hfi->count == 0)
-		pi->eep_hfi->linestart_addr = address;
-	pi->eep_hfi->hex_line[pi->eep_hfi->count++] = data;
+	if ((pi->eseg->hfi->count == 16) 
+		|| ((address != (pi->eseg->hfi->linestart_addr + pi->eseg->hfi->count)) 
+			&& (pi->eseg->hfi->count != 0)))
+		do_hex_line(pi->eseg->hfi);
+	if (pi->eseg->hfi->count == 0)
+		pi->eseg->hfi->linestart_addr = address;
+	pi->eseg->hfi->hex_line[pi->eseg->hfi->count++] = data;
 
-	if(pi->coff_file)
-	        write_coff_eeprom(pi, address, data);
+	if (pi->coff_file)
+		write_coff_eeprom(pi, address, data);
 }
 
-void write_prog_word(struct prog_info *pi, int address, int data)
+void
+write_prog_word(struct prog_info *pi, int address, int data)
 {
+	struct hex_file_info *hfi = pi->cseg->hfi;
 	write_obj_record(pi, address, data);
 	address *= 2;
-	if(pi->hfi->segment != (address >> 16))	{
-	  if(pi->hfi->count != 0)
-	    do_hex_line(pi->hfi);
-	  pi->hfi->segment = address >> 16;
-	  if(pi->hfi->segment >= 16) // Use 04 record for addresses above 1 meg since 02 can support max 1 meg
-	    fprintf(pi->hfi->fp, ":02000004%04X%02X\x0d\x0a", pi->hfi->segment & 0xffff,
-	            (0 - 2 - 4 - ((pi->hfi->segment >> 8) & 0xff) - (pi->hfi->segment & 0xff)) & 0xff);
+	if(hfi->segment != (address >> 16))	{
+	  if(hfi->count != 0)
+	    do_hex_line(hfi);
+	  hfi->segment = address >> 16;
+	  if(hfi->segment >= 16) // Use 04 record for addresses above 1 meg since 02 can support max 1 meg
+	    fprintf(hfi->fp, ":02000004%04X%02X\x0d\x0a", hfi->segment & 0xffff,
+	            (0 - 2 - 4 - ((hfi->segment >> 8) & 0xff) - (hfi->segment & 0xff)) & 0xff);
 	  else // Use 02 record for addresses below 1 meg since more programmers know about the 02 instead of the 04
-	    fprintf(pi->hfi->fp, ":02000002%04X%02X\x0d\x0a", (pi->hfi->segment << 12) & 0xffff,
-	            (0 - 2 - 2 - ((pi->hfi->segment << 4) & 0xf0)) & 0xff);
+	    fprintf(hfi->fp, ":02000002%04X%02X\x0d\x0a", (hfi->segment << 12) & 0xffff,
+	            (0 - 2 - 2 - ((hfi->segment << 4) & 0xf0)) & 0xff);
 	}
-	if((pi->hfi->count == 16) || ((address != (pi->hfi->linestart_addr + pi->hfi->count)) && (pi->hfi->count != 0)))
-		do_hex_line(pi->hfi);
-	if(pi->hfi->count == 0)
-		pi->hfi->linestart_addr = address;
-	pi->hfi->hex_line[pi->hfi->count++] = data & 0xff;
-	pi->hfi->hex_line[pi->hfi->count++] = (data >> 8) & 0xff;
+	if((hfi->count == 16) || ((address != (hfi->linestart_addr + hfi->count)) && (hfi->count != 0)))
+		do_hex_line(hfi);
+	if(hfi->count == 0)
+		hfi->linestart_addr = address;
+	hfi->hex_line[hfi->count++] = data & 0xff;
+	hfi->hex_line[hfi->count++] = (data >> 8) & 0xff;
 
-	if(pi->coff_file != 0)
-	        write_coff_program(pi, address, data);
+	if (pi->coff_file)
+		write_coff_program(pi, address, data);
 }
 
 
@@ -262,7 +270,7 @@ FILE *open_obj_file(struct prog_info *pi, const char *filename)
 
 	fp = fopen(filename, "wb");
 	if(fp) {
-		i = pi->cseg_count * 9 + 26;
+		i = pi->cseg->count * 9 + 26;
 		fputc((i >> 24) & 0xff, fp);
 		fputc((i >> 16) & 0xff, fp);
 		fputc((i >> 8) & 0xff, fp);

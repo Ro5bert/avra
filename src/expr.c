@@ -506,7 +506,7 @@ int get_expr(struct prog_info *pi, char *data, int *value) {
 			else {
 				while(IS_LABEL(data[i + length])) length++;
 				if((length == 2) && !nocase_strncmp(&data[i], "PC", 2))
-					element->data = pi->cseg_addr;
+					element->data = pi->cseg->addr;
 				else {
 					label = malloc(length + 1);
 					if(!label) {

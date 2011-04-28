@@ -427,7 +427,7 @@ int parse_mnemonic(struct prog_info *pi)
 		} else if(mnemonic <= MNEMONIC_RCALL) {
 			if(!get_expr(pi, operand1, &i))
 				return(False);
-			i -= pi->cseg_addr + 1;
+			i -= pi->cseg->addr + 1;
 			if(mnemonic <= MNEMONIC_BRID) {
 				if((i < -64) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
@@ -451,7 +451,7 @@ int parse_mnemonic(struct prog_info *pi)
 			opcode = i;
 			if(!get_expr(pi, operand2, &i))
 				return(False);
-			i -= pi->cseg_addr + 1;
+			i -= pi->cseg->addr + 1;
 			if((i < -64) || (i > 63))
 				print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
 			opcode |= (i & 0x7f) << 3;
@@ -640,30 +640,32 @@ int parse_mnemonic(struct prog_info *pi)
 	opcode |= instruction_list[mnemonic].opcode;
 	if(pi->list_on && pi->list_line) {
 		if(instruction_long)
-			fprintf(pi->list_file, "C:%06x %04x %04x %s\n", pi->cseg_addr, opcode, opcode2, pi->list_line);
+			fprintf(pi->list_file, "%c:%06x %04x %04x %s\n", 
+				pi->cseg->ident, pi->cseg->addr, opcode, opcode2, pi->list_line);
 		else
-			fprintf(pi->list_file, "C:%06x %04x      %s\n", pi->cseg_addr, opcode, pi->list_line);
+			fprintf(pi->list_file, "%c:%06x %04x      %s\n", 
+				pi->cseg->ident, pi->cseg->addr, opcode, pi->list_line);
 		pi->list_line = NULL;
 	}
-	if(pi->hfi) {
-		write_prog_word(pi, pi->cseg_addr, opcode);
+	if(pi->cseg->hfi) {
+		write_prog_word(pi, pi->cseg->addr, opcode);
 		if(instruction_long)
-			write_prog_word(pi, pi->cseg_addr + 1, opcode2);
+			write_prog_word(pi, pi->cseg->addr + 1, opcode2);
 	}
 	if(instruction_long)
-		pi->cseg_addr += 2;
+		pi->cseg->addr += 2; /* XXX advance */
 	else
-		pi->cseg_addr++;
+		pi->cseg->addr ++;
   } else { // Pass 1
 	if (pi->device->flag & DF_AVR8L)
 		mnemonic = MNEMONIC_LDS_AVR8L;
 	if((mnemonic == MNEMONIC_JMP) || (mnemonic == MNEMONIC_CALL) 
         	|| (mnemonic == MNEMONIC_LDS) || (mnemonic == MNEMONIC_STS)) {
-		pi->cseg_addr += 2;
-		pi->cseg_count += 2;
+		pi->cseg->addr += 2;
+		pi->cseg->count += 2;
 	} else {
-		pi->cseg_addr++;
-		pi->cseg_count++;
+		pi->cseg->addr++;
+		pi->cseg->count++;
 	}
   }
   return(True);

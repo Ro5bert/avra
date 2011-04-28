@@ -67,7 +67,7 @@ const char *usage =
 	"   --listfile    -l : Create list file\n"
 	"   --mapfile     -m : Create map file\n"
 	"   --define      -D : Define symbol.\n"
-	"   --includepath  -I : Additional include paths.\n"
+	"   --includepath -I : Additional include paths.\n"
 	"   --listmac        : List macro expansion in listfile.\n"
 	"   --max_errors     : Maximum number of errors before exit\n"
 	"                      (default: 10)\n"
@@ -86,10 +86,17 @@ const struct dataset const overlap_choice[4] = {
 	{ -1, NULL}
 };
 
+const int SEG_BSS_DATA = 0x01;
+
+static struct prog_info PROG_INFO;
+static struct segment_info CODE_SEG;
+static struct segment_info DATA_SEG;
+static struct segment_info EEPROM_SEG;
+
 int main(int argc, const char *argv[])
 {
   int show_usage = False;
-  struct prog_info *pi=NULL;
+  struct prog_info *pi;
   struct args *args;
   unsigned char c;
 
@@ -130,7 +137,7 @@ int main(int argc, const char *argv[])
 	  if(!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
 	    if(!GET_ARG_I(args, ARG_VER)) {
 		  if(!GET_ARG_I(args, ARG_DEVICES)) {
-            pi = get_pi(args);
+            pi = init_prog_info(&PROG_INFO, args);
 		    if(pi) {
               get_rootpath(pi, args);  /* get assembly root path */
 			  if (assemble(pi) != 0) { /* the main assembly call */
@@ -193,7 +200,8 @@ void get_rootpath(struct prog_info *pi, struct args *args)
 }
 
 
-int assemble(struct prog_info *pi) {
+int
+assemble(struct prog_info *pi) {
   unsigned char c;
 
   if(pi->args->first_data) {
@@ -202,50 +210,42 @@ int assemble(struct prog_info *pi) {
 		return -1;
 	if(predef_dev(pi)==False) /* B.A.: Now with error check */
 		return -1;
-	/*** FIRST PASS ***/
-	def_orglist(pi);			/* B.A. : Store first active segment and seg_addr (Default : Code, Adr=0) */
-	c = parse_file(pi, (char *)pi->args->first_data->data);
-	fix_orglist(pi);			/* B.A. : Update last active segment */
-	test_orglist(pi);
-	if(c != False) {
-#if debug == 1
-		printf("error_count = %i\n", pi->error_count);
-#endif
-		/* B.A.: This part is obsolete. Now check is done in test_orglist() */
-		/* before we go to the 2nd pass, make sure used space is ok */
-		/* if(pi->eseg_count > pi->device->eeprom_size) {
-			print_msg(pi, MSGTYPE_ERROR, 
-			"EEPROM space exceeded by %i bytes!", pi->eseg_count-pi->device->eeprom_size);
-			return -1;
-		}  
-		if(pi->cseg_count > pi->device->flash_size) {
-			print_msg(pi, MSGTYPE_ERROR, 
-			"FLASH space exceeded by %i bytes!", pi->cseg_count-pi->device->flash_size);
-			return -1;
-		} */
 
+	/*** FIRST PASS ***/
+	def_orglist(pi->cseg);			
+	c = parse_file(pi, pi->args->first_data->data);
+	fix_orglist(pi->segment);
+	test_orglist(pi->cseg);
+	test_orglist(pi->dseg);
+	test_orglist(pi->eseg);
+
+	if(c != False) {
 		/* if there are no furter errors, we can continue with 2nd pass */
 		if(pi->error_count == 0) {
-			prepare_second_pass(pi);
+			pi->segment = pi->cseg;
+			rewind_segments(pi);
+			pi->pass=PASS_2;
+			free_variables(pi);
 			if(load_arg_defines(pi)==False)
 				return -1;
 			if(predef_dev(pi)==False)	/* B.A.: Now with error check */
 				return -1;
+			/*** SECOND PASS ***/
 			c = open_out_files(pi, pi->args->first_data->data);
 			if(c != 0) {
 				printf("Pass 2...\n");
-				parse_file(pi, (char *)pi->args->first_data->data);
+				parse_file(pi, pi->args->first_data->data);
 				printf("done\n\n");
 				if (pi->list_file)
-						fprint_orglist(pi->list_file, pi); 
-				if(GET_ARG_I(pi->args, ARG_COFF) && (pi->error_count == 0)) {
+						fprint_segments(pi->list_file, pi); 
+				if (pi->coff_file && pi->error_count == 0) {
 					write_coff_file(pi);
 				}
 				write_map_file(pi);
-				if(pi->error_count) { /* if there were errors */
+				if (pi->error_count) {
 					printf("\nAssembly aborted with %d errors and %d warnings.\n", pi->error_count, pi->warning_count);
-						unlink_out_files(pi, pi->args->first_data->data);
-				} else { /* assembly was succesfull */
+					unlink_out_files(pi, pi->args->first_data->data);
+				} else {
 					if(pi->warning_count)
 						printf("\nAssembly complete with no errors (%d warnings).\n", pi->warning_count);
 					else
@@ -307,16 +307,34 @@ int load_arg_defines(struct prog_info *pi)
   return(True);
 }
 
-/******************************************
- * prog_info
- ******************************************/
-struct prog_info *get_pi(struct args *args) {
-	struct prog_info *pi;
+void
+rewind_segments(struct prog_info *pi)
+{
+	pi->cseg->addr = pi->cseg->lo_addr;
+	pi->dseg->addr = pi->dseg->lo_addr;
+	pi->eseg->addr = pi->eseg->lo_addr;
+}
+
+void
+init_segment_size(struct prog_info *pi, struct device *device)
+{
+	pi->cseg->hi_addr = device->flash_size;
+	pi->cseg->cellsize = 2;
+
+	pi->dseg->lo_addr = device->ram_start;
+	pi->dseg->hi_addr = device->ram_size;
+	pi->dseg->cellsize = 1;
+
+	pi->eseg->hi_addr = device->eeprom_size;
+	pi->eseg->cellsize = 1;
+	rewind_segments(pi);
+}
+
+
+struct prog_info *
+init_prog_info(struct prog_info *pi, struct args *args) {
 	struct data_list *warnings;
 
-	pi = (struct prog_info *)calloc(1, sizeof(struct prog_info));
-	if(!pi) 
-		return(NULL);
 	memset(pi, 0, sizeof(struct prog_info));
 	pi->args = args;
 	pi->device = get_device(pi,NULL);
@@ -334,8 +352,38 @@ struct prog_info *get_pi(struct args *args) {
 		if(!nocase_strcmp(warnings->data, "NoRegDef"))
 			pi->NoRegDef = 1;
 	}
-	pi->segment = SEGMENT_CODE;
-	pi->dseg_addr = pi->device->ram_start;
+	
+	pi->cseg = &CODE_SEG;
+	pi->dseg = &DATA_SEG;
+	pi->eseg = &EEPROM_SEG;
+	memset(pi->cseg, 0, sizeof(struct segment_info));
+	memset(pi->dseg, 0, sizeof(struct segment_info));
+	memset(pi->eseg, 0, sizeof(struct segment_info));
+
+	pi->cseg->name = "code";
+	pi->dseg->name = "data";
+	pi->eseg->name = "EEPROM";
+	pi->cseg->ident = 'C';
+	pi->dseg->ident = 'D';
+	pi->eseg->ident = 'E';
+
+	pi->dseg->flags = SEG_BSS_DATA;
+
+	pi->cseg->cellname = "word";
+	pi->dseg->cellname = "byte";
+	pi->eseg->cellname = "byte";
+	pi->cseg->cellnames = "words";
+	pi->dseg->cellnames = "bytes"; 
+	pi->eseg->cellnames = "bytes";
+
+	init_segment_size(pi, pi->device);
+
+	pi->cseg->pi = pi;
+	pi->dseg->pi = pi;
+	pi->eseg->pi = pi;
+
+	pi->segment = pi->cseg;
+
 	pi->max_errors = GET_ARG_I(args, ARG_MAX_ERRORS);
 	pi->pass=PASS_1; 		/* B.A. : The pass variable is now stored in the pi struct */
 	pi->time=time(NULL); 		/* B.A. : Now use a global timestamp  */
@@ -344,29 +392,24 @@ struct prog_info *get_pi(struct args *args) {
 	return(pi);
 }
 
-void free_pi(struct prog_info *pi) {
+void
+free_pi(struct prog_info *pi)
+{
   free_defs(pi);			/* B.A. : Now free in pi included structures first */
   free_labels(pi);
   free_constants(pi); 
   free_variables(pi);
   free_blacklist(pi);
   free_orglist(pi);
-  free(pi);
 }
 
-void prepare_second_pass(struct prog_info *pi) {
-  
-  pi->segment = SEGMENT_CODE;
-  pi->cseg_addr = 0;
-  pi->dseg_addr = pi->device->ram_start;
-  pi->eseg_addr = 0;
-  //pi->macro_nstlblnr = 0;
-  pi->pass=PASS_2; 			/* B.A. : Change to pass 2. Now stored in pi struct. */
-  // free_defs(pi);
-  // free_constants(pi);		/* B.A. : Now don't kill stored constants. We need them in the second pass now */
-  free_variables(pi);
+void
+advance_ip(struct segment_info *si, int offset)
+{
+	si->addr += offset;
+	if (si->pi->pass == PASS_1)
+			si->count += offset;
 }
-
 
 void print_msg(struct prog_info *pi, int type, char *fmt, ... )
 {
@@ -500,184 +543,140 @@ int def_blacklist(struct prog_info *pi, const char *name)
 }
 
 /* B.A.: Store programmed areas for later check */
-int def_orglist(struct prog_info *pi) 
+int
+def_orglist(struct segment_info *si) 
 {
 	struct orglist *orglist;
-	if(pi->pass != PASS_1)
+
+	si->pi->segment = si;
+	if (si->pi->pass != PASS_1)
 		return(True);
 	orglist = malloc(sizeof(struct orglist));
-	if(!orglist) {
-		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+	if (!orglist) {
+		print_msg(si->pi, MSGTYPE_OUT_OF_MEM, NULL);
 		return(False);
 	}
 	orglist->next = NULL;
-	if(pi->last_orglist)
-		pi->last_orglist->next = orglist;
+	if (si->last_orglist)
+		si->last_orglist->next = orglist;
 	else
-		pi->first_orglist = orglist;
-	pi->last_orglist = orglist;
-	orglist->segment=pi->segment;
-	switch(pi->segment) {
-		case SEGMENT_CODE:
-			orglist->start = pi->cseg_addr;
-			break;
-		case SEGMENT_DATA:
-			orglist->start = pi->dseg_addr;
-			break;
-		case SEGMENT_EEPROM:
-			orglist->start = pi->eseg_addr;
-	}
-	orglist->length=0;
-	orglist->segment_overlap = pi->segment_overlap;
-	return(True);
+		si->first_orglist = orglist;
+	si->last_orglist = orglist;
+	orglist->segment = si;
+	orglist->start = si->addr;
+	orglist->length = 0;
+	orglist->segment_overlap = si->pi->segment_overlap;
+	return True;
 }
 
 /* B.A.: Fill length entry of last orglist */
-int fix_orglist(struct prog_info *pi) 
+int
+fix_orglist(struct segment_info *si) 
 {
-	if(pi->pass != PASS_1)
+	if (si->pi->pass != PASS_1)
 		return(True);
-	if((pi->last_orglist == NULL) || (pi->last_orglist->length!=0)) {
-        	fprintf(stderr,"Internal Error: fix_orglist\n");
+	if ((si->last_orglist == NULL) || (si->last_orglist->length!=0)) {
+		fprintf(stderr,"Internal Error: fix_orglist\n");
 		return(False);
 	}
-	pi->last_orglist->segment=pi->segment;
-	switch(pi->segment) {
-		case SEGMENT_CODE:
-			pi->last_orglist->length = pi->cseg_addr - pi->last_orglist->start;
-			break;
-		case SEGMENT_DATA:
-			pi->last_orglist->length = pi->dseg_addr - pi->last_orglist->start;
-			break;
-		case SEGMENT_EEPROM:
-			pi->last_orglist->length = pi->eseg_addr - pi->last_orglist->start;
-	}
-	return(True);
+	si->last_orglist->segment = si;
+	si->last_orglist->length = si->addr - si->last_orglist->start;
+	return True;
 }
 
-/* B.A.: Debug output of orglist */
-void fprint_orglist(FILE *file, struct prog_info *pi)
+void
+fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist)
 {
-	struct orglist *orglist=pi->first_orglist;
-	const char const *segdesc[3][2] = {
-			{"   Code  ", "words"},
-			{"   Data  ", "bytes"},
-			{"   EEPROM", "bytes"}
-	};
-	fprintf(file, "Used memory blocks:\n");
-	while(orglist!=NULL) {
-		if(orglist->length) { /* Skip blocks with size == 0 */ 
-			fprintf(file, "%s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%s), Overlap=%c\n",
-				segdesc[orglist->segment][0],
-				orglist->start,orglist->start+orglist->length-1,orglist->length,
-				segdesc[orglist->segment][1],
-				orglist->segment_overlap == SEG_ALLOW_OVERLAP ? 'Y' : 'N');
-		}
-		orglist=orglist->next;
+	fprintf(file, "   %-6s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%d %s), "
+		"Overlap=%c\n", 
+		si->name,
+		orglist->start,
+		orglist->start + orglist->length - 1,
+		orglist->length,
+		orglist->length,
+		orglist->length == 1 ? si->cellname : si->cellnames,
+		orglist->segment_overlap == SEG_ALLOW_OVERLAP ? 'Y' : 'N');
+}
+
+void
+fprint_seg_orglist(FILE *file, struct segment_info *si)
+{
+	struct orglist *orglist;
+
+	for (orglist = si->first_orglist;
+		orglist != NULL; orglist = orglist->next) {
+		if (orglist->length > 0) 
+			fprint_orglist(file, si, orglist);
 	}
+}
+	
+void
+fprint_segments(FILE *file, struct prog_info *pi)
+{
+	fprintf(file, "Used memory blocks:\n");
+	fprint_seg_orglist(file, pi->cseg);
+	fprint_seg_orglist(file, pi->dseg);
+	fprint_seg_orglist(file, pi->eseg);
 }
 
 /* B.A.: Test for overlapping segments and device space */
-int test_orglist(struct prog_info *pi)
+int
+test_orglist(struct segment_info *si)
 {
-	struct orglist *orglist2,*orglist=pi->first_orglist;
+	struct orglist *orglist, *orglist2;
+
 	int error_count=0;
-	if(pi->device->name==NULL) {
+	if (si->pi->device->name == NULL) {
 		fprintf(stderr,"Warning : No .DEVICE definition found. Cannot make useful address range check !\n");
-		pi->warning_count++;
+		si->pi->warning_count++;
 	}
-	while(orglist!=NULL) {
-		if(orglist->length) { /* Skip blocks with size == 0 */
-			// printf("Segment %d,  Start = %5d, Length = %5d\n",orglist->segment,orglist->start,orglist->length);
+
+	for (orglist = si->first_orglist;
+		orglist != NULL; 
+		orglist=orglist->next) {
+		if (orglist->length > 0) { 
 			/* Make sure address area is valid */
-			switch(orglist->segment) {
-				case SEGMENT_CODE:
-					if((orglist->start + orglist->length) > pi->device->flash_size) {						
-						fprintf(stderr,"Code segment exceeds valid address range [0..0x%04X] :",
-							pi->device->flash_size-1);
-						fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-							orglist->start,orglist->start+orglist->length-1,orglist->length);
-						error_count++;
-					}
-					break;
-				case SEGMENT_DATA:
-					if(pi->device->ram_size == 0) {
-						// Error message is generated in .DSEG directive. Skip ...
-						// fprintf(stderr,"This device has no RAM. Don't use .DSEG \n");
-						// error_count++;
-						break;
-					} 	// Fix bug 1742436. Added missing pi->device->ram_start
-					if(((orglist->start + orglist->length) > (pi->device->ram_size + pi->device->ram_start)) ||
-					    (orglist->start < pi->device->ram_start)) {
-						fprintf(stderr,"Data segment exceeds valid address range [0x%04X..0x%04X] :",
-							pi->device->ram_start,pi->device->ram_start+pi->device->ram_size-1);
-						fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-							orglist->start,orglist->start+orglist->length-1,orglist->length);
-						error_count++;
-					}
-					break;
-				case SEGMENT_EEPROM: // Fix bug 1742437 : replace ram_size by eeprom_size
-					if(pi->device->eeprom_size == 0) {
-						// Error message is generated in .ESEG directive. Skip ...
-						// fprintf(stderr,"This device has no EEPROM. Don't use .ESEG !\n");
-						// error_count++;
-						break;
-					}
-					if((orglist->start + orglist->length) > pi->device->eeprom_size) {
-						fprintf(stderr,"EEPROM segment exceeds valid address range [0..0x%04X] :",
-							pi->device->eeprom_size-1);
-						fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-							orglist->start,orglist->start+orglist->length-1,orglist->length);
-						error_count++;
-					}
-					break;
+			if (orglist->start < si->lo_addr) {
+				fprintf(stderr, "Segment start below allowed start address: 0x%04X", 
+					si->lo_addr);
+				fprint_orglist(stderr, si, orglist);
+				error_count ++; 
 			}
+			if (orglist->start + orglist->length > si->hi_addr) {
+				fprintf(stderr, "Segment start above allowed high address: 0x%04X", 
+					si->hi_addr);
+				fprint_orglist(stderr, si, orglist);
+				error_count ++;
+			}
+			
 			/* Overlap-test */
-			if ((pi->effective_overlap != OVERLAP_IGNORE) &&
+			if ((si->pi->effective_overlap != OVERLAP_IGNORE) &&
 				(orglist->segment_overlap == SEG_DONT_OVERLAP)) {
-				orglist2=orglist->next;
-				while(orglist2!=NULL) {
-					if((orglist != orglist2) && (orglist2->length) 
-						&& (orglist->segment == orglist2->segment)
+				for (orglist2 = orglist->next; orglist2 != NULL; orglist2 = orglist2->next) {
+					if ((orglist != orglist2) && (orglist2->length > 0) 
 						&& (orglist2->segment_overlap == SEG_DONT_OVERLAP)) {
-						// printf("<> Segment %d,  Start = %5d, Length = %5d\n",orglist2->segment,orglist2->start,orglist2->length);
+
 						if((orglist->start  < (orglist2->start + orglist2->length)) &&
 						   (orglist2->start < ( orglist->start +  orglist->length))) {
-							fprintf(stderr,"%s: Overlapping ", 
-								pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning");
-							switch(orglist->segment) {
-								case SEGMENT_CODE:
-									fprintf(stderr,"Code"); break;
-								case SEGMENT_DATA:
-									fprintf(stderr,"Data"); break;
-								case SEGMENT_EEPROM:
-									fprintf(stderr,"EEPROM"); break;
-							}
-							fprintf(stderr,"-segments :\n");
-							fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-								orglist->start,orglist->start+orglist->length-1,orglist->length);
-							fprintf(stderr,"  Start = 0x%04X, End = 0x%04X, Length = 0x%04X\n",
-								orglist2->start,orglist2->start+orglist2->length-1,orglist2->length);
+							fprintf(stderr,"%s: Overlapping %s segments:\n", 
+								si->pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning",
+								si->name);
+							fprint_orglist(stderr, si, orglist);
+							fprint_orglist(stderr, si, orglist2);
 							fprintf(stderr,"Please check your .ORG directives !\n");
-							if (pi->effective_overlap == OVERLAP_ERROR)
+							if (si->pi->effective_overlap == OVERLAP_ERROR)
 									error_count++;
 							else
-									pi->warning_count++;
+									si->pi->warning_count++;
 						}
 					}				
-					orglist2=orglist2->next;
-				}
-			}
+				} 
+			} /* Overlap-test */
 		}
-		orglist=orglist->next;
 	}
-	if(!error_count)
-		return(True);
-	pi->error_count+=error_count;
-	return(False);
+	si->pi->error_count += error_count;
+	return(error_count > 0 ? False : True);
 }
-
-
 
 /* Get the value of a label. Return FALSE if label was not found */
 int get_label(struct prog_info *pi,char *name,int *value)

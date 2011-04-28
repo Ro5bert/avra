@@ -101,7 +101,7 @@ char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
  * Parses given assembler file
  */
 
-int parse_file(struct prog_info *pi, char *filename) 
+int parse_file(struct prog_info *pi, const char *filename) 
 {
 #if debug == 1
 	printf("parse_file\n");
@@ -298,17 +298,8 @@ int parse_line(struct prog_info *pi, char *line)
 					return(False);
 				}
 				strcpy(label->name, &pi->fi->scratch[0]);
-				switch(pi->segment) {
-					case SEGMENT_CODE:
-						label->value = pi->cseg_addr;
-						break;
-					case SEGMENT_DATA:
-						label->value = pi->dseg_addr;
-						break;
-					case SEGMENT_EEPROM:
-						label->value = pi->eseg_addr;
-						break;
-				}
+				label->value = pi->segment->addr;
+
 				if(pi->macro_call && !global_label) {
 					if(pi->macro_call->last_label)
 						pi->macro_call->last_label->next = label;

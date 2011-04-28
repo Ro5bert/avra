@@ -128,8 +128,30 @@ enum {
 
 /* Structures */
 
-struct prog_info
-{
+struct prog_info;
+
+extern const int SEG_BSS_DATA;
+
+struct segment_info {
+	const char *name;
+	char ident;	  /* C, D, E */
+	int addr;     /* address in cells */
+	int count;    /* length in cells  */
+	int lo_addr;  /* lowest addr supported */
+	int hi_addr;  /* one past highest addr supported */
+	int	cellsize; /* 1 for data/eeprom, 2 for flash  */
+	int flags;	  /* SEG_BSS_DATA */
+
+	struct prog_info *pi;
+	struct hex_file_info *hfi;
+	struct orglist *first_orglist;
+	struct orglist *last_orglist;
+
+	const char *cellname;  /* byte  / word  */
+	const char *cellnames; /* bytes / words */
+};
+
+struct prog_info {
 	struct args *args;
 	struct device *device;
 	struct file_info *fi;
@@ -141,15 +163,10 @@ struct prog_info
 	char *list_line;
 	char *root_path;
 	FILE *obj_file;
-	struct hex_file_info *hfi;
-	struct hex_file_info *eep_hfi;
-	int segment;
-	int cseg_addr;
-	int dseg_addr;
-	int eseg_addr;
-	int cseg_count;
-	int dseg_count;
-	int eseg_count;
+	struct segment_info *segment;
+	struct segment_info *cseg;
+	struct segment_info *dseg;
+	struct segment_info *eseg;
 	int error_count;
 	int max_errors;
 	int warning_count;
@@ -180,7 +197,6 @@ struct prog_info
 	/* Warning additions */
 	int NoRegDef;
 	int pass;
-	
 };
 
 struct file_info
@@ -264,7 +280,7 @@ struct macro_call
 struct orglist
 {
 	struct orglist *next;
-	int segment;
+	struct segment_info *segment;
 	int start;
 	int length;
 	int segment_overlap;
@@ -274,19 +290,23 @@ struct orglist
 /* avra.c */
 int assemble(struct prog_info *pi);
 int load_arg_defines(struct prog_info *pi);
-struct prog_info *get_pi(struct args *args);
+struct prog_info *init_prog_info(struct prog_info *,struct args *args);
 void free_pi(struct prog_info *pi);
-void prepare_second_pass(struct prog_info *pi);
 void print_msg(struct prog_info *pi, int type, char *fmt, ... );
 void get_rootpath(struct prog_info *pi, struct args *args);
+
+void rewind_segments(struct prog_info *pi);
+void advance_ip(struct segment_info *si, int offset);
 
 int def_const(struct prog_info *pi, const char *name, int value);
 int def_var(struct prog_info *pi, char *name, int value);
 int def_blacklist(struct prog_info *pi, const char *name);
-int def_orglist(struct prog_info *pi);					/* B.A. : Test for overlapping segments */
-int fix_orglist(struct prog_info *pi);
-void fprint_orglist(FILE *file, struct prog_info *pi);
-int test_orglist(struct prog_info *pi);
+int def_orglist(struct segment_info *si);
+int fix_orglist(struct segment_info *si);
+void fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist);
+void fprint_sef_orglist(FILE *file, struct segment_info *si);
+void fprint_segments(FILE *file, struct prog_info *pi);
+int test_orglist(struct segment_info *si);
 int get_label(struct prog_info *pi,char *name,int *value);
 int get_constant(struct prog_info *pi,char *name,int *value);
 int get_variable(struct prog_info *pi,char *name,int *value);
@@ -304,7 +324,7 @@ void free_orglist(struct prog_info *pi);
 
 
 /* parser.c */
-int parse_file(struct prog_info *pi, char *filename);
+int parse_file(struct prog_info *pi, const char *filename);
 int parse_line(struct prog_info *pi, char *line);
 char *get_next_token(char *scratch, int term);
 char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream);
