@@ -90,7 +90,6 @@ char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 	if(c==13) { 						// Check for CR LF sequence (DOS/ Windows line termination)
 		if((c=fgetc(stream)) != 10) {
 			ungetc(c,stream);
-			print_msg(pi, MSGTYPE_WARNING, "Found CR (0x0d) without LF (0x0a). Please add a LF.");
 		} 
 	}
 	return s;
