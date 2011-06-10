@@ -160,8 +160,8 @@ int parse_directive(struct prog_info *pi)
 				print_msg(pi, MSGTYPE_ERROR, ".BYTE needs a size operand");
 				return(True);
 			}
-			if ((pi->segment->flags & SEG_BSS_DATA) == 0)
-				print_msg(pi, MSGTYPE_ERROR, ".BYTE directive can only be used in uninitialized data segment (.DSEG)");
+			if (pi->segment == pi->cseg)
+				print_msg(pi, MSGTYPE_ERROR, ".BYTE directive cannot be used within the code segment (.CSEG)");
 			get_next_token(next, TERM_END);
 			if (!get_expr(pi, next, &i))
 				return(False);
@@ -170,7 +170,11 @@ int parse_directive(struct prog_info *pi)
 					pi->segment->ident, pi->segment->addr, pi->list_line);
 				pi->list_line = NULL;
 			}
-			advance_ip(pi->segment, i);
+			if (i > 0) {
+					fix_orglist(pi->segment);
+					advance_ip(pi->segment, i);
+					def_orglist(pi->segment);
+			}
 			break;
 		case DIRECTIVE_CSEG:
 			fix_orglist(pi->segment);
