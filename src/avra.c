@@ -225,7 +225,6 @@ assemble(struct prog_info *pi) {
 			pi->segment = pi->cseg;
 			rewind_segments(pi);
 			pi->pass=PASS_2;
-			free_variables(pi);
 			if(load_arg_defines(pi)==False)
 				return -1;
 			if(predef_dev(pi)==False)	/* B.A.: Now with error check */
