@@ -31,4 +31,4 @@ struct device
 /* device.c */
 struct device *get_device(struct prog_info *pi,char *name);
 int predef_dev(struct prog_info *pi);
-void list_devices();
+void list_devices(void);
