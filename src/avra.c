@@ -79,7 +79,7 @@ const char *usage =
   "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
   "AVRStudio directories to avra's binary.\n";
 
-const struct dataset const overlap_choice[4] = {
+const struct dataset overlap_choice[4] = {
 	{ OVERLAP_ERROR,   "e"}, 
 	{ OVERLAP_WARNING, "w"}, 
 	{ OVERLAP_IGNORE,  "i"}, 

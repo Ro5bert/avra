@@ -53,7 +53,7 @@ struct args {
 
 struct dataset {
 	int   dset_value;
-	const char *dset_name;
+	const char * const dset_name;
 };
 
 struct arg {
@@ -65,7 +65,7 @@ struct arg {
 		const char *p;
 		struct data_list *dl;
 	} data;
-	const struct dataset const *dataset;
+	const struct dataset * dataset;
 };
 
 struct data_list {
