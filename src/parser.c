@@ -81,7 +81,7 @@ char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 	if((c==EOF) && (ptr==s))				// EOF and no chars read -> that's all folks
 		return NULL;
 	if(!size) {
-		print_msg(pi, MSGTYPE_ERROR, "Line to long");
+		print_msg(pi, MSGTYPE_ERROR, "Line too long");
 		return NULL;
 	}
 	*ptr=0;
