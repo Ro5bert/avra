@@ -38,7 +38,8 @@
 #define debug 0
 
 const char *title =
-  "AVRA: advanced AVR macro assembler Version %i.%i.%s (Revision %s)\n"
+  "AVRA: advanced AVR macro assembler Version %i.%i.%s\n"
+  "      Revision: %s\n\n"
   "Copyright (C) 1998-2010. Check out README file for more info\n"
   "\n"
   "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
