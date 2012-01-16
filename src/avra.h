@@ -252,7 +252,9 @@ struct macro_label
 	char *label;
 	struct macro_label *next;
 	int running_number;
+	int flags;
 };
+extern	const int ML_DEFINED;
 
 struct macro_line
 {

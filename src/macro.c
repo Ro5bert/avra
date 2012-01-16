@@ -40,6 +40,8 @@
 #include "avra.h"
 #include "device.h"
 
+const int ML_DEFINED = 0x01;
+
 /* Only Windows LIBC does support itoa, so we add this
    function for other systems here manually. Thank you
    Peter Hettkamp for your work. */
@@ -140,6 +142,7 @@ int read_macro(struct prog_info *pi, char *name)
 		}
 		for(macro_label = macro->first_label; macro_label; macro_label = macro_label->next) {
 			macro_label->running_number = 0;
+			macro_label->flags = 0;
 		}
 	}
 
@@ -183,6 +186,7 @@ int read_macro(struct prog_info *pi, char *name)
            				strcpy(macro_label->label, &pi->fi->buff[start]);
                 		pi->fi->buff[i-1] = ':';
            				macro_label->running_number = 0;
+           				macro_label->flags |= ML_DEFINED;
 					}
 				
 					macro_line = calloc(1, sizeof(struct macro_line));
@@ -463,6 +467,11 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 		
   //printf("\nconvert macro: '%s'\n",macro->name);
 
+  for(macro_label = macro->first_label; macro_label; macro_label = macro_label->next) {
+    /* mark all local flags as not yet defined */
+    macro_label->flags &= ~ML_DEFINED;
+  }
+
   for(pi->macro_line = macro->first_macro_line; pi->macro_line && ok; pi->macro_line = pi->macro_line->next) {
     macro_call->line_index++;
 	if(GET_ARG_I(pi->args, ARG_LISTMAC))
@@ -481,6 +490,7 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
       c = strlen(macro_label->label);
       if(temp[c] == ':') { /* it is a label definition */
       	macro_label->running_number++;
+		macro_label->flags |= ML_DEFINED;
       	strncpy(buff, macro_label->label, c - 1);
 		buff[c - 1] = 0;
         i = strlen(buff) + 2; /* we set the process indeafter label */
@@ -489,11 +499,15 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 		strcat(buff, ":\0");
 	  }
       else if(IS_HOR_SPACE(temp[c]) || IS_END_OR_COMMENT(temp[c]))	{ /* it is a jump to a macro defined label */
+      	int target_number = macro_label->running_number;
+      	if ((macro_label->flags & ML_DEFINED) == 0)
+            /* Allow forward reference if label is not yet defined */
+      		target_number++;
       	strcpy(buff,pi->macro_line->line);
       	temp = strstr(buff, macro_label->label);
       	i = temp - buff + strlen(macro_label->label);
         strncpy(temp, macro_label->label, c - 1);
-      	strcpy(&temp[c-1], itoa(macro_label->running_number, tmp, 10));
+        strcpy(&temp[c-1], itoa(target_number, tmp, 10));
 	  }
 	}
    	else {
