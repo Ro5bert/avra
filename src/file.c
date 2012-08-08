@@ -36,21 +36,21 @@
 #include "avra.h"
 #include "args.h"
 
-
 int
-open_out_files(struct prog_info *pi, const char *filename)
+open_out_files(struct prog_info *pi, const char *basename, const char *outputfile,
+	const char *debugfile, const char *eepfile)
 {
 	int length;
 	char *buff;
 	int ok = True; /* flag for coff results */
 
-	length = strlen(filename);
+	length = strlen(basename);
 	buff = malloc(length + 9);
 	if (buff == NULL) {
 		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
 		return(False);
 	}
-	strcpy(buff, filename);
+	strcpy(buff, basename);
 	if (length < 4) {
 		printf("Error: wrong input file name\n");
 	}
@@ -61,20 +61,20 @@ open_out_files(struct prog_info *pi, const char *filename)
 	
 	/* open files for code output */
 	strcpy(&buff[length], ".hex");
-	if (!(pi->cseg->hfi = open_hex_file(buff))) {
+	if (!(pi->cseg->hfi = open_hex_file((outputfile == NULL) ? buff : outputfile))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create output hex file!");
 		ok = False;
 	}
 
 	strcpy(&buff[length], ".obj");
-	if (!(pi->obj_file = open_obj_file(pi, buff))) {
+	if (!(pi->obj_file = open_obj_file(pi, (debugfile == NULL) ? buff : debugfile))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create object file!");
 		ok = False;
 	}  
 	
 	/* open files for eeprom output */
 	strcpy(&buff[length], ".eep.hex");
-	if(!(pi->eseg->hfi = open_hex_file(buff))) {
+	if(!(pi->eseg->hfi = open_hex_file( (eepfile == NULL) ? buff : eepfile))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create eeprom hex file!");
 		ok = False;
 	}  
@@ -95,7 +95,7 @@ open_out_files(struct prog_info *pi, const char *filename)
 		/* write list file header */
 		fprintf(pi->list_file, 
 			"\nAVRA   Ver. %i.%i.%i %s %s\n\n",
-			VER_MAJOR, VER_MINOR, VER_RELEASE, filename, ctime(&pi->time));
+			VER_MAJOR, VER_MINOR, VER_RELEASE, basename, ctime(&pi->time));
 	} else {
 		pi->list_file = NULL;
 	}

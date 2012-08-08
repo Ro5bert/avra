@@ -369,7 +369,8 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line);
 
 
 /* file.c */
-int open_out_files(struct prog_info *pi, const char *filename);
+int open_out_files(struct prog_info *pi, const char *basename, const char *outputfile,
+	const char *debugfile, const char *eepfile);
 void close_out_files(struct prog_info *pi);
 struct hex_file_info *open_hex_file(const char *filename);
 void close_hex_file(struct hex_file_info *hfi);
