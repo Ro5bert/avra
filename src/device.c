@@ -188,7 +188,8 @@ int predef_dev(struct prog_info *pi)
 	return(True);
 }
 
-void list_devices()
+void
+list_devices(void)
 {
   int i = 1;
   printf("Device name | Flash size | RAM start | RAM size | EEPROM size |  Supported\n"

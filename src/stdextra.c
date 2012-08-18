@@ -191,7 +191,7 @@ static int
 snprint(char ** buf, size_t *limit, const char * const str) {
 	int rc;
 	rc = snprintf(*buf, *limit, "%s", str);
-	if (rc <= *limit) 
+	if (rc <= (int)*limit) 
 		*buf += rc, *limit -= rc;
 	else
 		*limit = 0;
@@ -213,7 +213,7 @@ snprint_list(char * buf, size_t limit, const char * const str_list[]) {
 			snprint(&ptr, &limit, ", ");
 	}
 	rc = snprintf(ptr, limit, "\"%s\"", str_list[i]);
-	if (rc <= limit)
+	if (rc <= (int)limit)
 		ptr += rc, limit -= rc;
 	else
 		limit = 0;
@@ -222,7 +222,8 @@ snprint_list(char * buf, size_t limit, const char * const str_list[]) {
 }
 
 void
-test_print_list() {
+test_print_list(void)
+{
 	static const char * const test_value[] = {
 		"DEFAULT",
 		"IGNORE",

@@ -52,7 +52,7 @@ struct args *alloc_args(int arg_count)
 }
 
 const struct dataset *
-match_dataset(const struct dataset const datasets[], const char *key)
+match_dataset(const struct dataset datasets[], const char *key)
 {
 	const struct dataset *ds;
 	for (ds = datasets;
@@ -66,7 +66,7 @@ match_dataset(const struct dataset const datasets[], const char *key)
 }
 
 void
-print_dataset(const struct dataset const datasets[])
+print_dataset(const struct dataset datasets[])
 {
 	const struct dataset *ds;
 	printf("either ");
@@ -121,7 +121,7 @@ process_optvalue(const char *optname, struct arg *cur, const char *optval)
 }
 
 int
-read_args(struct args *args, int argc, const char *argv[])
+read_args(struct args *args, int argc, char *argv[])
 {
 	int i, j, k, ok, i_old;
 	struct data_list **last_data;
