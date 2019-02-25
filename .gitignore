@@ -1,6 +1,7 @@
 archives
 releases
 patches
+/src/avra
 *.o
 *.exe
 *.obj

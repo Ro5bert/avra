@@ -1,7 +1,0 @@
-syntax: glob
-*.o
-*.exe
-*.obj
-*.hex
-*.cof
-*.lst
