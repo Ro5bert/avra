@@ -24,7 +24,7 @@
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
  *     www: http://sourceforge.net/projects/avra
  */
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +57,7 @@ match_dataset(const struct dataset datasets[], const char *key)
 	const struct dataset *ds;
 	for (ds = datasets;
 		ds->dset_name != NULL; ds++) {
-		if (strncmp(key, ds->dset_name, 
+		if (strncmp(key, ds->dset_name,
 			strlen(ds->dset_name)) == 0) {
 			return ds;
 		}
@@ -83,7 +83,7 @@ print_dataset(const struct dataset datasets[])
 	printf(".\n");
 }
 
-int 
+int
 process_optvalue(const char *optname, struct arg *cur, const char *optval)
 {
 	int ok = True;
@@ -138,7 +138,7 @@ read_args(struct args *args, int argc, char *argv[])
 			if(argv[i][1] == 0) {
 				printf("Error: Unknown option: -\n");
 				ok = False;
-			} else 
+			} else
 				if(argv[i][1] == '-') {
 					j = 0;
 					while((j != args->count) && strcmp(&argv[i][2], args->arg[j].longarg)) {
@@ -191,7 +191,7 @@ read_args(struct args *args, int argc, char *argv[])
 										if((i + 1) == argc) {
 											printf("Error: No argument supplied with option: -%c\n", argv[i][k]);
 											ok = False;
-										} else 
+										} else
 											ok = process_optvalue(argv[i], &args->arg[j], argv[i+1]);
 											i++;
 									}
@@ -221,7 +221,7 @@ read_args(struct args *args, int argc, char *argv[])
 											case 'M':
 												args->arg[j].data.i = MOTOROLA;
 												break;
-											default: 
+											default:
 												printf("Error: wrong file type '%c'",argv[i][2]);
 												ok = False;
 										}
