@@ -1,0 +1,38 @@
+OS = linux
+VERSION = 1.3.0
+
+DISTFILES = src \
+	includes \
+	tests \
+	README.md \
+	CHANGELOG.md \
+	USAGE.md \
+	AUTHORS \
+	COPYING \
+	Makefile \
+
+PREFIX = /usr/local
+
+.PHONY: all
+all:
+	$(MAKE) -C src -f makefiles/Makefile.$(OS)
+
+.PHONY: clean
+clean:
+	$(MAKE) -C src -f makefiles/Makefile.$(OS) clean
+
+avra-$(VERSION).tar.gz: $(DISTFILES) clean
+	mkdir avra-$(VERSION)
+	cp -r $(DISTFILES) avra-$(VERSION)/
+	tar cvf avra-$(VERSION).tar avra-$(VERSION)/*
+	gzip -9 -f avra-$(VERSION).tar
+	rm -r avra-$(VERSION)
+
+.PHONY: dist
+dist: avra-$(VERSION).tar.gz
+
+.PHONY: install
+install: all
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 src/avra $(DESTDIR)$(PREFIX)/bin
+

@@ -69,11 +69,15 @@ See AUTHORS for a complete list of contributors.
 
 ## Build
 
-To build the `avra` executable, look at the list of makefiles available in
-`src/makefiles`. Choose the appropriate one afor your platform, then from `src`,
-run `make -f makefiles/Makefile.<platform>`.
+To build the `avra` executable, cd into the project's root directory and run
+`make`. A `src/avra` binary will be produced. You can install it with `make
+install`.
 
-You will end up with a usable `avra` executable in `src`.
+By default, make runs under the `linux` OS, which assumes a typical GNU
+toolchain. If that doesn't work for you, look at the available platforms
+available in `src/makefiles` and override `OS` when you call `make`. Note that
+those platforms aren't all well tested. Please open an issue in the tracker if
+you notice a platform not working.
 
 ## Usage
 
