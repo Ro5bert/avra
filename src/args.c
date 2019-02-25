@@ -121,7 +121,7 @@ process_optvalue(const char *optname, struct arg *cur, const char *optval)
 }
 
 int
-read_args(struct args *args, int argc, char *argv[])
+read_args(struct args *args, int argc, const char *argv[])
 {
 	int i, j, k, ok, i_old;
 	struct data_list **last_data;
