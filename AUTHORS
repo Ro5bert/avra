@@ -1,1 +1,40 @@
-See README.txt in the doc folder for a list of authors of AVRA
+We would like to thank the following people for giving contributions,
+patches and bug reports, as well as suggestions and new ideas.
+
+Jon Anders Haugum (project founder)
+Burkhard Arenfeld (release 1.2.0)
+Tobias Weber (old maintainer, enhanced macro support)
+Jerry Jacobs (release 1.3.0)
+Bernt Hembre
+Nils Strøm
+Roberto Biancardi
+Qwerty Jones
+Ben Hitchcock (Maker of the mac port)
+Daniel Drotos
+Laurence Boyd II
+Varuzhan Danielyan
+Laurence Turner
+Eugene R. O'Bryan
+Dmitry Dicky
+Bob Harris (Maker of coff support)
+Lesha Bogdanow
+Jim Galbraith
+Mark Brinicombe
+Igor Nikolayenko
+Peter Hettkamp
+Herb Poppe
+David Burke
+Alexey Pavluchenko
+Alan Probandt
+Mariusz Matuszek
+Arne Rossius
+Marti Tichacek
+Patrick Parity
+Johannes Overmann
+Roland Riegel
+Peter Katzmann
+Donald D. Davis
+
+And all the anonymous people who submitted patches!
+
+Thank you for your work and support.
