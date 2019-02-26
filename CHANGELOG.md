@@ -1,5 +1,26 @@
 # ARVA Change log
 
+## Release 1.4.0 (2019-02-26)
+
+- Fix broken .ifndef logic.
+- Define X, Y, Z 16-bit register pairs.
+- Don't clear register alias definitions before pass 2 of the assembly.
+- Improve build system.
+- Improve listfile output.
+- Improve overlapping code processing.
+- Add support for Attiny20 with AVR8L core.
+- Add support for ATMega1280 and ATMega2560.
+- Improve command line processing.
+- Don't generate empty COFF files.
+- Improve .BYTE directive checks that it's in a proper section.
+- Don't erase values of variables when entering second pass.
+- Fix long name of -I option, should be --includedir.
+- Handle long lines properly.
+- Allow forward references to labels within macros.
+- Make output filename control command line flags (-o, -e, -d) effective.
+- Add automated tests.
+- Add default include path defined at compile time.
+
 ## Release 1.3.0 (2010-06-28, by Jerry Jacobs)
 
 - Added new targets, ATtiny13A, ATtiny24/A, ATtiny44/A, ATtiny84, ATtiny2313A, ATtiny4313, ATmega328P
@@ -55,8 +76,8 @@
 - Patch segfault, if .error is given without parameter
 - Patch segfault, if .device is given with an invalid parameter
 - Check in predef_dev() if symbol is already defined. Can happens, if someone
-  tries to define the symbol with the -D parameter. E.g.: 'avra -D __ATMEGA8__ Test.asm'
-  now generate error message, because __ATMEGA8__ is reserved
+  tries to define the symbol with the -D parameter. E.g.: `avra -D __ATMEGA8__ Test.asm`
+  now generate error message, because `__ATMEGA8__` is reserved
 - Add .elseif directive. It's the same like .elif. (Original Atmel assembler use .elseif
   and not .elif)
 - In .db lines strings can now contain ',' and ';' characters.
@@ -147,8 +168,8 @@
   supported (From Lesha Bogdanow <boga@inbox.ru>).
 - Added checking of which mnemonic that work on the different AVRs
   (From Lesha Bogdanow <boga@inbox.ru>).
-- Added constants __DEVICE__, __FLASH_SIZE__, __RAM_SIZE__ and
-  __EEPROM_SIZE__ (From Lesha Bogdanow <boga@inbox.ru>).
+- Added constants `__DEVICE__`, `__FLASH_SIZE__`, `__RAM_SIZE__` and
+  `__EEPROM_SIZE__` (From Lesha Bogdanow <boga@inbox.ru>).
 - Added tiny devices (From Lesha Bogdanow <boga@inbox.ru>).
 - Changed error on constant out of range into a warning.
 - Added support for instructions: (E)LPM Rd,Z(+), SPM, ESPM, BREAK,
