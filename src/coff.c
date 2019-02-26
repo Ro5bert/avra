@@ -164,7 +164,7 @@ void write_coff_file(struct prog_info *pi){
     unsigned long *plong;
     int NumberOfSymbols, SymbolIndex, LastFileIndex, LastFunctionIndex, LastFunctionAddress;
     LISTNODE *pNode;
-    int LinesOffset, SymbolsOffset, StringsOffset, RawOffset;
+    int LinesOffset, SymbolsOffset, RawOffset;
     struct lineno *pLine;
 
     /* add two special sections */
@@ -212,7 +212,6 @@ void write_coff_file(struct prog_info *pi){
     RawOffset = sizeof(struct external_filehdr) + ci->ListOfSectionHeaders.TotalBytes;
     LinesOffset = RawOffset + ci->MaxRomAddress + 2; /* ignore eeprom for now */
     SymbolsOffset = LinesOffset + ci->ListOfLineNumbers.TotalBytes;
-    StringsOffset = SymbolsOffset + ci->ListOfSymbols.TotalBytes + ci->ListOfSpecials.TotalBytes + ci->ListOfGlobals.TotalBytes;
 
     /* Clean up loose ends in string table */
     if ( !(plong  = (unsigned long *)FindFirstListObject(&ci->ListOfStrings))  ) {
@@ -492,7 +491,7 @@ int parse_stabs( struct prog_info *pi, char *p ){
 
     int ok = True;
     int TypeCode, n;
-    char *pString, *p2, *p3, *p4, *p5, *pType, *pEnd, *pp, *pJoined;
+    char *pString, *p2, *p3, *p4, *p5, *pType, *pp, *pJoined;
 
 
     if ( !GET_ARG_I(pi->args, ARG_COFF) || ( pi->pass == PASS_1 ) )
@@ -531,7 +530,7 @@ int parse_stabs( struct prog_info *pi, char *p ){
     p3 = get_next_token(p2, TERM_COMMA );
     p4 = get_next_token(p3, TERM_COMMA );
     p5 = get_next_token(p4, TERM_COMMA );
-    pEnd = get_next_token(p5, TERM_END ); /* zap CR LF, make ASCIIZ */
+    get_next_token(p5, TERM_END ); /* zap CR LF, make ASCIIZ */
 
     if ( !pString || !p2 || !p3 || !p4 || !p5 )
         return( False );
@@ -643,7 +642,7 @@ int parse_stabn( struct prog_info *pi, char *p ){
 
     int ok = True;
     int TypeCode /* , LineNumber */, Level;
-    char *p1, *p2, *p3, *p4, *pLabel, *pFunction, *pEnd;
+    char *p1, *p2, *p3, *p4, *pLabel, *pFunction;
 
     /* stabn debugging information is in the form:
     .stabn TypeCode, 0, parm1, parm2
@@ -664,7 +663,7 @@ int parse_stabn( struct prog_info *pi, char *p ){
     p2 = get_next_token(p1, TERM_COMMA );
     p3 = get_next_token(p2, TERM_COMMA );
     p4 = get_next_token(p3, TERM_COMMA );
-    pEnd = get_next_token(p4, TERM_END ); /* zap CR LF, make ASCIIZ */
+    get_next_token(p4, TERM_END ); /* zap CR LF, make ASCIIZ */
 
     if ( !p1 || !p2 || !p3 || !p4 )
         return( False );

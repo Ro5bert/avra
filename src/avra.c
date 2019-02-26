@@ -99,7 +99,7 @@ static struct segment_info CODE_SEG;
 static struct segment_info DATA_SEG;
 static struct segment_info EEPROM_SEG;
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
   int show_usage = False;
   struct prog_info *pi;
