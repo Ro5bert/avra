@@ -7,19 +7,26 @@ endif
 
 LDFLAGS = -s
 
-SOURCES = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c
+SOURCES = avra.c \
+	device.c \
+	parser.c \
+	expr.c \
+	mnemonic.c \
+	directiv.c \
+	macro.c \
+	file.c \
+	map.c \
+	coff.c \
+	args.c \
+	stdextra.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
-OBJ_ALL = $(OBJECTS) args.o stdextra.o
-
-all: avra
+avra: $(OBJECTS)
+	$(LD) -o $@ $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -f avra *.o *.p *~
-
-avra: $(OBJ_ALL)
-	$(LD) -o avra $(OBJ_ALL) $(LDFLAGS)
 
 args.o: args.c misc.h args.h
 avra.o: avra.c misc.h args.h avra.h device.h
