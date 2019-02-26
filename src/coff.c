@@ -6,23 +6,23 @@
  *
  * coff.c - Common Object File Format (COFF) support
  *
- *	This file was developed for the avra assembler in order to produce COFF output files 
- *  for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs 
+ *	This file was developed for the avra assembler in order to produce COFF output files
+ *  for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
  *	output was used as input to the assembler.  The information used to develop this file
  *  was obtained from various sources on the Internet, most notably, the Free Software Foundation,
- *  The "stabs" debug format, ??? Chapter 7: Common Object File Format (COFF), 
+ *  The "stabs" debug format, ??? Chapter 7: Common Object File Format (COFF),
  *
- *	This software has absolutely no warrantee!  The money you paid for this will be 
+ *	This software has absolutely no warrantee!  The money you paid for this will be
  *  promptly refunded if not fully satisfied.
- * 
+ *
  *	Beta release 1/20/2000 by Bob Harris
  *
  *	This software has not been fully tested and probably has a few software deficiencies.
- *  Some software support may be possible by sending a problem description report to 
+ *  Some software support may be possible by sending a problem description report to
  *  rth@mclean.sparta.com
  *
  *  Made the recommended change in write_coff_program().
- *  Fixed an obvious typo in SkipPastDigits().  The if() statement was terminated 
+ *  Fixed an obvious typo in SkipPastDigits().  The if() statement was terminated
  *  with a semicolon, which terminated the if(); early.  JEG 4-01-03
  */
 
@@ -53,7 +53,7 @@ struct FundamentalType FundamentalTypes[] = {
     {"char", T_CHAR, 1},
     {"short", T_SHORT, 1},
     {"int", T_INT, 1},
-    {"long", T_LONG, 2}, 
+    {"long", T_LONG, 2},
     {"float", T_FLOAT, 4},
     {"double", T_DOUBLE, 4},
     {"struct", T_STRUCT, 0},
@@ -67,7 +67,7 @@ struct FundamentalType FundamentalTypes[] = {
     {"long double", T_LNGDBL, 2},
     {"long long int", T_LONG, 2},
     {"long int", T_LONG, 2},
-    {"unsigned long long", T_ULONG, 2}, 
+    {"unsigned long long", T_ULONG, 2},
     {"signed char", T_CHAR, 1},
     {0, 0}
 };
@@ -92,7 +92,7 @@ FILE *open_coff_file(struct prog_info *pi, char *filename){
     ok = True;
     /* default values */
     ci->CurrentFileNumber = 0;
-    ci->pRomMemory = 0; 
+    ci->pRomMemory = 0;
     ci->pEEPRomMemory = 0;
     ci->MaxRomAddress = 0;
     ci->MaxEepromAddress = 0;
@@ -149,7 +149,7 @@ FILE *open_coff_file(struct prog_info *pi, char *filename){
     /* simulate void type .stabs void:t15=r1;*/
     stab_add_local_type( "void", "15=r1;0;0;" );
 
-    return( fp );   
+    return( fp );
 }
 
 /****************************************************************************************/
@@ -165,7 +165,7 @@ void write_coff_file(struct prog_info *pi){
     int NumberOfSymbols, SymbolIndex, LastFileIndex, LastFunctionIndex, LastFunctionAddress;
     LISTNODE *pNode;
     int LinesOffset, SymbolsOffset, StringsOffset, RawOffset;
-    struct lineno *pLine; 
+    struct lineno *pLine;
 
     /* add two special sections */
     /* one for .text */
@@ -738,7 +738,7 @@ int stab_add_lineno(  struct prog_info *pi, int LineNumber, char *pLabel, char *
                 pEntry++;
                 pAux = (union auxent *)pEntry;
                 pAux->x_sym.x_misc.x_lnsz.x_lnno = LineNumber;
-                ci->NeedLineNumberFixup--; 
+                ci->NeedLineNumberFixup--;
             }
         }
     }
@@ -776,7 +776,7 @@ int stab_add_lbracket( struct prog_info *pi, int Level, char *pLabel, char *pFun
     pEntry->n_sclass = C_BLOCK;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
     pAux->x_sym.x_misc.x_lnsz.x_lnno = 0;   /* UNKNOWN - post process */
     pAux->x_sym.x_misc.x_lnsz.x_size = 0;   /* UNKNOWN - post process */
     ci->NeedLineNumberFixup++; /* once for .bb block */
@@ -812,7 +812,7 @@ int stab_add_rbracket( struct prog_info *pi, int Level, char *pLabel, char *pFun
     pEntry->n_type = 0;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
     pAux->x_sym.x_misc.x_lnsz.x_lnno = ci->CurrentSourceLine;
 
     /* create an .ef if at level 0 */
@@ -833,7 +833,7 @@ int stab_add_rbracket( struct prog_info *pi, int Level, char *pLabel, char *pFun
         pEntry->n_type = 0;
         pEntry->n_numaux = 1;
         pEntry++;   /* point to aux entry */
-        pAux = (union auxent *)pEntry; 
+        pAux = (union auxent *)pEntry;
         pAux->x_sym.x_misc.x_lnsz.x_lnno = ci->CurrentSourceLine;
     }
     return(True);
@@ -878,7 +878,7 @@ int stab_add_filename( char *pName, char *pLabel ){
     pEntry->n_sclass = C_FILE;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
 
     /* Add Label name to symbol table */
     if ( n <= FILNMLEN ) {
@@ -941,7 +941,7 @@ int stab_add_function( struct prog_info *pi, char *pName, char *pLabel ){
     pEntry->n_sclass = C_EXT;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
     pAux->x_sym.x_tagndx = SymbolIndex + 1; /* point to the .bf entry index */
     // wrong!
     //	pAux->x_sym.x_misc.x_lnsz.x_lnno = ci->ListOfLineNumbers.TotalBytes; /* Relative Fixup point to where line numbers start */
@@ -977,7 +977,7 @@ int stab_add_function( struct prog_info *pi, char *pName, char *pLabel ){
     pEntry->n_sclass = C_FCN;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
     pAux->x_sym.x_misc.x_lnsz.x_lnno = 0;   /* UNKNOWN - post process */
     pAux->x_sym.x_misc.x_lnsz.x_size = 0;   /* UNKNOWN - post process */
 
@@ -1023,7 +1023,7 @@ int stab_add_global( struct prog_info *pi, char *pName, char *pType ){
         return(False);
     }
     *p = '_';
-    strcpy( p + 1, pName ); 
+    strcpy( p + 1, pName );
     if ( !get_symbol(pi, p, &Address) ) {
         fprintf(stderr, "\nUnable to locate global %s", p );
         free( p );
@@ -1208,7 +1208,7 @@ int stab_add_local_type( char *pName, char *pType ){
     /* Stab Type - convert to Coff type at end (after inline assignments */
     if ( GetStabType( pType, &StabType, &p ) != True ) {
         fprintf(stderr,"\nInvalid tag type found in structure item -> %s", p);
-        return(False);      
+        return(False);
     }
 
     return(True);
@@ -1226,20 +1226,20 @@ int GetStructUnionTagItem( char *p, char **pEnd, char **pName, unsigned short *p
     while ( *p && (*p != ':') ) p++; // locate colon
     if ( *p != ':' ) {
       fprintf(stderr,"\nNo colon found in structure item -> %s", *pName);
-      return(False);      
+      return(False);
     }
     *p++ = 0; // Asciiz
- 
+
     /* Stab Type - convert to Coff type at end (after inline assignments */
     if ( GetStabType( p, &StabType, &p ) != True ) {
         fprintf(stderr,"\nInvalid tag type found in structure item -> %s", p);
-        return(False);      
+        return(False);
     }
 
     /* BitSize */
     if ( *p != ',' ) {
         fprintf(stderr,"\nNo Bit size found in structure item -> %s", p );
-        return(False);      
+        return(False);
     }
     *pBitOffset = (unsigned short)atoi( ++p );
     while ( *p && (*p >= '0') && (*p <= '9') ) p++; // locate end of digits
@@ -1247,7 +1247,7 @@ int GetStructUnionTagItem( char *p, char **pEnd, char **pName, unsigned short *p
     /* BitOffset */
     if ( *p != ',' ) {
         fprintf(stderr,"\nNo Bit offset found in structure item -> %s", p );
-        return(False);      
+        return(False);
     }
     *pBitSize =  (unsigned short)atoi( ++p );
     while ( *p && (*p >= '0') && (*p <= '9') ) p++; // locate end of digits
@@ -1255,7 +1255,7 @@ int GetStructUnionTagItem( char *p, char **pEnd, char **pName, unsigned short *p
     /* Now convert stab type to COFF */
     if ( (*pType = GetCoffType( (unsigned short)StabType)) == 0 ) {
         fprintf(stderr,"\nNo COFF type found for stab type %d", StabType );
-        return(   False);          
+        return(   False);
     }
     if ( *++p == ';' ) /* Now eat last semicolon(s) */
         p++;
@@ -1272,7 +1272,7 @@ int GetEnumTagItem( char *p, char **pEnd, char **pEnumName, int *pEnumValue ) {
     while ( *p && (*p != ':') ) p++; // locate colon
     if ( *p != ':' ) {
       fprintf(stderr,"\nNo colon found in enum item -> %s", *pEnumName);
-      return(False);      
+      return(False);
     }
     *p++ = 0; // Asciiz
     *pEnumValue = atoi(p);
@@ -1280,7 +1280,7 @@ int GetEnumTagItem( char *p, char **pEnd, char **pEnumName, int *pEnumValue ) {
     while ( *p && (*p >= '0') && (*p <= '9') ) p++; // locate end of digits
     if ( *p != ',' ) {
         fprintf(stderr,"\nNo comma found after enum value -> %s", p );
-        return(False);      
+        return(False);
     }
     if ( *++p ==';' )
         p++; /* eat last semicolon */
@@ -1297,7 +1297,7 @@ int GetArrayType( char *p, char **pEnd, STABCOFFMAP *pMap, unsigned short *Deriv
 
     Result = True;
 
-    pMinIndex = pMaxIndex = pType = 0;    
+    pMinIndex = pMaxIndex = pType = 0;
     while ( *p && (*p != ';') ) p++;   /* find min index */
     pMinIndex = ++p;
     while ( *p && (*p != ';') ) p++;   /* find max index */
@@ -1499,8 +1499,8 @@ int stab_add_tag_type( char *pName, char *pString ){
     }
     while ( *p && (*p >= '0') && (*p <= '9') ) p++; // locate end of digits
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
-    pAux->x_sym.x_tagndx = SymbolIndex; 
+    pAux = (union auxent *)pEntry;
+    pAux->x_sym.x_tagndx = SymbolIndex;
     pAux->x_sym.x_misc.x_lnsz.x_size = TotalSize;
 
     /* update our local knowledge of tag type */
@@ -1547,8 +1547,8 @@ int stab_add_tag_type( char *pName, char *pString ){
         pEntry->n_scnum = N_ABS;
         pEntry->n_numaux = 1;
         pEntry++;   /* point to aux entry */
-        pAux = (union auxent *)pEntry; 
-        pAux->x_sym.x_tagndx = SymbolIndex; 
+        pAux = (union auxent *)pEntry;
+        pAux->x_sym.x_tagndx = SymbolIndex;
         pAux->x_sym.x_misc.x_lnsz.x_size = TotalSize;
         pName = p;
     }
@@ -1565,7 +1565,7 @@ int stab_add_tag_type( char *pName, char *pString ){
     pEntry->n_sclass = C_EOS;
     pEntry->n_numaux = 1;
     pEntry++;   /* point to aux entry */
-    pAux = (union auxent *)pEntry; 
+    pAux = (union auxent *)pEntry;
     pAux->x_sym.x_tagndx = SymbolIndex; /* point to the .bf entry index */
     pAux->x_sym.x_misc.x_lnsz.x_size = TotalSize;
 
@@ -1730,7 +1730,7 @@ int GetSubRangeType( unsigned short Type, STABCOFFMAP *pMap , char *pLow, char *
             if ( !(Test & (0xff << (i * 8))) )
                 break;
         }
-        pMap->ByteSize = i; 
+        pMap->ByteSize = i;
     }
     /* Now determine the best fit based on byte size, compare against IAR Compiler */
     if ( pMap->ByteSize == 1 ) {
@@ -1882,7 +1882,7 @@ int AddNameToEntry( char *pName, struct syment *pEntry ) {
         strncpy( pEntry->n_name, pName, 8 );
     } else {
         /* point to current offset in string table */
-        pEntry->n_offset = ci->ListOfStrings.TotalBytes;        
+        pEntry->n_offset = ci->ListOfStrings.TotalBytes;
         /* Allocate string table entry */
         if ( (p = (char *)AllocateListObject( &ci->ListOfStrings, n + 1 )) == 0 ) {
             return(0);
@@ -2073,7 +2073,7 @@ void FreeList( LISTNODEHEAD *pHead ){
         RemoveNodeFromList( pHead, pNode );
         free( pNode->pObject );
         free( pNode );
-    } 
+    }
     pHead->TotalBytes = 0;
     pHead->TotalItems = 0;
     pHead->current = &pHead->Node;
