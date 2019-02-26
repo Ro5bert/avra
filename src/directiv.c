@@ -135,6 +135,24 @@ static const char * const overlap_value[] = {
 	NULL
 };
 
+// caller has to free result
+static char* joinpaths(const char *dirname, const char *fname)
+{
+    char *res;
+    int len;
+
+    len = strlen(dirname);
+    res = malloc(len + strlen(fname) + 2);
+    if (!res) {
+        return NULL;
+    }
+    strcpy(res, dirname);
+    if((res[len - 1] != '\\') && (res[len - 1] != '/'))
+        res[len++] = '/';
+    strcpy(&res[len], fname);
+    return res;
+}
+
 int parse_directive(struct prog_info *pi)
 {
 	int directive, pragma;
@@ -395,23 +413,23 @@ int parse_directive(struct prog_info *pi)
 			// Test if include is in local directory
 			ok = test_include(next);
 			data = NULL;
-			if(!ok)
+			if(!ok) {
+#ifdef DEFAULT_INCLUDE_PATH
+                data = joinpaths(DEFAULT_INCLUDE_PATH, next);
+                ok = test_include(data);
+#endif
 				for(incpath = GET_ARG_LIST(pi->args, ARG_INCLUDEPATH); incpath && !ok; incpath = incpath->next) {
-					i = strlen(incpath->data);
-					if(data)
-						free(data);
-					data = malloc(i + strlen(next) + 2);
-					if(!data) {
-						print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-						return(False);
-					}
-					strcpy(data, incpath->data);
-					if((data[i - 1] != '\\') && (data[i - 1] != '/'))
-						data[i++] = '/';
-					strcpy(&data[i], next);
-                    //printf("testing: %s\n", data);
+                    if (data != NULL) {
+                        free(data);
+                    }
+                    data = joinpaths(incpath->data, next);
+                    if (data == NULL) {
+                        print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+                        return(False);
+                    }
 					ok = test_include(data);
 				}
+            }
 			if(ok) {
 				fi_bak = pi->fi;
 				ok = parse_file(pi, data ? data : next);

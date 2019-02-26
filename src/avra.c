@@ -69,7 +69,7 @@ const char *usage =
 	"   --listfile    -l : Create list file\n"
 	"   --mapfile     -m : Create map file\n"
 	"   --define      -D : Define symbol.\n"
-	"   --includedir  -I : Additional include paths.\n"
+	"   --includedir  -I : Additional include paths. Default: %s\n"
 	"   --listmac        : List macro expansion in listfile.\n"
 	"   --max_errors     : Maximum number of errors before exit\n"
 	"                      (default: 10)\n"
@@ -163,7 +163,11 @@ int main(int argc, char *argv[])
 	printf("\n");
   }
   if(show_usage) {
-	printf("%s", usage);
+#ifdef DEFAULT_INCLUDE_PATH
+	printf(usage, DEFAULT_INCLUDE_PATH);
+#else
+	printf(usage, ".");
+#endif
   }
   exit(EXIT_SUCCESS);
   return (0);  /* compiler warning, JEG 4-23-03 */

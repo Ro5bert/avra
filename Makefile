@@ -12,6 +12,8 @@ DISTFILES = src \
 	Makefile \
 
 PREFIX = /usr/local
+TARGET_INCLUDE_PATH = $(PREFIX)/include/avr
+export TARGET_INCLUDE_PATH
 
 .PHONY: all
 all:
@@ -35,4 +37,6 @@ dist: avra-$(VERSION).tar.gz
 install: all
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 src/avra $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(TARGET_INCLUDE_PATH)
+	cp includes/* $(DESTDIR)$(TARGET_INCLUDE_PATH)
 

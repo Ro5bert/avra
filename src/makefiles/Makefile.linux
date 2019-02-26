@@ -1,6 +1,10 @@
 CC = gcc
 LD = gcc -static
 CFLAGS = -Wall -O3
+ifdef TARGET_INCLUDE_PATH
+CFLAGS += -DDEFAULT_INCLUDE_PATH='"$(TARGET_INCLUDE_PATH)"'
+endif
+
 LDFLAGS = -s
 
 SOURCES = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c
