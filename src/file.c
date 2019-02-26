@@ -58,7 +58,7 @@ open_out_files(struct prog_info *pi, const char *basename, const char *outputfil
 		length -= 4;
 		buff[length] = '\0';
 	}
-	
+
 	/* open files for code output */
 	strcpy(&buff[length], ".hex");
 	if (!(pi->cseg->hfi = open_hex_file((outputfile == NULL) ? buff : outputfile))) {
@@ -70,14 +70,14 @@ open_out_files(struct prog_info *pi, const char *basename, const char *outputfil
 	if (!(pi->obj_file = open_obj_file(pi, (debugfile == NULL) ? buff : debugfile))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create object file!");
 		ok = False;
-	}  
-	
+	}
+
 	/* open files for eeprom output */
 	strcpy(&buff[length], ".eep.hex");
 	if(!(pi->eseg->hfi = open_hex_file( (eepfile == NULL) ? buff : eepfile))) {
 		print_msg(pi, MSGTYPE_ERROR, "Could not create eeprom hex file!");
 		ok = False;
-	}  
+	}
 
 	if (GET_ARG_I(pi->args, ARG_COFF) == True) {
 			strcpy(&buff[length], ".cof");
@@ -205,8 +205,8 @@ close_hex_file(struct hex_file_info *hfi)
 void
 write_ee_byte(struct prog_info *pi, int address, unsigned char data)
 {
-	if ((pi->eseg->hfi->count == 16) 
-		|| ((address != (pi->eseg->hfi->linestart_addr + pi->eseg->hfi->count)) 
+	if ((pi->eseg->hfi->count == 16)
+		|| ((address != (pi->eseg->hfi->linestart_addr + pi->eseg->hfi->count))
 			&& (pi->eseg->hfi->count != 0)))
 		do_hex_line(pi->eseg->hfi);
 	if (pi->eseg->hfi->count == 0)
