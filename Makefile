@@ -43,3 +43,6 @@ install: all
 	install -d $(DESTDIR)$(TARGET_INCLUDE_PATH)
 	cp includes/* $(DESTDIR)$(TARGET_INCLUDE_PATH)
 
+.PHONY: check
+check: all
+	cd tests/regression && ./runtests.sh
