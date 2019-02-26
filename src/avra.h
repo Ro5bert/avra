@@ -31,22 +31,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#ifndef VER_MAJOR
-#  define VER_MAJOR 1
-#endif
-#ifndef VER_MINOR
-#  define VER_MINOR 3
-#endif
-#ifndef VER_RELEASE
-#  define VER_RELEASE 0
-#endif
-#ifndef VER_BUILD
-#  define VER_BUILD 1
-#endif
-#ifndef VER_DATE
-#  define VER_DATE    "8 May 2010"
-#endif
-
 #define IS_HOR_SPACE(x)	((x == ' ') || (x == 9))
 #define IS_LABEL(x)	(isalnum(x) || (x == '%') || (x == '_'))
 #define IS_END_OR_COMMENT(x)	((x == ';') || (x == 10) || (x == 13) || (x == '\0') || (x == 12))

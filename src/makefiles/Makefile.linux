@@ -1,10 +1,6 @@
 CC = gcc
 LD = gcc -static
-CFLAGS = -Wall -O3
-ifdef TARGET_INCLUDE_PATH
-CFLAGS += -DDEFAULT_INCLUDE_PATH='"$(TARGET_INCLUDE_PATH)"'
-endif
-
+CFLAGS = -Wall -O3 $(CDEFS)
 LDFLAGS = -s
 
 SOURCES = avra.c \

@@ -37,8 +37,12 @@
 
 #define debug 0
 
+#ifndef VERSION
+#define VERSION "undefined"
+#endif
+
 const char *title =
-  "AVRA: advanced AVR macro assembler Version %i.%i.%i Build %i (%s)\n"
+  "AVRA: advanced AVR macro assembler Version %s\n"
   "Copyright (C) 1998-2010. Check out README file for more info\n"
   "\n"
   "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
@@ -110,7 +114,7 @@ int main(int argc, char *argv[])
   }
 #endif
 
-  printf(title, VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD, VER_DATE);
+  printf(title, VERSION);
 
   args = alloc_args(ARG_COUNT);
   if(args) {

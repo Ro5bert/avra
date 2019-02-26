@@ -1,5 +1,5 @@
 OS = linux
-VERSION = 1.3.0
+VERSION = 1.4.0-dev
 
 DISTFILES = src \
 	includes \
@@ -13,7 +13,10 @@ DISTFILES = src \
 
 PREFIX = /usr/local
 TARGET_INCLUDE_PATH = $(PREFIX)/include/avr
-export TARGET_INCLUDE_PATH
+
+CDEFS = -DDEFAULT_INCLUDE_PATH='"$(TARGET_INCLUDE_PATH)"' \
+	-DVERSION='"$(VERSION)"'
+export CDEFS
 
 .PHONY: all
 all:

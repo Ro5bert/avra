@@ -93,9 +93,9 @@ open_out_files(struct prog_info *pi, const char *basename, const char *outputfil
 			ok = False;
 		}
 		/* write list file header */
-		fprintf(pi->list_file, 
-			"\nAVRA   Ver. %i.%i.%i %s %s\n\n",
-			VER_MAJOR, VER_MINOR, VER_RELEASE, basename, ctime(&pi->time));
+		fprintf(pi->list_file,
+			"\nAVRA   Ver. %s %s %s\n\n",
+			VERSION, basename, ctime(&pi->time));
 	} else {
 		pi->list_file = NULL;
 	}
