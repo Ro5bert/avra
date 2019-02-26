@@ -58,7 +58,7 @@ const char *usage =
 	"            [-e <filename>] file name to output EEPROM contents\n"
 	"            [-l <filename>] generate list file\n"
 	"            [-m <mapfile>] generate map file\n"
-	"            [--define <symbol>[=<value>]]\n" 
+	"            [--define <symbol>[=<value>]]\n"
 	"            [-I <dir>] [--listmac]\n"
 	"            [--max_errors <number>] [--devices] [--version]\n"
 	"            [-O e|w|i]\n"
@@ -82,9 +82,9 @@ const char *usage =
   "AVRStudio directories to avra's binary.\n";
 
 const struct dataset overlap_choice[4] = {
-	{ OVERLAP_ERROR,   "e"}, 
-	{ OVERLAP_WARNING, "w"}, 
-	{ OVERLAP_IGNORE,  "i"}, 
+	{ OVERLAP_ERROR,   "e"},
+	{ OVERLAP_WARNING, "w"},
+	{ OVERLAP_IGNORE,  "i"},
 	{ -1, NULL}
 };
 
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
 
     c = read_args(args, argc, argv);
-    
+
     if(c != 0) {
 	  if(!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
 	    if(!GET_ARG_I(args, ARG_VER)) {
@@ -175,12 +175,12 @@ void get_rootpath(struct prog_info *pi, struct args *args)
   int j;
   char c;
   struct data_list *data;
-  
+
   data = args->first_data;
   if(!data)
 	  return;
   while(data->next) data = ((data)->next);
-  
+
   if (data != NULL) {
     i = strlen((char *)data->data);
     if (i > 0) {
@@ -214,7 +214,7 @@ assemble(struct prog_info *pi) {
 		return -1;
 
 	/*** FIRST PASS ***/
-	def_orglist(pi->cseg);			
+	def_orglist(pi->cseg);
 	c = parse_file(pi, pi->args->first_data->data);
 	fix_orglist(pi->segment);
 	test_orglist(pi->cseg);
@@ -241,7 +241,7 @@ assemble(struct prog_info *pi) {
 				parse_file(pi, pi->args->first_data->data);
 				printf("done\n\n");
 				if (pi->list_file)
-						fprint_segments(pi->list_file, pi); 
+						fprint_segments(pi->list_file, pi);
 				if (pi->coff_file && pi->error_count == 0) {
 					write_coff_file(pi);
 				}
@@ -255,11 +255,11 @@ assemble(struct prog_info *pi) {
 					else
 						printf("\nAssembly complete with no errors.\n");
 					close_out_files(pi);
-				}  
+				}
 			}
 		} else	{
 			unlink_out_files(pi, pi->args->first_data->data);
-		}  
+		}
 	}
   } else {
 	printf("Error: You need to specify a file to assemble\n");
@@ -279,13 +279,13 @@ int load_arg_defines(struct prog_info *pi)
 	  strcpy(buff, define->data);
 	  expr = get_next_token( buff, TERM_EQUAL);
 	  if(expr) {
-  	  // we reach this, when there is actually a value passed..	
+  	  // we reach this, when there is actually a value passed..
 	    if(!get_expr(pi, expr, &i)) {
 	  	  return(False);
 	    }
-    } else { 
-  	  // if user didnt specify a value, we default to 1 
-  	  i = 1; 
+    } else {
+  	  // if user didnt specify a value, we default to 1
+  	  i = 1;
     }
 	/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
     if(pi->pass==PASS_1) { /* Pass 1 */
@@ -356,7 +356,7 @@ init_prog_info(struct prog_info *pi, struct args *args) {
 		if(!nocase_strcmp(warnings->data, "NoRegDef"))
 			pi->NoRegDef = 1;
 	}
-	
+
 	pi->cseg = &CODE_SEG;
 	pi->dseg = &DATA_SEG;
 	pi->eseg = &EEPROM_SEG;
@@ -377,7 +377,7 @@ init_prog_info(struct prog_info *pi, struct args *args) {
 	pi->dseg->cellname = "byte";
 	pi->eseg->cellname = "byte";
 	pi->cseg->cellnames = "words";
-	pi->dseg->cellnames = "bytes"; 
+	pi->dseg->cellnames = "bytes";
 	pi->eseg->cellnames = "bytes";
 
 	init_segment_size(pi, pi->device);
@@ -401,7 +401,7 @@ free_pi(struct prog_info *pi)
 {
   free_defs(pi);			/* B.A. : Now free in pi included structures first */
   free_labels(pi);
-  free_constants(pi); 
+  free_constants(pi);
   free_variables(pi);
   free_blacklist(pi);
   free_orglist(pi);
@@ -425,7 +425,7 @@ void print_msg(struct prog_info *pi, int type, char *fmt, ... )
 			if((pi->fi != NULL) && (pi->fi->include_file->name != NULL)) { 	/* B.A.: Skip, if filename or fi is NULL (Bug 1462900) */
 				/* check if adding path name is needed*/
 				pc = strstr(pi->fi->include_file->name, pi->root_path);
-				if(pc == NULL) { 
+				if(pc == NULL) {
 					fprintf(stderr, "%s%s(%d) : ", pi->root_path ,pi->fi->include_file->name, pi->fi->line_number);
 				} else {
 					fprintf(stderr, "%s(%d) : ", pi->fi->include_file->name, pi->fi->line_number);
@@ -467,7 +467,7 @@ void print_msg(struct prog_info *pi, int type, char *fmt, ... )
 
 /* B.A. : New functions to create / search / remove constant, variables, labels */
 /* def_const, def_var moved from device.c to this place */
-int def_const(struct prog_info *pi, const char *name, int value) 
+int def_const(struct prog_info *pi, const char *name, int value)
 {
 	struct label *label;
 	label = malloc(sizeof(struct label));
@@ -491,7 +491,7 @@ int def_const(struct prog_info *pi, const char *name, int value)
 	return(True);
 }
 
-int def_var(struct prog_info *pi, char *name, int value) 
+int def_var(struct prog_info *pi, char *name, int value)
 {
 	struct label *label;
 
@@ -522,7 +522,7 @@ int def_var(struct prog_info *pi, char *name, int value)
 }
 
 
-int def_blacklist(struct prog_info *pi, const char *name) 
+int def_blacklist(struct prog_info *pi, const char *name)
 {
 	struct label *label;
 	label = malloc(sizeof(struct label));
@@ -548,7 +548,7 @@ int def_blacklist(struct prog_info *pi, const char *name)
 
 /* B.A.: Store programmed areas for later check */
 int
-def_orglist(struct segment_info *si) 
+def_orglist(struct segment_info *si)
 {
 	struct orglist *orglist;
 
@@ -575,7 +575,7 @@ def_orglist(struct segment_info *si)
 
 /* B.A.: Fill length entry of last orglist */
 int
-fix_orglist(struct segment_info *si) 
+fix_orglist(struct segment_info *si)
 {
 	if (si->pi->pass != PASS_1)
 		return(True);
@@ -592,7 +592,7 @@ void
 fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist)
 {
 	fprintf(file, "   %-6s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%d %s), "
-		"Overlap=%c\n", 
+		"Overlap=%c\n",
 		si->name,
 		orglist->start,
 		orglist->start + orglist->length - 1,
@@ -609,11 +609,11 @@ fprint_seg_orglist(FILE *file, struct segment_info *si)
 
 	for (orglist = si->first_orglist;
 		orglist != NULL; orglist = orglist->next) {
-		if (orglist->length > 0) 
+		if (orglist->length > 0)
 			fprint_orglist(file, si, orglist);
 	}
 }
-	
+
 void
 fprint_segments(FILE *file, struct prog_info *pi)
 {
@@ -636,33 +636,33 @@ test_orglist(struct segment_info *si)
 	}
 
 	for (orglist = si->first_orglist;
-		orglist != NULL; 
+		orglist != NULL;
 		orglist=orglist->next) {
-		if (orglist->length > 0) { 
+		if (orglist->length > 0) {
 			/* Make sure address area is valid */
 			if (orglist->start < si->lo_addr) {
-				fprintf(stderr, "Segment start below allowed start address: 0x%04X", 
+				fprintf(stderr, "Segment start below allowed start address: 0x%04X",
 					si->lo_addr);
 				fprint_orglist(stderr, si, orglist);
-				error_count ++; 
+				error_count ++;
 			}
 			if (orglist->start + orglist->length > si->hi_addr) {
-				fprintf(stderr, "Segment start above allowed high address: 0x%04X", 
+				fprintf(stderr, "Segment start above allowed high address: 0x%04X",
 					si->hi_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;
 			}
-			
+
 			/* Overlap-test */
 			if ((si->pi->effective_overlap != OVERLAP_IGNORE) &&
 				(orglist->segment_overlap == SEG_DONT_OVERLAP)) {
 				for (orglist2 = orglist->next; orglist2 != NULL; orglist2 = orglist2->next) {
-					if ((orglist != orglist2) && (orglist2->length > 0) 
+					if ((orglist != orglist2) && (orglist2->length > 0)
 						&& (orglist2->segment_overlap == SEG_DONT_OVERLAP)) {
 
 						if((orglist->start  < (orglist2->start + orglist2->length)) &&
 						   (orglist2->start < ( orglist->start +  orglist->length))) {
-							fprintf(stderr,"%s: Overlapping %s segments:\n", 
+							fprintf(stderr,"%s: Overlapping %s segments:\n",
 								si->pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning",
 								si->name);
 							fprint_orglist(stderr, si, orglist);
@@ -673,8 +673,8 @@ test_orglist(struct segment_info *si)
 							else
 									si->pi->warning_count++;
 						}
-					}				
-				} 
+					}
+				}
 			} /* Overlap-test */
 		}
 	}
@@ -687,7 +687,7 @@ int get_label(struct prog_info *pi,char *name,int *value)
 {
   struct label *label=search_symbol(pi,pi->first_label,name,NULL);
 	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;	
+	if(value!=NULL)	*value=label->value;
 	return True;
 }
 
@@ -695,7 +695,7 @@ int get_constant(struct prog_info *pi,char *name,int *value)
 {
   struct label *label=search_symbol(pi,pi->first_constant,name,NULL);
 	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;	
+	if(value!=NULL)	*value=label->value;
 	return True;
 }
 
@@ -703,7 +703,7 @@ int get_variable(struct prog_info *pi,char *name,int *value)
 {
   struct label *label=search_symbol(pi,pi->first_variable,name,NULL);
 	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;	
+	if(value!=NULL)	*value=label->value;
 	return True;
 }
 
@@ -738,7 +738,7 @@ struct label *search_symbol(struct prog_info *pi,struct label *first,char *name,
 	for(label = first; label; label = label->next)
 		if(!nocase_strcmp(label->name, name)) {
 			if(message) {
-				print_msg(pi, MSGTYPE_ERROR, message, name);				   
+				print_msg(pi, MSGTYPE_ERROR, message, name);
 			}
 			return(label);
 		}
@@ -755,8 +755,8 @@ void free_defs(struct prog_info *pi)
 	  free(temp_def->name);
 	  free(temp_def);
   }
-  pi->first_def = NULL;	
-  pi->last_def = NULL;	
+  pi->first_def = NULL;
+  pi->last_def = NULL;
 }
 
 void free_labels(struct prog_info *pi)
