@@ -1,5 +1,4 @@
 CC=gcc
-ARCH=-arch i386 -arch x86_64 -arch ppc
 SOURCE=args.c \
         avra.c \
         coff.c \
@@ -14,5 +13,5 @@ SOURCE=args.c \
         stdextra.c
 
 all:
-	$(CC) $(ARCH) -o avra $(SOURCE)
+	$(CC) $(CDEFS) -o avra $(SOURCE)
 
