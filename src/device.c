@@ -69,8 +69,10 @@ struct device device_list[] =
   {   "ATtiny44",        2048,      0x60,      256,    256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
   {   "ATtiny44A",       2048,      0x60,      256,    256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
   {   "ATtiny45",        2048,      0x60,      256,    256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
+  {   "ATtiny48",        2048,     0x100,      256,     64, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
   {   "ATtiny84",        4096,      0x60,      512,    512, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
   {   "ATtiny85",        4096,      0x60,      512,    512, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
+  {   "ATtiny88",        4096,     0x100,      512,     64, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
   // ATtiny87
   // ATtiny167
   // ATtiny261A
@@ -153,8 +155,8 @@ struct device *get_device(struct prog_info *pi, char *name)
 	return(NULL);
 }
 
-// Pre-define devices. B.A. : Return value change from void to int 
-int predef_dev(struct prog_info *pi) 
+// Pre-define devices. B.A. : Return value change from void to int
+int predef_dev(struct prog_info *pi)
 {
 	int i;
 	char temp[MAX_DEV_NAME+1];
