@@ -1,5 +1,10 @@
 # ARVA Change log
 
+## Release 1.4.1 (2019-04-24)
+
+- Add support for ATtiny48/88
+- Improve build process for MacOs
+
 ## Release 1.4.0 (2019-02-26)
 
 - Fix broken .ifndef logic.
