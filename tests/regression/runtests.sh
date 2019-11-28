@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 AVRA_BIN="../../src/avra"
 
