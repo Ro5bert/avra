@@ -11,8 +11,8 @@ DISTFILES = src \
 	COPYING \
 	Makefile \
 
-PREFIX = /usr/local
-TARGET_INCLUDE_PATH = $(PREFIX)/include/avr
+PREFIX ?= /usr/local
+TARGET_INCLUDE_PATH ?= $(PREFIX)/include/avr
 
 CDEFS = -DDEFAULT_INCLUDE_PATH='"$(TARGET_INCLUDE_PATH)"' \
 	-DVERSION='"$(VERSION)"'
