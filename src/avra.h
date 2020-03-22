@@ -164,8 +164,10 @@ struct prog_info {
 	struct label *last_constant;
 	struct label *first_variable;
 	struct label *last_variable;
-	struct label *first_blacklist;	/* B.A. : List for undefined symbols. Needed to make forward references safe */
-	struct label *last_blacklist;
+        struct location *first_ifdef_blacklist;
+        struct location *last_ifdef_blacklist;
+        struct location *first_ifndef_blacklist;
+        struct location *last_ifndef_blacklist;
 	struct macro *first_macro;
 	struct macro *last_macro;
 	struct macro_call *first_macro_call;
@@ -272,6 +274,13 @@ struct orglist
 	int segment_overlap;
 };
 
+struct location
+{
+        struct location *next;
+        int line_num;
+        int file_num;
+};
+
 /* Prototypes */
 /* avra.c */
 int assemble(struct prog_info *pi);
@@ -286,7 +295,6 @@ void advance_ip(struct segment_info *si, int offset);
 
 int def_const(struct prog_info *pi, const char *name, int value);
 int def_var(struct prog_info *pi, char *name, int value);
-int def_blacklist(struct prog_info *pi, const char *name);
 int def_orglist(struct segment_info *si);
 int fix_orglist(struct segment_info *si);
 void fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist);
@@ -299,15 +307,19 @@ int get_variable(struct prog_info *pi,char *name,int *value);
 struct label *test_label(struct prog_info *pi,char *name,char *message);
 struct label *test_constant(struct prog_info *pi,char *name,char *message);
 struct label *test_variable(struct prog_info *pi,char *name,char *message);
-struct label *test_blacklist(struct prog_info *pi,char *name,char *message);
 struct label *search_symbol(struct prog_info *pi,struct label *first,char *name,char *message);
+int ifdef_blacklist(struct prog_info *pi);
+int ifndef_blacklist(struct prog_info *pi);
+int ifdef_is_blacklisted(struct prog_info *pi);
+int ifndef_is_blacklisted(struct prog_info *pi);
+int search_location(struct location *first, int line_num, int file_num);
 void free_defs(struct prog_info *pi);
 void free_labels(struct prog_info *pi);
 void free_constants(struct prog_info *pi);
-void free_blacklist(struct prog_info *pi);
+void free_ifdef_blacklist(struct prog_info *pi);
+void free_ifndef_blacklist(struct prog_info *pi);
 void free_variables(struct prog_info *pi);
 void free_orglist(struct prog_info *pi);
-
 
 /* parser.c */
 int parse_file(struct prog_info *pi, const char *filename);
