@@ -411,7 +411,8 @@ free_pi(struct prog_info *pi)
   free_labels(pi);
   free_constants(pi);
   free_variables(pi);
-  free_blacklist(pi);
+  free_ifdef_blacklist(pi);
+  free_ifndef_blacklist(pi);
   free_orglist(pi);
 }
 
@@ -526,31 +527,6 @@ int def_var(struct prog_info *pi, char *name, int value)
 	}
 	strcpy(label->name, name);
 	label->value = value;
-	return(True);
-}
-
-
-int def_blacklist(struct prog_info *pi, const char *name)
-{
-	struct label *label;
-	label = malloc(sizeof(struct label));
-	if(!label) {
-		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
-	}
-	label->next = NULL;
-	if(pi->last_blacklist)
-		pi->last_blacklist->next = label;
-	else
-		pi->first_blacklist = label;
-	pi->last_blacklist = label;
-	label->name = malloc(strlen(name) + 1);
-	if(!label->name) {
-		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
-	}
-	strcpy(label->name, name);
-	label->value = 0;
 	return(True);
 }
 
@@ -732,11 +708,6 @@ struct label *test_variable(struct prog_info *pi,char *name,char *message)
 	return search_symbol(pi,pi->first_variable,name,message);
 }
 
-struct label *test_blacklist(struct prog_info *pi,char *name,char *message)
-{
-	return search_symbol(pi,pi->first_blacklist,name,message);
-}
-
 /* Search in label,constant,variable,blacklist - list for a matching entry */
 /* Use first = pi->first_label,first_constant,first_variable,first_blacklist to select list */
 /* If message != NULL Print error message if symbol is defined */
@@ -753,6 +724,66 @@ struct label *search_symbol(struct prog_info *pi,struct label *first,char *name,
 	return(NULL);
 }
 
+int ifdef_blacklist(struct prog_info *pi)
+{
+    struct location *loc;
+    loc = malloc(sizeof(struct location));
+    if(!loc) {
+        print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+        return False;
+    }
+    loc->next = NULL;
+    if(pi->last_ifdef_blacklist) {
+        pi->last_ifdef_blacklist->next = loc;
+    } else {
+        pi->first_ifdef_blacklist = loc;
+    }
+    pi->last_ifdef_blacklist = loc;
+    loc->line_num = pi->fi->line_number;
+    loc->file_num = pi->fi->include_file->num;
+    return True;
+}
+
+int ifndef_blacklist(struct prog_info *pi)
+{
+    struct location *loc;
+    loc = malloc(sizeof(struct location));
+    if(!loc) {
+        print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+        return False;
+    }
+    loc->next = NULL;
+    if(pi->last_ifndef_blacklist) {
+        pi->last_ifndef_blacklist->next = loc;
+    } else {
+        pi->first_ifndef_blacklist = loc;
+    }
+    pi->last_ifndef_blacklist = loc;
+    loc->line_num = pi->fi->line_number;
+    loc->file_num = pi->fi->include_file->num;
+    return True;
+}
+
+int ifdef_is_blacklisted(struct prog_info *pi)
+{
+    return search_location(pi->first_ifdef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
+}
+
+int ifndef_is_blacklisted(struct prog_info *pi)
+{
+    return search_location(pi->first_ifndef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
+}
+
+int search_location(struct location *first, int line_num, int file_num)
+{
+    struct location *loc;
+    for (loc = first; loc; loc = loc->next) {
+        if (loc->line_num == line_num && loc->file_num == file_num) {
+            return True;
+        }
+    }
+    return False;
+}
 
 void free_defs(struct prog_info *pi)
 {
@@ -793,17 +824,28 @@ void free_constants(struct prog_info *pi)
   pi->last_constant = NULL;
 }
 
-void free_blacklist(struct prog_info *pi)
+void free_ifdef_blacklist(struct prog_info *pi) 
 {
-  struct label *label, *temp_label;
-  for(label = pi->first_blacklist; label;) {
-	  temp_label = label;
-	  label = label->next;
-	  free(temp_label->name);
-	  free(temp_label);
-  }
-  pi->first_blacklist = NULL;
-  pi->last_blacklist = NULL;
+    struct location *loc, *temp_loc;
+    for (loc = pi->first_ifdef_blacklist; loc;) {
+        temp_loc = loc;
+        loc = loc->next;
+        free(temp_loc);
+    }
+    pi->first_ifdef_blacklist = NULL;
+    pi->last_ifdef_blacklist = NULL;
+}
+
+void free_ifndef_blacklist(struct prog_info *pi) 
+{
+    struct location *loc, *temp_loc;
+    for (loc = pi->first_ifndef_blacklist; loc;) {
+        temp_loc = loc;
+        loc = loc->next;
+        free(temp_loc);
+    }
+    pi->first_ifndef_blacklist = NULL;
+    pi->last_ifndef_blacklist = NULL;
 }
 
 void free_variables(struct prog_info *pi)

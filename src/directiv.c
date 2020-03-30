@@ -629,67 +629,49 @@ int parse_directive(struct prog_info *pi)
 		case DIRECTIVE_UNDEF: // TODO
 			break;
 		case DIRECTIVE_IFDEF:
-			if(!next)
-				{
-				print_msg(pi, MSGTYPE_ERROR, ".IFDEF needs an operand");
-				return(True);
-				}
-			get_next_token(next, TERM_END);
-			/* B.A. : Forward referenc is not allowed for ifdef and ifndef */
-			/* Store undefined symbols in blacklist in pass1 and check, if they are still undefined in pass2 */
-			if(get_symbol(pi, next, NULL)) {
-#if 0
-					// If it's not defined in the first pass, but was defined later
-					// then it should be considered OK with regards to ifdef..endif and
-					// ifndef..endif code sections. Removed this code.
-				if(pi->pass==PASS_2) { /* B.A. : 'Still undefined'-test in pass 2 */
- 		          if(test_blacklist(pi,next,"Forward reference (%s) not allowed in .ifdef directive")!=NULL)
-					return(False);
-				}
-#else
-				pi->conditional_depth++;
-#endif
-			} else {
-				if(pi->pass==PASS_1) { /* B.A. : Store undefined symbols in pass 1 */
-          if(def_blacklist(pi, next)==False)
-   	        return(False);
- 				}
-				if(!spool_conditional(pi, False))
-	        return(False);
-			}
+			if(!next) {
+                            print_msg(pi, MSGTYPE_ERROR, ".IFDEF needs an operand");
+                            return True;
+                        }
+                        get_next_token(next, TERM_END);
+                        /* B.A. : Forward reference is not allowed for ifdef and ifndef */
+                        // Store location of ifdef (line number and file number) if the condition
+                        // fails on pass 1 so that we do not reinterpret it as succeeding on pass 2.
+                        if((pi->pass==PASS_1 && get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
+                            pi->conditional_depth++;
+                        } else {
+                            if(pi->pass==PASS_1) {
+                                // Blacklist this ifdef.
+                                if (!ifdef_blacklist(pi)) {
+                                    return False;
+                                }
+                            }
+                            if(!spool_conditional(pi, False)) {
+                                return False;
+                            }
+                        }
 			break;
 		case DIRECTIVE_IFNDEF:
-			if(!next)
-				{
-				print_msg(pi, MSGTYPE_ERROR, ".IFNDEF needs an operand");
-				return(True);
-				}
-			get_next_token(next, TERM_END);
-			/* B.A. : Forward referenc is not allowed for ifdef and ifndef */
-			/* Store undefined symbols in blacklist in pass1 and check, if they are still undefined in pass2 */
-			if(!get_symbol(pi, next, NULL))
-		        {
-#if 0
-				if(pi->pass==PASS_2) { /* B.A. : 'Still undefined'-test in pass 2 */
-					// If it's not defined in the first pass, but was defined later
-					// then it should be considered OK with regards to ifdef..endif and
-					// ifndef..endif code sections. Removed this code.
- 		          if(test_blacklist(pi,next,"Forward reference (%s) not allowed in .ifndef directive")!=NULL)
-					return(False);
-				}
-				if(!spool_conditional(pi, False))
-				        return(False);
-#else
-				pi->conditional_depth++;
-#endif
-				}
-			else {
-				if(pi->pass==PASS_1) { /* B.A. : Store undefined symbols in pass 1 */
-		          if(def_blacklist(pi, next)==False)
-		   	        return(False);
- 				}
-				if(!spool_conditional(pi, False))
-					return(False);
+			if(!next) {
+                            print_msg(pi, MSGTYPE_ERROR, ".IFNDEF needs an operand");
+                            return True;
+                        }
+                        get_next_token(next, TERM_END);
+                        /* B.A. : Forward reference is not allowed for ifdef and ifndef */
+                        // Store location of ifndef (line number and file number) if the condition
+                        // fails on pass 1 so that we do not reinterpret it as succeeding on pass 2.
+                        if((pi->pass==PASS_1 && !get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
+                            pi->conditional_depth++;
+                        } else {
+                            if(pi->pass==PASS_1) {
+                                // Blacklist this ifndef.
+                                if(!ifndef_blacklist(pi)) {
+                                    return False;
+                                }
+                            }
+                            if(!spool_conditional(pi, False)) {
+                                return False;
+                            }
 			}
 			break;
 		case DIRECTIVE_IF:
