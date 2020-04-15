@@ -21,16 +21,16 @@
  * Format of a symbol table entry
  */
 struct  nlist {
-        union {
-                char    *n_name;     /* for use when in-core */
-                long    n_strx;      /* index into file string table */
-        } n_un;
-        unsigned char   n_type;      /* type flag (N_TEXT,..)  */
-        char    n_other;             /* unused */
-        short   n_desc;              /* see <stab.h> */
-        unsigned long   n_value;     /* value of symbol (or sdb offset) */ 
+	union {
+		char    *n_name;     /* for use when in-core */
+		long    n_strx;      /* index into file string table */
+	} n_un;
+	unsigned char   n_type;      /* type flag (N_TEXT,..)  */
+	char    n_other;             /* unused */
+	short   n_desc;              /* see <stab.h> */
+	unsigned long   n_value;     /* value of symbol (or sdb offset) */
 };
- 
+
 /*
  * Simple values for n_type.
  */
@@ -41,7 +41,7 @@ struct  nlist {
 #define N_BSS   0x8             /* bss */
 #define N_COMM  0x12            /* common (internal to ld) */
 #define N_FN    0x1f            /* file name symbol */
- 
+
 #define N_EXT   01              /* external bit, or'ed in */
 #define N_TYPE  0x1e            /* mask for all the type bits */
 

@@ -187,7 +187,7 @@ enum {
 struct instruction {
 	char *mnemonic;
 	int opcode;
-        int flag;	/* Device flags meaning the instruction is not
+	int flag;	/* Device flags meaning the instruction is not
                            supported */
 };
 
@@ -337,357 +337,362 @@ struct instruction instruction_list[] = {
 	{"lds",   0xa000, DF_TINY1X},
 	{"sts",   0xa800, DF_TINY1X},
 	{"end", 0, 0}
-	};
+};
 
 
 /* We try to parse the command name. Is it a assembler mnemonic or anything else ?
  * If so, it may be a macro.
 */
 
-int parse_mnemonic(struct prog_info *pi) 
+int
+parse_mnemonic(struct prog_info *pi)
 {
-  int mnemonic;
-  int i;
-  int opcode = 0;
-  int opcode2 = 0;
-  int instruction_long = False;
-  char *operand1;
-  char *operand2;
-  struct macro *macro;
-  char temp[MAX_MNEMONIC_LEN + 1];
+	int mnemonic;
+	int i;
+	int opcode = 0;
+	int opcode2 = 0;
+	int instruction_long = False;
+	char *operand1;
+	char *operand2;
+	struct macro *macro;
+	char temp[MAX_MNEMONIC_LEN + 1];
 
-  operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  // we get the first word on line
-  mnemonic = get_mnemonic_type(pi);
-  if(mnemonic == -1) {				// if -1 this must be a macro name
-	macro = get_macro(pi, pi->fi->scratch); // and so, we try to get the corresponding macro struct.
-	if(macro) {
-		return(expand_macro(pi, macro, operand1)); // we expand the macro
-	} else { 				// if we cant find a name, this is a unknown word.
-		print_msg(pi, MSGTYPE_ERROR, "Unknown mnemonic/macro: %s", pi->fi->scratch);
-		return(True);
+	operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  // we get the first word on line
+	mnemonic = get_mnemonic_type(pi);
+	if (mnemonic == -1) {				// if -1 this must be a macro name
+		macro = get_macro(pi, pi->fi->scratch); // and so, we try to get the corresponding macro struct.
+		if (macro) {
+			return (expand_macro(pi, macro, operand1)); // we expand the macro
+		} else { 				// if we cant find a name, this is a unknown word.
+			print_msg(pi, MSGTYPE_ERROR, "Unknown mnemonic/macro: %s", pi->fi->scratch);
+			return (True);
+		}
 	}
-  }
-  if(pi->pass == PASS_2) {
-	if(mnemonic <= MNEMONIC_BREAK) {
-		if(operand1) {
-			print_msg(pi, MSGTYPE_WARNING, "Garbage after instruction %s: %s", instruction_list[mnemonic].mnemonic, operand1);		}
-		opcode = 0;			// No operand
-	} else if(mnemonic <= MNEMONIC_ELPM) {
-		if(operand1) {
-			operand2 = get_next_token(operand1, TERM_COMMA);
-			if(!operand2) {
-				print_msg(pi, MSGTYPE_ERROR, "%s needs a second operand", instruction_list[mnemonic].mnemonic);
-				return(True);			}
-			get_next_token(operand2, TERM_END);
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			i = get_indirect(pi, operand2);
-			if(i == 6) { // Means Z
-				if(mnemonic == MNEMONIC_LPM)
-					mnemonic = MNEMONIC_LPM_Z;
-				else if(mnemonic == MNEMONIC_ELPM)
-					mnemonic = MNEMONIC_ELPM_Z;
-			} else if(i == 7) { // Means Z+
-				if(mnemonic == MNEMONIC_LPM)
-					mnemonic = MNEMONIC_LPM_ZP;
-				else if(mnemonic == MNEMONIC_ELPM)
-					mnemonic = MNEMONIC_ELPM_ZP;
-			} else {
-				print_msg(pi, MSGTYPE_ERROR, "Unsupported operand: %s", operand2);
-				return(True);
+	if (pi->pass == PASS_2) {
+		if (mnemonic <= MNEMONIC_BREAK) {
+			if (operand1) {
+				print_msg(pi, MSGTYPE_WARNING, "Garbage after instruction %s: %s", instruction_list[mnemonic].mnemonic, operand1);
 			}
-		} else
-			opcode = 0;
-	} else {
-		if(!operand1) {
-			print_msg(pi, MSGTYPE_ERROR, "%s needs an operand", instruction_list[mnemonic].mnemonic);
-			return(True);
-		}
-		operand2 = get_next_token(operand1, TERM_COMMA);
-		if(mnemonic >= MNEMONIC_BRBS) {
-			if(!operand2) {
-				print_msg(pi, MSGTYPE_ERROR, "%s needs a second operand", instruction_list[mnemonic].mnemonic);
-				return(True);
-			}
-			get_next_token(operand2, TERM_END);
-		}
-		if(mnemonic <= MNEMONIC_BCLR) {
-			if(!get_bitnum(pi, operand1, &i))
-				return(False);
-			opcode = i << 4;
-		} else if(mnemonic <= MNEMONIC_ROL) {
-			i = get_register(pi, operand1);
-			if((mnemonic == MNEMONIC_SER) && (i < 16)) {
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
-				i &= 0x0f;
-			}
-			opcode = i << 4;
-			if(mnemonic >= MNEMONIC_TST)
-				opcode |= ((i & 0x10) << 5) | (i & 0x0f);
-		} else if(mnemonic <= MNEMONIC_RCALL) {
-			if(!get_expr(pi, operand1, &i))
-				return(False);
-			i -= pi->cseg->addr + 1;
-			if(mnemonic <= MNEMONIC_BRID) {
-				if((i < -64) || (i > 63))
-					print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
-				opcode = (i & 0x7f) << 3;
-			} else {
-				if(((i < -2048) || (i > 2047)) && (pi->device->flash_size != 4096))
-					print_msg(pi, MSGTYPE_ERROR, "Relative address out of range (-2048 <= k <= 2047)");
-				opcode = i & 0x0fff;
-			}
-		} else if(mnemonic <= MNEMONIC_CALL) {
-			if(!get_expr(pi, operand1, &i))
-				return(False);
-			if((i < 0) || (i > 4194303))
-				print_msg(pi, MSGTYPE_ERROR, "Address out of range (0 <= k <= 4194303)");
-			opcode = ((i & 0x3e0000) >> 13) | ((i & 0x010000) >> 16);
-			opcode2 = i & 0xffff;
-			instruction_long = True;
-		} else if(mnemonic <= MNEMONIC_BRBC) {
-			if(!get_bitnum(pi, operand1, &i))
-				return(False);
-			opcode = i;
-			if(!get_expr(pi, operand2, &i))
-				return(False);
-			i -= pi->cseg->addr + 1;
-			if((i < -64) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
-			opcode |= (i & 0x7f) << 3;
-		} else if(mnemonic <= MNEMONIC_MUL) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			i = get_register(pi, operand2);
-			opcode |= ((i & 0x10) << 5) | (i & 0x0f);
-		} else if(mnemonic <= MNEMONIC_MOVW) {
-			i = get_register(pi, operand1);
-			if((i % 2) == 1)
-				print_msg(pi, MSGTYPE_ERROR, "%s must use a even numbered register for Rd", instruction_list[mnemonic].mnemonic);
-			opcode = (i / 2) << 4;
-			i = get_register(pi, operand2);
-			if((i % 2) == 1)
-				print_msg(pi, MSGTYPE_ERROR, "%s must use a even numbered register for Rr", instruction_list[mnemonic].mnemonic);
-			opcode |= i / 2;
-		} else if(mnemonic <= MNEMONIC_MULS) {
-			i = get_register(pi, operand1);
-			if(i < 16)
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
-			opcode = (i & 0x0f) << 4;
-			i = get_register(pi, operand2);
-			if(i < 16)
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
-			opcode |= (i & 0x0f);
-		} else if(mnemonic <= MNEMONIC_FMULSU) {
-			i = get_register(pi, operand1);
-			if((i < 16) || (i >= 24))
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use registers (r16 - r23)", instruction_list[mnemonic].mnemonic);
-			opcode = (i & 0x07) << 4;
-			i = get_register(pi, operand2);
-			if((i < 16) || (i >= 24))
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use registers (r16 - r23)", instruction_list[mnemonic].mnemonic);
-			opcode |= (i & 0x07);
-		} else if(mnemonic <= MNEMONIC_SBIW) {
-			i = get_register(pi, operand1);
-			if(!((i == 24) || (i == 26) || (i == 28) || (i == 30)))
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use registers R24, R26, R28 or R30", instruction_list[mnemonic].mnemonic);
-			opcode = ((i - 24) / 2) << 4;
-			if(!get_expr(pi, operand2, &i))
-			return(False);
-			if((i < 0) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "Constant out of range (0 <= k <= 63)");
-			opcode |= ((i & 0x30) << 2) | (i & 0x0f);
-		} else if(mnemonic <= MNEMONIC_CBR) {
-			i = get_register(pi, operand1);
-			if(i < 16)
-				print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
-			opcode = (i & 0x0f) << 4;
-			if(!get_expr(pi, operand2, &i))
-				return(False);
-			if((i < -128) || (i > 255))
-				print_msg(pi, MSGTYPE_WARNING, "Constant out of range (-128 <= k <= 255). Will be masked");
-			if(mnemonic == MNEMONIC_CBR)
-				i = ~i;
-			opcode |= ((i & 0xf0) << 4) | (i & 0x0f);
-		} else if(mnemonic <= MNEMONIC_BLD) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			if(!get_bitnum(pi, operand2, &i))
-				return(False);
-			opcode |= i;
-		} else if(mnemonic == MNEMONIC_IN) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			if(!get_expr(pi, operand2, &i))
-				return(False);
-			if((i < 0) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
-			opcode |= ((i & 0x30) << 5) | (i & 0x0f);
-		} else if(mnemonic == MNEMONIC_OUT) {
-			if(!get_expr(pi, operand1, &i))
-				return(False);
-			if((i < 0) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
-			opcode = ((i & 0x30) << 5) | (i & 0x0f);
-			i = get_register(pi, operand2);
-			opcode |= i << 4;
-		} else if(mnemonic <= MNEMONIC_CBI) {
-			if(!get_expr(pi, operand1, &i))
-				return(False);
-			if((i < 0) || (i > 31))
-				print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 31)");
-			opcode = i << 3;
-			if(!get_bitnum(pi, operand2, &i))
-				return(False);
-			opcode |= i;
-		} else if(mnemonic == MNEMONIC_LDS) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			/* AVR8L has one word LDS. High nibble of k in funny order */
-			if (pi->device->flag & DF_AVR8L) {
-				mnemonic = MNEMONIC_LDS_AVR8L;
-				opcode &= 0x00f0;
-			}
-			if(!get_expr(pi, operand2, &i))
-				return(False);
-			if (pi->device->flag & DF_AVR8L) {
-				if((i < 0x40) || (i > 0xbf))
-					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
-				opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
-			} else {
-				if((i < 0) || (i > 65535))
-					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
-				opcode2 = i;
-				instruction_long = True;
-			}
-		} else if(mnemonic == MNEMONIC_STS) {
-			if(!get_expr(pi, operand1, &i))
-				return(False);
-			/* AVR8L has one word STS. High nibble of k in funny order */
-			if (pi->device->flag & DF_AVR8L) {
-				mnemonic = MNEMONIC_STS_AVR8L;
-				if((i < 0x40) || (i > 0xbf))
-					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
-				opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
-			} else {
-				if((i < 0) || (i > 65535))
-					print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
-				opcode2 = i;
-				instruction_long = True;
-			}
-			i = get_register(pi, operand2);
-			if (pi->device->flag & DF_AVR8L)
-				opcode |= ((i << 4) & 0x00f0);
-			else
+			opcode = 0;			// No operand
+		} else if (mnemonic <= MNEMONIC_ELPM) {
+			if (operand1) {
+				operand2 = get_next_token(operand1, TERM_COMMA);
+				if (!operand2) {
+					print_msg(pi, MSGTYPE_ERROR, "%s needs a second operand", instruction_list[mnemonic].mnemonic);
+					return (True);
+				}
+				get_next_token(operand2, TERM_END);
+				i = get_register(pi, operand1);
 				opcode = i << 4;
-			//print_msg(pi, MSGTYPE_MESSAGE, "operand2 0x%04x opcode 0x%04x", i, opcode);
-		} else if(mnemonic == MNEMONIC_LD) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			mnemonic = MNEMONIC_LD_X + get_indirect(pi, operand2);
-		} else if(mnemonic == MNEMONIC_ST) {
-			mnemonic = MNEMONIC_ST_X + get_indirect(pi, operand1);
-			i = get_register(pi, operand2);
-			opcode = i << 4;
-		} else if(mnemonic == MNEMONIC_LDD) {
-			i = get_register(pi, operand1);
-			opcode = i << 4;
-			if(tolower(operand2[0]) == 'z')
-				mnemonic = MNEMONIC_LDD_Z;
-			else if(tolower(operand2[0]) == 'y')
+				i = get_indirect(pi, operand2);
+				if (i == 6) { // Means Z
+					if (mnemonic == MNEMONIC_LPM)
+						mnemonic = MNEMONIC_LPM_Z;
+					else if (mnemonic == MNEMONIC_ELPM)
+						mnemonic = MNEMONIC_ELPM_Z;
+				} else if (i == 7) { // Means Z+
+					if (mnemonic == MNEMONIC_LPM)
+						mnemonic = MNEMONIC_LPM_ZP;
+					else if (mnemonic == MNEMONIC_ELPM)
+						mnemonic = MNEMONIC_ELPM_ZP;
+				} else {
+					print_msg(pi, MSGTYPE_ERROR, "Unsupported operand: %s", operand2);
+					return (True);
+				}
+			} else
+				opcode = 0;
+		} else {
+			if (!operand1) {
+				print_msg(pi, MSGTYPE_ERROR, "%s needs an operand", instruction_list[mnemonic].mnemonic);
+				return (True);
+			}
+			operand2 = get_next_token(operand1, TERM_COMMA);
+			if (mnemonic >= MNEMONIC_BRBS) {
+				if (!operand2) {
+					print_msg(pi, MSGTYPE_ERROR, "%s needs a second operand", instruction_list[mnemonic].mnemonic);
+					return (True);
+				}
+				get_next_token(operand2, TERM_END);
+			}
+			if (mnemonic <= MNEMONIC_BCLR) {
+				if (!get_bitnum(pi, operand1, &i))
+					return (False);
+				opcode = i << 4;
+			} else if (mnemonic <= MNEMONIC_ROL) {
+				i = get_register(pi, operand1);
+				if ((mnemonic == MNEMONIC_SER) && (i < 16)) {
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
+					i &= 0x0f;
+				}
+				opcode = i << 4;
+				if (mnemonic >= MNEMONIC_TST)
+					opcode |= ((i & 0x10) << 5) | (i & 0x0f);
+			} else if (mnemonic <= MNEMONIC_RCALL) {
+				if (!get_expr(pi, operand1, &i))
+					return (False);
+				i -= pi->cseg->addr + 1;
+				if (mnemonic <= MNEMONIC_BRID) {
+					if ((i < -64) || (i > 63))
+						print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
+					opcode = (i & 0x7f) << 3;
+				} else {
+					if (((i < -2048) || (i > 2047)) && (pi->device->flash_size != 4096))
+						print_msg(pi, MSGTYPE_ERROR, "Relative address out of range (-2048 <= k <= 2047)");
+					opcode = i & 0x0fff;
+				}
+			} else if (mnemonic <= MNEMONIC_CALL) {
+				if (!get_expr(pi, operand1, &i))
+					return (False);
+				if ((i < 0) || (i > 4194303))
+					print_msg(pi, MSGTYPE_ERROR, "Address out of range (0 <= k <= 4194303)");
+				opcode = ((i & 0x3e0000) >> 13) | ((i & 0x010000) >> 16);
+				opcode2 = i & 0xffff;
+				instruction_long = True;
+			} else if (mnemonic <= MNEMONIC_BRBC) {
+				if (!get_bitnum(pi, operand1, &i))
+					return (False);
+				opcode = i;
+				if (!get_expr(pi, operand2, &i))
+					return (False);
+				i -= pi->cseg->addr + 1;
+				if ((i < -64) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
+				opcode |= (i & 0x7f) << 3;
+			} else if (mnemonic <= MNEMONIC_MUL) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				i = get_register(pi, operand2);
+				opcode |= ((i & 0x10) << 5) | (i & 0x0f);
+			} else if (mnemonic <= MNEMONIC_MOVW) {
+				i = get_register(pi, operand1);
+				if ((i % 2) == 1)
+					print_msg(pi, MSGTYPE_ERROR, "%s must use a even numbered register for Rd", instruction_list[mnemonic].mnemonic);
+				opcode = (i / 2) << 4;
+				i = get_register(pi, operand2);
+				if ((i % 2) == 1)
+					print_msg(pi, MSGTYPE_ERROR, "%s must use a even numbered register for Rr", instruction_list[mnemonic].mnemonic);
+				opcode |= i / 2;
+			} else if (mnemonic <= MNEMONIC_MULS) {
+				i = get_register(pi, operand1);
+				if (i < 16)
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
+				opcode = (i & 0x0f) << 4;
+				i = get_register(pi, operand2);
+				if (i < 16)
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
+				opcode |= (i & 0x0f);
+			} else if (mnemonic <= MNEMONIC_FMULSU) {
+				i = get_register(pi, operand1);
+				if ((i < 16) || (i >= 24))
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use registers (r16 - r23)", instruction_list[mnemonic].mnemonic);
+				opcode = (i & 0x07) << 4;
+				i = get_register(pi, operand2);
+				if ((i < 16) || (i >= 24))
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use registers (r16 - r23)", instruction_list[mnemonic].mnemonic);
+				opcode |= (i & 0x07);
+			} else if (mnemonic <= MNEMONIC_SBIW) {
+				i = get_register(pi, operand1);
+				if (!((i == 24) || (i == 26) || (i == 28) || (i == 30)))
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use registers R24, R26, R28 or R30", instruction_list[mnemonic].mnemonic);
+				opcode = ((i - 24) / 2) << 4;
+				if (!get_expr(pi, operand2, &i))
+					return (False);
+				if ((i < 0) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "Constant out of range (0 <= k <= 63)");
+				opcode |= ((i & 0x30) << 2) | (i & 0x0f);
+			} else if (mnemonic <= MNEMONIC_CBR) {
+				i = get_register(pi, operand1);
+				if (i < 16)
+					print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
+				opcode = (i & 0x0f) << 4;
+				if (!get_expr(pi, operand2, &i))
+					return (False);
+				if ((i < -128) || (i > 255))
+					print_msg(pi, MSGTYPE_WARNING, "Constant out of range (-128 <= k <= 255). Will be masked");
+				if (mnemonic == MNEMONIC_CBR)
+					i = ~i;
+				opcode |= ((i & 0xf0) << 4) | (i & 0x0f);
+			} else if (mnemonic <= MNEMONIC_BLD) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				if (!get_bitnum(pi, operand2, &i))
+					return (False);
+				opcode |= i;
+			} else if (mnemonic == MNEMONIC_IN) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				if (!get_expr(pi, operand2, &i))
+					return (False);
+				if ((i < 0) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
+				opcode |= ((i & 0x30) << 5) | (i & 0x0f);
+			} else if (mnemonic == MNEMONIC_OUT) {
+				if (!get_expr(pi, operand1, &i))
+					return (False);
+				if ((i < 0) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
+				opcode = ((i & 0x30) << 5) | (i & 0x0f);
+				i = get_register(pi, operand2);
+				opcode |= i << 4;
+			} else if (mnemonic <= MNEMONIC_CBI) {
+				if (!get_expr(pi, operand1, &i))
+					return (False);
+				if ((i < 0) || (i > 31))
+					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 31)");
+				opcode = i << 3;
+				if (!get_bitnum(pi, operand2, &i))
+					return (False);
+				opcode |= i;
+			} else if (mnemonic == MNEMONIC_LDS) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				/* AVR8L has one word LDS. High nibble of k in funny order */
+				if (pi->device->flag & DF_AVR8L) {
+					mnemonic = MNEMONIC_LDS_AVR8L;
+					opcode &= 0x00f0;
+				}
+				if (!get_expr(pi, operand2, &i))
+					return (False);
+				if (pi->device->flag & DF_AVR8L) {
+					if ((i < 0x40) || (i > 0xbf))
+						print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
+					opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
+				} else {
+					if ((i < 0) || (i > 65535))
+						print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
+					opcode2 = i;
+					instruction_long = True;
+				}
+			} else if (mnemonic == MNEMONIC_STS) {
+				if (!get_expr(pi, operand1, &i))
+					return (False);
+				/* AVR8L has one word STS. High nibble of k in funny order */
+				if (pi->device->flag & DF_AVR8L) {
+					mnemonic = MNEMONIC_STS_AVR8L;
+					if ((i < 0x40) || (i > 0xbf))
+						print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
+					opcode |= ((i & 0x40) << 2) | ((i & 0x30) << 5) | (i & 0x0f);
+				} else {
+					if ((i < 0) || (i > 65535))
+						print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0 <= k <= 65535)");
+					opcode2 = i;
+					instruction_long = True;
+				}
+				i = get_register(pi, operand2);
+				if (pi->device->flag & DF_AVR8L)
+					opcode |= ((i << 4) & 0x00f0);
+				else
+					opcode = i << 4;
+				//print_msg(pi, MSGTYPE_MESSAGE, "operand2 0x%04x opcode 0x%04x", i, opcode);
+			} else if (mnemonic == MNEMONIC_LD) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				mnemonic = MNEMONIC_LD_X + get_indirect(pi, operand2);
+			} else if (mnemonic == MNEMONIC_ST) {
+				mnemonic = MNEMONIC_ST_X + get_indirect(pi, operand1);
+				i = get_register(pi, operand2);
+				opcode = i << 4;
+			} else if (mnemonic == MNEMONIC_LDD) {
+				i = get_register(pi, operand1);
+				opcode = i << 4;
+				if (tolower(operand2[0]) == 'z')
+					mnemonic = MNEMONIC_LDD_Z;
+				else if (tolower(operand2[0]) == 'y')
 					mnemonic = MNEMONIC_LDD_Y;
 				else
 					print_msg(pi, MSGTYPE_ERROR, "Garbage in second operand (%s)", operand2);
-			i = 1;
-			while((operand2[i] != '\0') && (operand2[i] != '+')) i++;
-			if(operand2[i] == '\0')	{
-				print_msg(pi, MSGTYPE_ERROR, "Garbage in second operand (%s)", operand2);
-				return(False);
-			}
-			if(!get_expr(pi, &operand2[i + 1], &i))
-				return(False);
-			if((i < 0) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
-			opcode |= ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
-		} else if(mnemonic == MNEMONIC_STD) {
-			if(tolower(operand1[0]) == 'z')
-				mnemonic = MNEMONIC_STD_Z;
-			else if(tolower(operand1[0]) == 'y')
+				i = 1;
+				while ((operand2[i] != '\0') && (operand2[i] != '+')) i++;
+				if (operand2[i] == '\0')	{
+					print_msg(pi, MSGTYPE_ERROR, "Garbage in second operand (%s)", operand2);
+					return (False);
+				}
+				if (!get_expr(pi, &operand2[i + 1], &i))
+					return (False);
+				if ((i < 0) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
+				opcode |= ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
+			} else if (mnemonic == MNEMONIC_STD) {
+				if (tolower(operand1[0]) == 'z')
+					mnemonic = MNEMONIC_STD_Z;
+				else if (tolower(operand1[0]) == 'y')
 					mnemonic = MNEMONIC_STD_Y;
 				else
 					print_msg(pi, MSGTYPE_ERROR, "Garbage in first operand (%s)", operand1);
-			i = 1;
-			while((operand1[i] != '\0') && (operand1[i] != '+')) i++;
-			if(operand1[i] == '\0')	{
-				print_msg(pi, MSGTYPE_ERROR, "Garbage in first operand (%s)", operand1);
-				return(False);
-			}
-			if(!get_expr(pi, &operand1[i + 1], &i))
-				return(False);
-			if((i < 0) || (i > 63))
-				print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
-			opcode = ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
-			i = get_register(pi, operand2);
-			opcode |= i << 4;
-		} else
-			print_msg(pi, MSGTYPE_ERROR, "Shit! Missing opcode check [%d]...", mnemonic);
-	}
-	if (pi->device->flag & instruction_list[mnemonic].flag)	{
-		strncpy(temp, instruction_list[mnemonic].mnemonic, MAX_MNEMONIC_LEN);
-   		print_msg(pi, MSGTYPE_ERROR, "%s instruction is not supported on %s",
-   		          my_strupr(temp), pi->device->name);
-	}
-	opcode |= instruction_list[mnemonic].opcode;
-	if(pi->list_on && pi->list_line) {
-		if(instruction_long)
-			fprintf(pi->list_file, "%c:%06x %04x %04x %s\n", 
-				pi->cseg->ident, pi->cseg->addr, opcode, opcode2, pi->list_line);
+				i = 1;
+				while ((operand1[i] != '\0') && (operand1[i] != '+')) i++;
+				if (operand1[i] == '\0')	{
+					print_msg(pi, MSGTYPE_ERROR, "Garbage in first operand (%s)", operand1);
+					return (False);
+				}
+				if (!get_expr(pi, &operand1[i + 1], &i))
+					return (False);
+				if ((i < 0) || (i > 63))
+					print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
+				opcode = ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
+				i = get_register(pi, operand2);
+				opcode |= i << 4;
+			} else
+				print_msg(pi, MSGTYPE_ERROR, "Shit! Missing opcode check [%d]...", mnemonic);
+		}
+		if (pi->device->flag & instruction_list[mnemonic].flag)	{
+			strncpy(temp, instruction_list[mnemonic].mnemonic, MAX_MNEMONIC_LEN);
+			print_msg(pi, MSGTYPE_ERROR, "%s instruction is not supported on %s",
+			          my_strupr(temp), pi->device->name);
+		}
+		opcode |= instruction_list[mnemonic].opcode;
+		if (pi->list_on && pi->list_line) {
+			if (instruction_long)
+				fprintf(pi->list_file, "%c:%06x %04x %04x %s\n",
+				        pi->cseg->ident, pi->cseg->addr, opcode, opcode2, pi->list_line);
+			else
+				fprintf(pi->list_file, "%c:%06x %04x      %s\n",
+				        pi->cseg->ident, pi->cseg->addr, opcode, pi->list_line);
+			pi->list_line = NULL;
+		}
+		if (pi->cseg->hfi) {
+			write_prog_word(pi, pi->cseg->addr, opcode);
+			if (instruction_long)
+				write_prog_word(pi, pi->cseg->addr + 1, opcode2);
+		}
+		if (instruction_long)
+			pi->cseg->addr += 2; /* XXX advance */
 		else
-			fprintf(pi->list_file, "%c:%06x %04x      %s\n", 
-				pi->cseg->ident, pi->cseg->addr, opcode, pi->list_line);
-		pi->list_line = NULL;
+			pi->cseg->addr ++;
+	} else { // Pass 1
+		if (pi->device->flag & DF_AVR8L)
+			mnemonic = MNEMONIC_LDS_AVR8L;
+		if ((mnemonic == MNEMONIC_JMP) || (mnemonic == MNEMONIC_CALL)
+		        || (mnemonic == MNEMONIC_LDS) || (mnemonic == MNEMONIC_STS)) {
+			pi->cseg->addr += 2;
+			pi->cseg->count += 2;
+		} else {
+			pi->cseg->addr++;
+			pi->cseg->count++;
+		}
 	}
-	if(pi->cseg->hfi) {
-		write_prog_word(pi, pi->cseg->addr, opcode);
-		if(instruction_long)
-			write_prog_word(pi, pi->cseg->addr + 1, opcode2);
-	}
-	if(instruction_long)
-		pi->cseg->addr += 2; /* XXX advance */
-	else
-		pi->cseg->addr ++;
-  } else { // Pass 1
-	if (pi->device->flag & DF_AVR8L)
-		mnemonic = MNEMONIC_LDS_AVR8L;
-	if((mnemonic == MNEMONIC_JMP) || (mnemonic == MNEMONIC_CALL) 
-        	|| (mnemonic == MNEMONIC_LDS) || (mnemonic == MNEMONIC_STS)) {
-		pi->cseg->addr += 2;
-		pi->cseg->count += 2;
-	} else {
-		pi->cseg->addr++;
-		pi->cseg->count++;
-	}
-  }
-  return(True);
+	return (True);
 }
 
-int get_mnemonic_type(struct prog_info *pi)
+int
+get_mnemonic_type(struct prog_info *pi)
 {
 	int i;
 	char *mnemonic;
 
 	mnemonic = my_strlwr(pi->fi->scratch);
 
-	for(i = 0; i < MNEMONIC_COUNT; i++) {
-		if(!strcmp(mnemonic, instruction_list[i].mnemonic)) {
-			return(i);
+	for (i = 0; i < MNEMONIC_COUNT; i++) {
+		if (!strcmp(mnemonic, instruction_list[i].mnemonic)) {
+			return (i);
 		}
 	}
-	return(-1);
+	return (-1);
 }
 
 
-int get_register(struct prog_info *pi, char *data)
+int
+get_register(struct prog_info *pi, char *data)
 {
 	char *second_reg;
 	int reg = 0;
@@ -695,147 +700,148 @@ int get_register(struct prog_info *pi, char *data)
 
 	// Check for any occurence of r1:r0 pairs, and if so skip to second register
 	second_reg = strchr(data, ':');
-	if(second_reg != NULL)
+	if (second_reg != NULL)
 		data = second_reg + 1;
 
-	for(def = pi->first_def; def; def = def->next)
-		if(!nocase_strcmp(def->name, data))
-			{
+	for (def = pi->first_def; def; def = def->next)
+		if (!nocase_strcmp(def->name, data)) {
 			reg = def->reg;
-			return(reg);
-			}
-	if((tolower(data[0]) == 'r') && isdigit(data[1])) {
+			return (reg);
+		}
+	if ((tolower(data[0]) == 'r') && isdigit(data[1])) {
 		reg = atoi(&data[1]);
-		if(reg > 31)
+		if (reg > 31)
 			print_msg(pi, MSGTYPE_ERROR, "R%d is not a valid register", reg);
-		return(reg);
+		return (reg);
 	}
-	if(data[1] != '\0') {
-			print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", data);
-	}	
+	if (data[1] != '\0') {
+		print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", data);
+	}
 	switch (data[0]) {
-		case 'x':
-			reg = 26;
-			break;
-		case 'y': 
-			reg = 28;
-			break;
-		case 'z':
-			reg = 30;
-			break;
-		default:
-			print_msg(pi, MSGTYPE_ERROR, "No register associated with %s", data);
+	case 'x':
+		reg = 26;
+		break;
+	case 'y':
+		reg = 28;
+		break;
+	case 'z':
+		reg = 30;
+		break;
+	default:
+		print_msg(pi, MSGTYPE_ERROR, "No register associated with %s", data);
 	}
 	if ((reg < 16) && (pi->device->flag & DF_AVR8L))
 		print_msg(pi, MSGTYPE_ERROR, "%s can only use a high registers (r16 - r31)", pi->device->name);
 
-	return(reg);
+	return (reg);
 }
 
-int get_bitnum(struct prog_info *pi, char *data, int *ret)
+int
+get_bitnum(struct prog_info *pi, char *data, int *ret)
 {
-	if(!get_expr(pi, data, ret))
-		return(False);
-	if((*ret < 0) || (*ret > 7)) {
+	if (!get_expr(pi, data, ret))
+		return (False);
+	if ((*ret < 0) || (*ret > 7)) {
 		print_msg(pi, MSGTYPE_ERROR, "Operand out of range (0 <= s <= 7)");
-		return(False);
+		return (False);
 	}
-	return(True);
+	return (True);
 }
 
 
-int get_indirect(struct prog_info *pi, char *operand)
+int
+get_indirect(struct prog_info *pi, char *operand)
 {
 	int i = 1;
 
-	switch(tolower(operand[0])) {
-		case '-':
-			while(IS_HOR_SPACE(operand[i])) i++;
-			if(operand[i + 1] != '\0')
-				print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
-			switch(tolower(operand[i])) {
-				case 'x':
-        	   	                if (pi->device->flag & DF_NO_XREG)
-                                           print_msg(pi, MSGTYPE_ERROR, "X register is not supported on %s", pi->device->name);
-					return(2);
-				case 'y':
-        	   	                if (pi->device->flag & DF_NO_YREG)
-                                           print_msg(pi, MSGTYPE_ERROR, "Y register is not supported on %s", pi->device->name);
-					return(5);
-				case 'z':
-					return(8);
-				default:
-					print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
-					return(0);
-			}
+	switch (tolower(operand[0])) {
+	case '-':
+		while (IS_HOR_SPACE(operand[i])) i++;
+		if (operand[i + 1] != '\0')
+			print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
+		switch (tolower(operand[i])) {
 		case 'x':
-                        if (pi->device->flag & DF_NO_XREG)
-                           print_msg(pi, MSGTYPE_ERROR, "X register is not supported on %s", pi->device->name);
-			while(IS_HOR_SPACE(operand[i])) i++;
-			if(operand[i] == '+') {
-				if(operand[i + 1] != '\0')
-					print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
-				return(1);
-			}
-			else if(operand[i] == '\0')
-				return(0);
-			else
-				print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
-			return(0);
+			if (pi->device->flag & DF_NO_XREG)
+				print_msg(pi, MSGTYPE_ERROR, "X register is not supported on %s", pi->device->name);
+			return (2);
 		case 'y':
-                        if (pi->device->flag & DF_NO_YREG)
-                           print_msg(pi, MSGTYPE_ERROR, "Y register is not supported on %s", pi->device->name);
-			while(IS_HOR_SPACE(operand[i])) i++;
-			if(operand[i] == '+') {
-				if(operand[i + 1] != '\0')
-					print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
-				return(4);
-			}
-			else if(operand[i] == '\0')
-				return(3);
-			else
-				print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
-			return(0);
+			if (pi->device->flag & DF_NO_YREG)
+				print_msg(pi, MSGTYPE_ERROR, "Y register is not supported on %s", pi->device->name);
+			return (5);
 		case 'z':
-			while(IS_HOR_SPACE(operand[i])) i++;
-			if(operand[i] == '+') {
-				if(operand[i + 1] != '\0')
-					print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
-				return(7);
-			}
-			else if(operand[i] == '\0')
-				return(6);
-			else
-				print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
-			return(0);
+			return (8);
 		default:
 			print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
+			return (0);
+		}
+	case 'x':
+		if (pi->device->flag & DF_NO_XREG)
+			print_msg(pi, MSGTYPE_ERROR, "X register is not supported on %s", pi->device->name);
+		while (IS_HOR_SPACE(operand[i])) i++;
+		if (operand[i] == '+') {
+			if (operand[i + 1] != '\0')
+				print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
+			return (1);
+		} else if (operand[i] == '\0')
+			return (0);
+		else
+			print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
+		return (0);
+	case 'y':
+		if (pi->device->flag & DF_NO_YREG)
+			print_msg(pi, MSGTYPE_ERROR, "Y register is not supported on %s", pi->device->name);
+		while (IS_HOR_SPACE(operand[i])) i++;
+		if (operand[i] == '+') {
+			if (operand[i + 1] != '\0')
+				print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
+			return (4);
+		} else if (operand[i] == '\0')
+			return (3);
+		else
+			print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
+		return (0);
+	case 'z':
+		while (IS_HOR_SPACE(operand[i])) i++;
+		if (operand[i] == '+') {
+			if (operand[i + 1] != '\0')
+				print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
+			return (7);
+		} else if (operand[i] == '\0')
+			return (6);
+		else
+			print_msg(pi, MSGTYPE_ERROR, "Garbage after operand (%s)", operand);
+		return (0);
+	default:
+		print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", operand);
 	}
-	return(0);
+	return (0);
 }
 
 /* Return 1 if instruction name is supported by the current device,
    0 if unsupported, -1 if it is invalid */
-int is_supported(struct prog_info *pi, char *name) {
-   int mnemonic;
+int
+is_supported(struct prog_info *pi, char *name)
+{
+	int mnemonic;
 
-   strncpy(pi->fi->scratch,name,MAX_MNEMONIC_LEN);
-   mnemonic = get_mnemonic_type(pi);
-   if (mnemonic == -1) return -1;
-   if (pi->device->flag & instruction_list[mnemonic].flag) return 0;
-   return 1;
+	strncpy(pi->fi->scratch,name,MAX_MNEMONIC_LEN);
+	mnemonic = get_mnemonic_type(pi);
+	if (mnemonic == -1) return -1;
+	if (pi->device->flag & instruction_list[mnemonic].flag) return 0;
+	return 1;
 }
 
-int count_supported_instructions(int flags)
+int
+count_supported_instructions(int flags)
 {
-  int i = 0, count = 0;
-  while(i < MNEMONIC_END) {
-    if((i < MNEMONIC_LD) || (i > MNEMONIC_COUNT))
-      if(!(flags & instruction_list[i].flag))
-        count++;
-    i++;
-  }
-  return(count);
+	int i = 0, count = 0;
+	while (i < MNEMONIC_END) {
+		if ((i < MNEMONIC_LD) || (i > MNEMONIC_COUNT))
+			if (!(flags & instruction_list[i].flag))
+				count++;
+		i++;
+	}
+	return (count);
 }
 
 /* end of mnemonic.c */

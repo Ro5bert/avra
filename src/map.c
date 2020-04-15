@@ -32,29 +32,30 @@
 
 char *Space(char *n);
 
-void write_map_file(struct prog_info *pi)
+void
+write_map_file(struct prog_info *pi)
 {
 	FILE *fp;
 	struct label *label;
 	char Filename[200];
 
-    if (!pi->map_on) {
-      return;
-    }
+	if (!pi->map_on) {
+		return;
+	}
 
-    strcpy(Filename, GET_ARG_P(pi->args, ARG_MAPFILE));
+	strcpy(Filename, GET_ARG_P(pi->args, ARG_MAPFILE));
 	fp = fopen(Filename,"w");
-	if( fp == NULL ) {
+	if (fp == NULL) {
 		fprintf(stderr,"Error: cannot create map file\n");
 		return;
 	}
-	for(label = pi->first_constant; label; label = label->next)
+	for (label = pi->first_constant; label; label = label->next)
 		fprintf(fp,"%s%sC\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
 
-	for(label = pi->first_variable; label; label = label->next)
+	for (label = pi->first_variable; label; label = label->next)
 		fprintf(fp,"%s%sV\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
 
-	for(label = pi->first_label; label; label = label->next)
+	for (label = pi->first_label; label; label = label->next)
 		fprintf(fp,"%s%sL\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
 
 	fprintf(fp,"\n");
@@ -62,13 +63,14 @@ void write_map_file(struct prog_info *pi)
 	return;
 }
 
-char *Space(char *n) 
+char *
+Space(char *n)
 {
 	int i;
 
 	i = strlen(n);
-	if( i < 1) return "\t\t\t";
-	if( i < 8 ) return "\t\t";
+	if (i < 1) return "\t\t\t";
+	if (i < 8) return "\t\t";
 	return "\t";
 }
 

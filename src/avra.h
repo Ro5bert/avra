@@ -164,10 +164,10 @@ struct prog_info {
 	struct label *last_constant;
 	struct label *first_variable;
 	struct label *last_variable;
-        struct location *first_ifdef_blacklist;
-        struct location *last_ifdef_blacklist;
-        struct location *first_ifndef_blacklist;
-        struct location *last_ifndef_blacklist;
+	struct location *first_ifdef_blacklist;
+	struct location *last_ifdef_blacklist;
+	struct location *first_ifndef_blacklist;
+	struct location *last_ifndef_blacklist;
 	struct macro *first_macro;
 	struct macro *last_macro;
 	struct macro_call *first_macro_call;
@@ -185,8 +185,7 @@ struct prog_info {
 	int pass;
 };
 
-struct file_info
-{
+struct file_info {
 	FILE *fp;
 	struct include_file *include_file;
 	char buff[LINEBUFFER_LENGTH];
@@ -196,8 +195,7 @@ struct file_info
 	struct label *label;
 };
 
-struct hex_file_info
-{
+struct hex_file_info {
 	FILE *fp;
 	int count;
 	int linestart_addr;
@@ -205,29 +203,25 @@ struct hex_file_info
 	unsigned char hex_line[16];
 };
 
-struct include_file
-{
+struct include_file {
 	struct include_file *next;
 	char *name;
 	int num;
 };
 
-struct def
-{
+struct def {
 	struct def *next;
 	char *name;
 	int reg;
 };
 
-struct label
-{
+struct label {
 	struct label *next;
 	char *name;
 	int value;
 };
 
-struct macro
-{
+struct macro {
 	struct macro *next;
 	char *name;
 	struct include_file *include_file;
@@ -236,8 +230,7 @@ struct macro
 	struct macro_label *first_label;
 };
 
-struct macro_label
-{
+struct macro_label {
 	char *label;
 	struct macro_label *next;
 	int running_number;
@@ -245,14 +238,12 @@ struct macro_label
 };
 extern	const int ML_DEFINED;
 
-struct macro_line
-{
+struct macro_line {
 	struct macro_line *next;
 	char *line;
 };
 
-struct macro_call
-{
+struct macro_call {
 	struct macro_call *next;
 	int line_number;
 	struct include_file *include_file;
@@ -265,8 +256,7 @@ struct macro_call
 	struct label *last_label;
 };
 
-struct orglist
-{
+struct orglist {
 	struct orglist *next;
 	struct segment_info *segment;
 	int start;
@@ -274,11 +264,10 @@ struct orglist
 	int segment_overlap;
 };
 
-struct location
-{
-        struct location *next;
-        int line_num;
-        int file_num;
+struct location {
+	struct location *next;
+	int line_num;
+	int file_num;
 };
 
 /* Prototypes */
@@ -287,7 +276,7 @@ int assemble(struct prog_info *pi);
 int load_arg_defines(struct prog_info *pi);
 struct prog_info *init_prog_info(struct prog_info *,struct args *args);
 void free_pi(struct prog_info *pi);
-void print_msg(struct prog_info *pi, int type, char *fmt, ... );
+void print_msg(struct prog_info *pi, int type, char *fmt, ...);
 void get_rootpath(struct prog_info *pi, struct args *args);
 
 void rewind_segments(struct prog_info *pi);
@@ -349,7 +338,7 @@ int count_supported_instructions(int flags);
 
 /* directiv.c */
 int parse_directive(struct prog_info *pi);
-int lookup_keyword(const char * const keyword_list[], const char * const keyword, int strict);
+int lookup_keyword(const char *const keyword_list[], const char *const keyword, int strict);
 char *term_string(struct prog_info *pi, char *string);
 int parse_db(struct prog_info *pi, char *next);
 void write_db(struct prog_info *pi, char byte, char *prev, int count);
@@ -366,7 +355,7 @@ int expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line);
 
 /* file.c */
 int open_out_files(struct prog_info *pi, const char *basename, const char *outputfile,
-	const char *debugfile, const char *eepfile);
+                   const char *debugfile, const char *eepfile);
 void close_out_files(struct prog_info *pi);
 struct hex_file_info *open_hex_file(const char *filename);
 void close_hex_file(struct hex_file_info *hfi);
@@ -391,16 +380,16 @@ int atoi_n(char *s, int n);
 int atox_n(char *s, int n);
 char *my_strlwr(char *in);
 char *my_strupr(char *in);
-char *snprint_list(char * buf, size_t limit, const char * const list[]);
+char *snprint_list(char *buf, size_t limit, const char *const list[]);
 
 /* coff.c */
 FILE *open_coff_file(struct prog_info *pi, char *filename);
 void write_coff_file(struct prog_info *pi);
-void write_coff_eeprom( struct prog_info *pi, int address, unsigned char data);
-void write_coff_program( struct prog_info *pi, int address, unsigned int data);
+void write_coff_eeprom(struct prog_info *pi, int address, unsigned char data);
+void write_coff_program(struct prog_info *pi, int address, unsigned int data);
 void close_coff_file(struct prog_info *pi, FILE *fp);
-int parse_stabs( struct prog_info *pi, char *p );
-int parse_stabn( struct prog_info *pi, char *p );
+int parse_stabs(struct prog_info *pi, char *p);
+int parse_stabn(struct prog_info *pi, char *p);
 
 #endif /* end of avra.h */
 

@@ -42,48 +42,48 @@
 #endif
 
 const char *title =
-  "AVRA: advanced AVR macro assembler Version %s\n"
-  "Copyright (C) 1998-2010. Check out README file for more info\n"
-  "\n"
-  "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
-  "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
-  "   shipped with AVR Studio. We do not guarantee full compatibility for avra.\n"
-  "\n"
-  "   AVRA comes with NO WARRANTY, to the extent permitted by law.\n"
-  "   You may redistribute copies of avra under the terms\n"
-  "   of the GNU General Public License.\n"
-  "   For more information about these matters, see the files named COPYING.\n"
-  "\n";
+    "AVRA: advanced AVR macro assembler Version %s\n"
+    "Copyright (C) 1998-2010. Check out README file for more info\n"
+    "\n"
+    "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
+    "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
+    "   shipped with AVR Studio. We do not guarantee full compatibility for avra.\n"
+    "\n"
+    "   AVRA comes with NO WARRANTY, to the extent permitted by law.\n"
+    "   You may redistribute copies of avra under the terms\n"
+    "   of the GNU General Public License.\n"
+    "   For more information about these matters, see the files named COPYING.\n"
+    "\n";
 
 const char *usage =
-	"usage: avra [-f][O|M|I|G] output file type\n"
-	"            [-o <filename>] output file name\n"
-	"            [-d <filename>] debug file name\n"
-	"            [-e <filename>] file name to output EEPROM contents\n"
-	"            [-l <filename>] generate list file\n"
-	"            [-m <mapfile>] generate map file\n"
-	"            [--define <symbol>[=<value>]]\n"
-	"            [-I <dir>] [--listmac]\n"
-	"            [--max_errors <number>] [--devices] [--version]\n"
-	"            [-O e|w|i]\n"
-	"            [-h] [--help] general help\n"
-	"            "
-	"            <file to assemble>\n"
-	"\n"
-	"   --listfile    -l : Create list file\n"
-	"   --mapfile     -m : Create map file\n"
-	"   --define      -D : Define symbol.\n"
-	"   --includedir  -I : Additional include paths. Default: %s\n"
-	"   --listmac        : List macro expansion in listfile.\n"
-	"   --max_errors     : Maximum number of errors before exit\n"
-	"                      (default: 10)\n"
-	"   --devices        : List out supported devices.\n"
-	"   --version        : Version information.\n"
-	"   -O e|w|i         : Issue error/warning/ignore overlapping code.\n"
-	"   --help, -h       : This help text.\n"
-	"\n"
-  "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
-  "AVRStudio directories to avra's binary.\n";
+    "usage: avra [-f][O|M|I|G] output file type\n"
+    "            [-o <filename>] output file name\n"
+    "            [-d <filename>] debug file name\n"
+    "            [-e <filename>] file name to output EEPROM contents\n"
+    "            [-l <filename>] generate list file\n"
+    "            [-m <mapfile>] generate map file\n"
+    "            [--define <symbol>[=<value>]]\n"
+    "            [-I <dir>] [--listmac]\n"
+    "            [--max_errors <number>] [--devices] [--version]\n"
+    "            [-O e|w|i]\n"
+    "            [-h] [--help] general help\n"
+    "            "
+    "            <file to assemble>\n"
+    "\n"
+    "   --listfile    -l : Create list file\n"
+    "   --mapfile     -m : Create map file\n"
+    "   --define      -D : Define symbol.\n"
+    "   --includedir  -I : Additional include paths. Default: %s\n"
+    "   --listmac        : List macro expansion in listfile.\n"
+    "   --max_errors     : Maximum number of errors before exit\n"
+    "                      (default: 10)\n"
+    "   --devices        : List out supported devices.\n"
+    "   --version        : Version information.\n"
+    "   -O e|w|i         : Issue error/warning/ignore overlapping code.\n"
+    "   --help, -h       : This help text.\n"
+    "\n"
+    "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
+    "AVRStudio directories to avra's binary.\n";
 
 const struct dataset overlap_choice[4] = {
 	{ OVERLAP_ERROR,   "e"},
@@ -99,224 +99,225 @@ static struct segment_info CODE_SEG;
 static struct segment_info DATA_SEG;
 static struct segment_info EEPROM_SEG;
 
-int main(int argc, const char *argv[])
+int
+main(int argc, const char *argv[])
 {
-  int show_usage = False;
-  struct prog_info *pi;
-  struct args *args;
-  unsigned char c;
+	int show_usage = False;
+	struct prog_info *pi;
+	struct args *args;
+	unsigned char c;
 
 #if debug == 1
-  int i;
-  for(i = 0; i < argc; i++) {
-    printf(argv[i]);
-    printf("\n");
-  }
-#endif
-
-  printf(title, VERSION);
-
-  args = alloc_args(ARG_COUNT);
-  if(args) {
-    define_arg(args, ARG_DEFINE,      ARGTYPE_STRING_MULTISINGLE,  'D', "define",      NULL, NULL);
-    define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includepath", NULL, NULL);
-    define_arg(args, ARG_LISTMAC,     ARGTYPE_BOOLEAN,              0,  "listmac",     "1",  NULL);
-    define_arg_int(args, ARG_MAX_ERRORS,  ARGTYPE_NUMERIC,               0,  "max_errors",  10, NULL);
-    define_arg(args, ARG_COFF,        ARGTYPE_BOOLEAN,              0,  "coff",        NULL, NULL);
-    define_arg(args, ARG_DEVICES,     ARGTYPE_BOOLEAN,              0,  "devices",     NULL, NULL);
-    define_arg(args, ARG_VER,         ARGTYPE_BOOLEAN,              0,  "version",     NULL, NULL);
-    define_arg(args, ARG_HELP,        ARGTYPE_BOOLEAN,             'h', "help",        NULL, NULL);
-    define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL, NULL);	// Not implemented ? B.A.
-    define_arg(args, ARG_WARNINGS,    ARGTYPE_STRING_MULTISINGLE,  'W', "warn",        NULL, NULL);
-    define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0",	 NULL);	// Not implemented ? B.A.
-    define_arg(args, ARG_LISTFILE,    ARGTYPE_STRING,              'l', "listfile",    NULL, NULL);
-    define_arg(args, ARG_OUTFILE,     ARGTYPE_STRING,              'o', "outfile",     NULL, NULL);
-    define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL, NULL);
-    define_arg(args, ARG_DEBUGFILE,   ARGTYPE_STRING,              'd', "debugfile",   NULL, NULL);
-    define_arg(args, ARG_EEPFILE,     ARGTYPE_STRING,              'e', "eepfile",     NULL, NULL);
-	define_arg_int(args, ARG_OVERLAP, ARGTYPE_CHOICE,              'O', "overlap",     OVERLAP_ERROR, overlap_choice);
-
-
-    c = read_args(args, argc, argv);
-
-    if(c != 0) {
-	  if(!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
-	    if(!GET_ARG_I(args, ARG_VER)) {
-		  if(!GET_ARG_I(args, ARG_DEVICES)) {
-            pi = init_prog_info(&PROG_INFO, args);
-		    if(pi) {
-              get_rootpath(pi, args);  /* get assembly root path */
-			  if (assemble(pi) != 0) { /* the main assembly call */
-				  exit(EXIT_FAILURE);
-			  }
-			  free_pi(pi);             /* free all allocated memory */
-			}
-		  }
-		  else {
-		    list_devices();            /* list all supported devices */
-		  }
-		}
-	  }
-	  else
-	    show_usage = True;
+	int i;
+	for (i = 0; i < argc; i++) {
+		printf(argv[i]);
+		printf("\n");
 	}
-	free_args(args);
-  }
-  else {
-	show_usage = True;
-	printf("\n");
-  }
-  if(show_usage) {
-#ifdef DEFAULT_INCLUDE_PATH
-	printf(usage, DEFAULT_INCLUDE_PATH);
-#else
-	printf(usage, ".");
 #endif
-  }
-  exit(EXIT_SUCCESS);
-  return (0);  /* compiler warning, JEG 4-23-03 */
+
+	printf(title, VERSION);
+
+	args = alloc_args(ARG_COUNT);
+	if (args) {
+		define_arg(args, ARG_DEFINE,      ARGTYPE_STRING_MULTISINGLE,  'D', "define",      NULL, NULL);
+		define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includepath", NULL, NULL);
+		define_arg(args, ARG_LISTMAC,     ARGTYPE_BOOLEAN,              0,  "listmac",     "1",  NULL);
+		define_arg_int(args, ARG_MAX_ERRORS,  ARGTYPE_NUMERIC,               0,  "max_errors",  10, NULL);
+		define_arg(args, ARG_COFF,        ARGTYPE_BOOLEAN,              0,  "coff",        NULL, NULL);
+		define_arg(args, ARG_DEVICES,     ARGTYPE_BOOLEAN,              0,  "devices",     NULL, NULL);
+		define_arg(args, ARG_VER,         ARGTYPE_BOOLEAN,              0,  "version",     NULL, NULL);
+		define_arg(args, ARG_HELP,        ARGTYPE_BOOLEAN,             'h', "help",        NULL, NULL);
+		define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL, NULL);	// Not implemented ? B.A.
+		define_arg(args, ARG_WARNINGS,    ARGTYPE_STRING_MULTISINGLE,  'W', "warn",        NULL, NULL);
+		define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0",	 NULL);	// Not implemented ? B.A.
+		define_arg(args, ARG_LISTFILE,    ARGTYPE_STRING,              'l', "listfile",    NULL, NULL);
+		define_arg(args, ARG_OUTFILE,     ARGTYPE_STRING,              'o', "outfile",     NULL, NULL);
+		define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL, NULL);
+		define_arg(args, ARG_DEBUGFILE,   ARGTYPE_STRING,              'd', "debugfile",   NULL, NULL);
+		define_arg(args, ARG_EEPFILE,     ARGTYPE_STRING,              'e', "eepfile",     NULL, NULL);
+		define_arg_int(args, ARG_OVERLAP, ARGTYPE_CHOICE,              'O', "overlap",     OVERLAP_ERROR, overlap_choice);
+
+
+		c = read_args(args, argc, argv);
+
+		if (c != 0) {
+			if (!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
+				if (!GET_ARG_I(args, ARG_VER)) {
+					if (!GET_ARG_I(args, ARG_DEVICES)) {
+						pi = init_prog_info(&PROG_INFO, args);
+						if (pi) {
+							get_rootpath(pi, args);  /* get assembly root path */
+							if (assemble(pi) != 0) { /* the main assembly call */
+								exit(EXIT_FAILURE);
+							}
+							free_pi(pi);             /* free all allocated memory */
+						}
+					} else {
+						list_devices();            /* list all supported devices */
+					}
+				}
+			} else
+				show_usage = True;
+		}
+		free_args(args);
+	} else {
+		show_usage = True;
+		printf("\n");
+	}
+	if (show_usage) {
+#ifdef DEFAULT_INCLUDE_PATH
+		printf(usage, DEFAULT_INCLUDE_PATH);
+#else
+		printf(usage, ".");
+#endif
+	}
+	exit(EXIT_SUCCESS);
+	return (0);  /* compiler warning, JEG 4-23-03 */
 }
 
-void get_rootpath(struct prog_info *pi, struct args *args)
+void
+get_rootpath(struct prog_info *pi, struct args *args)
 {
-  int i;
-  int j;
-  char c;
-  struct data_list *data;
+	int i;
+	int j;
+	char c;
+	struct data_list *data;
 
-  data = args->first_data;
-  if(!data)
-	  return;
-  while(data->next) data = ((data)->next);
+	data = args->first_data;
+	if (!data)
+		return;
+	while (data->next) data = ((data)->next);
 
-  if (data != NULL) {
-    i = strlen((char *)data->data);
-    if (i > 0) {
-      pi->root_path = malloc(i + 1);
-      strcpy(pi->root_path,(char *)data->data);
-      j = 0;
-      do {
-       c = pi->root_path[i];
-       if(c == '\\' || c == '/') {
-         j = i + 1;
-         break;
-       }
-      } while(i-- > 0);
-      pi->root_path[j] = '\0';
-      return;
-    }
-  }
-  pi->root_path = "";
+	if (data != NULL) {
+		i = strlen((char *)data->data);
+		if (i > 0) {
+			pi->root_path = malloc(i + 1);
+			strcpy(pi->root_path,(char *)data->data);
+			j = 0;
+			do {
+				c = pi->root_path[i];
+				if (c == '\\' || c == '/') {
+					j = i + 1;
+					break;
+				}
+			} while (i-- > 0);
+			pi->root_path[j] = '\0';
+			return;
+		}
+	}
+	pi->root_path = "";
 }
 
 
 int
-assemble(struct prog_info *pi) {
-  unsigned char c;
+assemble(struct prog_info *pi)
+{
+	unsigned char c;
 
-  if(pi->args->first_data) {
-	printf("Pass 1...\n");
-	if(load_arg_defines(pi)==False)
-		return -1;
-	if(predef_dev(pi)==False) /* B.A.: Now with error check */
-		return -1;
+	if (pi->args->first_data) {
+		printf("Pass 1...\n");
+		if (load_arg_defines(pi)==False)
+			return -1;
+		if (predef_dev(pi)==False) /* B.A.: Now with error check */
+			return -1;
 
-	/*** FIRST PASS ***/
-	def_orglist(pi->cseg);
-	c = parse_file(pi, pi->args->first_data->data);
-	fix_orglist(pi->segment);
-	test_orglist(pi->cseg);
-	test_orglist(pi->dseg);
-	test_orglist(pi->eseg);
+		/*** FIRST PASS ***/
+		def_orglist(pi->cseg);
+		c = parse_file(pi, pi->args->first_data->data);
+		fix_orglist(pi->segment);
+		test_orglist(pi->cseg);
+		test_orglist(pi->dseg);
+		test_orglist(pi->eseg);
 
-	if(c != False) {
-		/* if there are no furter errors, we can continue with 2nd pass */
-		if(pi->error_count == 0) {
-			pi->segment = pi->cseg;
-			rewind_segments(pi);
-			pi->pass=PASS_2;
-			if(load_arg_defines(pi)==False)
-				return -1;
-			if(predef_dev(pi)==False)	/* B.A.: Now with error check */
-				return -1;
-			/*** SECOND PASS ***/
-			c = open_out_files(pi, pi->args->first_data->data,
-				GET_ARG_P(pi->args, ARG_OUTFILE),
-				GET_ARG_P(pi->args, ARG_DEBUGFILE),
-				GET_ARG_P(pi->args, ARG_EEPFILE));
-			if(c != 0) {
-				printf("Pass 2...\n");
-				parse_file(pi, pi->args->first_data->data);
-				printf("done\n\n");
-				if (pi->list_file)
+		if (c != False) {
+			/* if there are no furter errors, we can continue with 2nd pass */
+			if (pi->error_count == 0) {
+				pi->segment = pi->cseg;
+				rewind_segments(pi);
+				pi->pass=PASS_2;
+				if (load_arg_defines(pi)==False)
+					return -1;
+				if (predef_dev(pi)==False)	/* B.A.: Now with error check */
+					return -1;
+				/*** SECOND PASS ***/
+				c = open_out_files(pi, pi->args->first_data->data,
+				                   GET_ARG_P(pi->args, ARG_OUTFILE),
+				                   GET_ARG_P(pi->args, ARG_DEBUGFILE),
+				                   GET_ARG_P(pi->args, ARG_EEPFILE));
+				if (c != 0) {
+					printf("Pass 2...\n");
+					parse_file(pi, pi->args->first_data->data);
+					printf("done\n\n");
+					if (pi->list_file)
 						fprint_segments(pi->list_file, pi);
-				if (pi->coff_file && pi->error_count == 0) {
-					write_coff_file(pi);
+					if (pi->coff_file && pi->error_count == 0) {
+						write_coff_file(pi);
+					}
+					write_map_file(pi);
+					if (pi->error_count) {
+						printf("\nAssembly aborted with %d errors and %d warnings.\n", pi->error_count, pi->warning_count);
+						unlink_out_files(pi, pi->args->first_data->data);
+					} else {
+						if (pi->warning_count)
+							printf("\nAssembly complete with no errors (%d warnings).\n", pi->warning_count);
+						else
+							printf("\nAssembly complete with no errors.\n");
+						close_out_files(pi);
+					}
 				}
-				write_map_file(pi);
-				if (pi->error_count) {
-					printf("\nAssembly aborted with %d errors and %d warnings.\n", pi->error_count, pi->warning_count);
-					unlink_out_files(pi, pi->args->first_data->data);
-				} else {
-					if(pi->warning_count)
-						printf("\nAssembly complete with no errors (%d warnings).\n", pi->warning_count);
-					else
-						printf("\nAssembly complete with no errors.\n");
-					close_out_files(pi);
-				}
+			} else	{
+				unlink_out_files(pi, pi->args->first_data->data);
 			}
-		} else	{
-			unlink_out_files(pi, pi->args->first_data->data);
 		}
+	} else {
+		printf("Error: You need to specify a file to assemble\n");
 	}
-  } else {
-	printf("Error: You need to specify a file to assemble\n");
-  }
-  return pi->error_count;
+	return pi->error_count;
 }
 
 
-int load_arg_defines(struct prog_info *pi)
+int
+load_arg_defines(struct prog_info *pi)
 {
-  int i;
-  char *expr;
-  char buff[256];
-  struct data_list *define;
+	int i;
+	char *expr;
+	char buff[256];
+	struct data_list *define;
 
-  for(define = GET_ARG_LIST(pi->args, ARG_DEFINE); define; define = define->next) {
-	  strcpy(buff, define->data);
-	  expr = get_next_token( buff, TERM_EQUAL);
-	  if(expr) {
-  	  // we reach this, when there is actually a value passed..
-	    if(!get_expr(pi, expr, &i)) {
-	  	  return(False);
-	    }
-    } else {
-  	  // if user didnt specify a value, we default to 1
-  	  i = 1;
-    }
-	/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
-    if(pi->pass==PASS_1) { /* Pass 1 */
-      if(test_constant(pi,buff,NULL)!=NULL) {
-        	fprintf(stderr,"Error: Can't define symbol %s twice\n", buff);
-        	return(False);
-      }
-      if(def_const(pi, buff, i)==False)
-        return(False);
+	for (define = GET_ARG_LIST(pi->args, ARG_DEFINE); define; define = define->next) {
+		strcpy(buff, define->data);
+		expr = get_next_token(buff, TERM_EQUAL);
+		if (expr) {
+			// we reach this, when there is actually a value passed..
+			if (!get_expr(pi, expr, &i)) {
+				return (False);
+			}
+		} else {
+			// if user didnt specify a value, we default to 1
+			i = 1;
+		}
+		/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
+		if (pi->pass==PASS_1) { /* Pass 1 */
+			if (test_constant(pi,buff,NULL)!=NULL) {
+				fprintf(stderr,"Error: Can't define symbol %s twice\n", buff);
+				return (False);
+			}
+			if (def_const(pi, buff, i)==False)
+				return (False);
 		} else { /* Pass 2 */
 			int j;
-			if(get_constant(pi, buff, &j)==False) {   /* Defined in Pass 1 and now missing ? */
+			if (get_constant(pi, buff, &j)==False) {  /* Defined in Pass 1 and now missing ? */
 				fprintf(stderr,"Constant %s is missing in pass 2\n",buff);
-				return(False);
+				return (False);
 			}
-			if(i != j) {
+			if (i != j) {
 				fprintf(stderr,"Constant %s changed value from %d in pass1 to %d in pass 2\n",buff,j,i);
-				return(False);
+				return (False);
 			}
-				/* OK. Definition is unchanged */
+			/* OK. Definition is unchanged */
 		}
 	}
-  return(True);
+	return (True);
 }
 
 void
@@ -344,24 +345,25 @@ init_segment_size(struct prog_info *pi, struct device *device)
 
 
 struct prog_info *
-init_prog_info(struct prog_info *pi, struct args *args) {
+init_prog_info(struct prog_info *pi, struct args *args)
+{
 	struct data_list *warnings;
 
 	memset(pi, 0, sizeof(struct prog_info));
 	pi->args = args;
 	pi->device = get_device(pi,NULL);
-	if(GET_ARG_P(args, ARG_LISTFILE) == NULL) {
+	if (GET_ARG_P(args, ARG_LISTFILE) == NULL) {
 		pi->list_on = False;
 	} else {
 		pi->list_on = True;
 	}
-	if(GET_ARG_P(args, ARG_MAPFILE) == NULL) {
+	if (GET_ARG_P(args, ARG_MAPFILE) == NULL) {
 		pi->map_on = False;
 	} else {
 		pi->map_on = True;
 	}
-	for(warnings = GET_ARG_LIST(args, ARG_WARNINGS); warnings; warnings = warnings->next) {
-		if(!nocase_strcmp(warnings->data, "NoRegDef"))
+	for (warnings = GET_ARG_LIST(args, ARG_WARNINGS); warnings; warnings = warnings->next) {
+		if (!nocase_strcmp(warnings->data, "NoRegDef"))
 			pi->NoRegDef = 1;
 	}
 
@@ -401,19 +403,19 @@ init_prog_info(struct prog_info *pi, struct args *args) {
 	pi->time=time(NULL); 		/* B.A. : Now use a global timestamp  */
 	pi->effective_overlap = GET_ARG_I(pi->args, ARG_OVERLAP);
 	pi->segment_overlap = SEG_DONT_OVERLAP;
-	return(pi);
+	return (pi);
 }
 
 void
 free_pi(struct prog_info *pi)
 {
-  free_defs(pi);			/* B.A. : Now free in pi included structures first */
-  free_labels(pi);
-  free_constants(pi);
-  free_variables(pi);
-  free_ifdef_blacklist(pi);
-  free_ifndef_blacklist(pi);
-  free_orglist(pi);
+	free_defs(pi);			/* B.A. : Now free in pi included structures first */
+	free_labels(pi);
+	free_constants(pi);
+	free_variables(pi);
+	free_ifdef_blacklist(pi);
+	free_ifndef_blacklist(pi);
+	free_orglist(pi);
 }
 
 void
@@ -421,54 +423,55 @@ advance_ip(struct segment_info *si, int offset)
 {
 	si->addr += offset;
 	if (si->pi->pass == PASS_1)
-			si->count += offset;
+		si->count += offset;
 }
 
-void print_msg(struct prog_info *pi, int type, char *fmt, ... )
+void
+print_msg(struct prog_info *pi, int type, char *fmt, ...)
 {
 	char *pc;
-	if(type == MSGTYPE_OUT_OF_MEM) {
+	if (type == MSGTYPE_OUT_OF_MEM) {
 		fprintf(stderr, "Error: Unable to allocate memory!\n");
 	} else {
-		if(type != MSGTYPE_APPEND) { 				/* B.A. Added for .message directive */
-			if((pi->fi != NULL) && (pi->fi->include_file->name != NULL)) { 	/* B.A.: Skip, if filename or fi is NULL (Bug 1462900) */
+		if (type != MSGTYPE_APPEND) { 				/* B.A. Added for .message directive */
+			if ((pi->fi != NULL) && (pi->fi->include_file->name != NULL)) { 	/* B.A.: Skip, if filename or fi is NULL (Bug 1462900) */
 				/* check if adding path name is needed*/
 				pc = strstr(pi->fi->include_file->name, pi->root_path);
-				if(pc == NULL) {
-					fprintf(stderr, "%s%s(%d) : ", pi->root_path ,pi->fi->include_file->name, pi->fi->line_number);
+				if (pc == NULL) {
+					fprintf(stderr, "%s%s(%d) : ", pi->root_path,pi->fi->include_file->name, pi->fi->line_number);
 				} else {
 					fprintf(stderr, "%s(%d) : ", pi->fi->include_file->name, pi->fi->line_number);
 				}
 			}
 		}
-		switch(type) {
-			case MSGTYPE_ERROR:
-				pi->error_count++;
-				fprintf(stderr, "Error   : ");
-				break;
-			case MSGTYPE_WARNING:
-				pi->warning_count++;
-				fprintf(stderr, "Warning : ");
-				break;
-			case MSGTYPE_MESSAGE:
-/*			case MSGTYPE_MESSAGE_NO_LF:
-			case MSGTYPE_APPEND: */
-				break;
+		switch (type) {
+		case MSGTYPE_ERROR:
+			pi->error_count++;
+			fprintf(stderr, "Error   : ");
+			break;
+		case MSGTYPE_WARNING:
+			pi->warning_count++;
+			fprintf(stderr, "Warning : ");
+			break;
+		case MSGTYPE_MESSAGE:
+			/*			case MSGTYPE_MESSAGE_NO_LF:
+						case MSGTYPE_APPEND: */
+			break;
 		}
-		if(type != MSGTYPE_APPEND) { /* B.A. Added for .message directive */
-			if(pi->macro_call) {
+		if (type != MSGTYPE_APPEND) { /* B.A. Added for .message directive */
+			if (pi->macro_call) {
 				fprintf(stderr, "[Macro: %s: %d:] ", pi->macro_call->macro->include_file->name,
-					pi->macro_call->line_index + pi->macro_call->macro->first_line_number);
+				        pi->macro_call->line_index + pi->macro_call->macro->first_line_number);
 			}
 		}
-		if(fmt != NULL) {
+		if (fmt != NULL) {
 			va_list args;
 			va_start(args, fmt);
 			vfprintf(stderr, fmt, args);
 			va_end(args);
 		}
 
-		if( (type != MSGTYPE_APPEND) && (type != MSGTYPE_MESSAGE_NO_LF) )  /* B.A. Added for .message directive */
+		if ((type != MSGTYPE_APPEND) && (type != MSGTYPE_MESSAGE_NO_LF))   /* B.A. Added for .message directive */
 			fprintf(stderr, "\n");
 	}
 }
@@ -476,58 +479,60 @@ void print_msg(struct prog_info *pi, int type, char *fmt, ... )
 
 /* B.A. : New functions to create / search / remove constant, variables, labels */
 /* def_const, def_var moved from device.c to this place */
-int def_const(struct prog_info *pi, const char *name, int value)
+int
+def_const(struct prog_info *pi, const char *name, int value)
 {
 	struct label *label;
 	label = malloc(sizeof(struct label));
-	if(!label) {
+	if (!label) {
 		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
+		return (False);
 	}
 	label->next = NULL;
-	if(pi->last_constant)
+	if (pi->last_constant)
 		pi->last_constant->next = label;
 	else
 		pi->first_constant = label;
 	pi->last_constant = label;
 	label->name = malloc(strlen(name) + 1);
-	if(!label->name) {
+	if (!label->name) {
 		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
+		return (False);
 	}
 	strcpy(label->name, name);
 	label->value = value;
-	return(True);
+	return (True);
 }
 
-int def_var(struct prog_info *pi, char *name, int value)
+int
+def_var(struct prog_info *pi, char *name, int value)
 {
 	struct label *label;
 
- 	for(label = pi->first_variable; label; label = label->next)
-		if(!nocase_strcmp(label->name, name)) {
+	for (label = pi->first_variable; label; label = label->next)
+		if (!nocase_strcmp(label->name, name)) {
 			label->value = value;
-			return(True);
+			return (True);
 		}
 	label = malloc(sizeof(struct label));
-	if(!label) {
+	if (!label) {
 		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
+		return (False);
 	}
 	label->next = NULL;
-	if(pi->last_variable)
+	if (pi->last_variable)
 		pi->last_variable->next = label;
 	else
 		pi->first_variable = label;
 	pi->last_variable = label;
 	label->name = malloc(strlen(name) + 1);
-	if(!label->name) {
+	if (!label->name) {
 		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
+		return (False);
 	}
 	strcpy(label->name, name);
 	label->value = value;
-	return(True);
+	return (True);
 }
 
 /* B.A.: Store programmed areas for later check */
@@ -538,11 +543,11 @@ def_orglist(struct segment_info *si)
 
 	si->pi->segment = si;
 	if (si->pi->pass != PASS_1)
-		return(True);
+		return (True);
 	orglist = malloc(sizeof(struct orglist));
 	if (!orglist) {
 		print_msg(si->pi, MSGTYPE_OUT_OF_MEM, NULL);
-		return(False);
+		return (False);
 	}
 	orglist->next = NULL;
 	if (si->last_orglist)
@@ -562,10 +567,10 @@ int
 fix_orglist(struct segment_info *si)
 {
 	if (si->pi->pass != PASS_1)
-		return(True);
+		return (True);
 	if ((si->last_orglist == NULL) || (si->last_orglist->length!=0)) {
 		fprintf(stderr,"Internal Error: fix_orglist\n");
-		return(False);
+		return (False);
 	}
 	si->last_orglist->segment = si;
 	si->last_orglist->length = si->addr - si->last_orglist->start;
@@ -576,14 +581,14 @@ void
 fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist)
 {
 	fprintf(file, "   %-6s    :  Start = 0x%04X, End = 0x%04X, Length = 0x%04X (%d %s), "
-		"Overlap=%c\n",
-		si->name,
-		orglist->start,
-		orglist->start + orglist->length - 1,
-		orglist->length,
-		orglist->length,
-		orglist->length == 1 ? si->cellname : si->cellnames,
-		orglist->segment_overlap == SEG_ALLOW_OVERLAP ? 'Y' : 'N');
+	        "Overlap=%c\n",
+	        si->name,
+	        orglist->start,
+	        orglist->start + orglist->length - 1,
+	        orglist->length,
+	        orglist->length,
+	        orglist->length == 1 ? si->cellname : si->cellnames,
+	        orglist->segment_overlap == SEG_ALLOW_OVERLAP ? 'Y' : 'N');
 }
 
 void
@@ -592,7 +597,7 @@ fprint_seg_orglist(FILE *file, struct segment_info *si)
 	struct orglist *orglist;
 
 	for (orglist = si->first_orglist;
-		orglist != NULL; orglist = orglist->next) {
+	        orglist != NULL; orglist = orglist->next) {
 		if (orglist->length > 0)
 			fprint_orglist(file, si, orglist);
 	}
@@ -620,42 +625,42 @@ test_orglist(struct segment_info *si)
 	}
 
 	for (orglist = si->first_orglist;
-		orglist != NULL;
-		orglist=orglist->next) {
+	        orglist != NULL;
+	        orglist=orglist->next) {
 		if (orglist->length > 0) {
 			/* Make sure address area is valid */
 			if (orglist->start < si->lo_addr) {
 				fprintf(stderr, "Segment start below allowed start address: 0x%04X",
-					si->lo_addr);
+				        si->lo_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;
 			}
 			if (orglist->start + orglist->length > si->hi_addr) {
 				fprintf(stderr, "Segment start above allowed high address: 0x%04X",
-					si->hi_addr);
+				        si->hi_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;
 			}
 
 			/* Overlap-test */
 			if ((si->pi->effective_overlap != OVERLAP_IGNORE) &&
-				(orglist->segment_overlap == SEG_DONT_OVERLAP)) {
+			        (orglist->segment_overlap == SEG_DONT_OVERLAP)) {
 				for (orglist2 = orglist->next; orglist2 != NULL; orglist2 = orglist2->next) {
 					if ((orglist != orglist2) && (orglist2->length > 0)
-						&& (orglist2->segment_overlap == SEG_DONT_OVERLAP)) {
+					        && (orglist2->segment_overlap == SEG_DONT_OVERLAP)) {
 
-						if((orglist->start  < (orglist2->start + orglist2->length)) &&
-						   (orglist2->start < ( orglist->start +  orglist->length))) {
+						if ((orglist->start  < (orglist2->start + orglist2->length)) &&
+						        (orglist2->start < (orglist->start +  orglist->length))) {
 							fprintf(stderr,"%s: Overlapping %s segments:\n",
-								si->pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning",
-								si->name);
+							        si->pi->effective_overlap == OVERLAP_ERROR ? "Error" : "Warning",
+							        si->name);
 							fprint_orglist(stderr, si, orglist);
 							fprint_orglist(stderr, si, orglist2);
 							fprintf(stderr,"Please check your .ORG directives !\n");
 							if (si->pi->effective_overlap == OVERLAP_ERROR)
-									error_count++;
+								error_count++;
 							else
-									si->pi->warning_count++;
+								si->pi->warning_count++;
 						}
 					}
 				}
@@ -663,31 +668,34 @@ test_orglist(struct segment_info *si)
 		}
 	}
 	si->pi->error_count += error_count;
-	return(error_count > 0 ? False : True);
+	return (error_count > 0 ? False : True);
 }
 
 /* Get the value of a label. Return FALSE if label was not found */
-int get_label(struct prog_info *pi,char *name,int *value)
+int
+get_label(struct prog_info *pi,char *name,int *value)
 {
-  struct label *label=search_symbol(pi,pi->first_label,name,NULL);
-	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;
+	struct label *label=search_symbol(pi,pi->first_label,name,NULL);
+	if (label==NULL) return False;
+	if (value!=NULL)	*value=label->value;
 	return True;
 }
 
-int get_constant(struct prog_info *pi,char *name,int *value)
+int
+get_constant(struct prog_info *pi,char *name,int *value)
 {
-  struct label *label=search_symbol(pi,pi->first_constant,name,NULL);
-	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;
+	struct label *label=search_symbol(pi,pi->first_constant,name,NULL);
+	if (label==NULL) return False;
+	if (value!=NULL)	*value=label->value;
 	return True;
 }
 
-int get_variable(struct prog_info *pi,char *name,int *value)
+int
+get_variable(struct prog_info *pi,char *name,int *value)
 {
-  struct label *label=search_symbol(pi,pi->first_variable,name,NULL);
-	if(label==NULL) return False;
-	if(value!=NULL)	*value=label->value;
+	struct label *label=search_symbol(pi,pi->first_variable,name,NULL);
+	if (label==NULL) return False;
+	if (value!=NULL)	*value=label->value;
 	return True;
 }
 
@@ -714,163 +722,175 @@ struct label *test_variable(struct prog_info *pi,char *name,char *message)
 struct label *search_symbol(struct prog_info *pi,struct label *first,char *name,char *message)
 {
 	struct label *label;
-	for(label = first; label; label = label->next)
-		if(!nocase_strcmp(label->name, name)) {
-			if(message) {
+	for (label = first; label; label = label->next)
+		if (!nocase_strcmp(label->name, name)) {
+			if (message) {
 				print_msg(pi, MSGTYPE_ERROR, message, name);
 			}
-			return(label);
+			return (label);
 		}
-	return(NULL);
+	return (NULL);
 }
 
-int ifdef_blacklist(struct prog_info *pi)
+int
+ifdef_blacklist(struct prog_info *pi)
 {
-    struct location *loc;
-    loc = malloc(sizeof(struct location));
-    if(!loc) {
-        print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-        return False;
-    }
-    loc->next = NULL;
-    if(pi->last_ifdef_blacklist) {
-        pi->last_ifdef_blacklist->next = loc;
-    } else {
-        pi->first_ifdef_blacklist = loc;
-    }
-    pi->last_ifdef_blacklist = loc;
-    loc->line_num = pi->fi->line_number;
-    loc->file_num = pi->fi->include_file->num;
-    return True;
+	struct location *loc;
+	loc = malloc(sizeof(struct location));
+	if (!loc) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return False;
+	}
+	loc->next = NULL;
+	if (pi->last_ifdef_blacklist) {
+		pi->last_ifdef_blacklist->next = loc;
+	} else {
+		pi->first_ifdef_blacklist = loc;
+	}
+	pi->last_ifdef_blacklist = loc;
+	loc->line_num = pi->fi->line_number;
+	loc->file_num = pi->fi->include_file->num;
+	return True;
 }
 
-int ifndef_blacklist(struct prog_info *pi)
+int
+ifndef_blacklist(struct prog_info *pi)
 {
-    struct location *loc;
-    loc = malloc(sizeof(struct location));
-    if(!loc) {
-        print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
-        return False;
-    }
-    loc->next = NULL;
-    if(pi->last_ifndef_blacklist) {
-        pi->last_ifndef_blacklist->next = loc;
-    } else {
-        pi->first_ifndef_blacklist = loc;
-    }
-    pi->last_ifndef_blacklist = loc;
-    loc->line_num = pi->fi->line_number;
-    loc->file_num = pi->fi->include_file->num;
-    return True;
+	struct location *loc;
+	loc = malloc(sizeof(struct location));
+	if (!loc) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return False;
+	}
+	loc->next = NULL;
+	if (pi->last_ifndef_blacklist) {
+		pi->last_ifndef_blacklist->next = loc;
+	} else {
+		pi->first_ifndef_blacklist = loc;
+	}
+	pi->last_ifndef_blacklist = loc;
+	loc->line_num = pi->fi->line_number;
+	loc->file_num = pi->fi->include_file->num;
+	return True;
 }
 
-int ifdef_is_blacklisted(struct prog_info *pi)
+int
+ifdef_is_blacklisted(struct prog_info *pi)
 {
-    return search_location(pi->first_ifdef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
+	return search_location(pi->first_ifdef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
 }
 
-int ifndef_is_blacklisted(struct prog_info *pi)
+int
+ifndef_is_blacklisted(struct prog_info *pi)
 {
-    return search_location(pi->first_ifndef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
+	return search_location(pi->first_ifndef_blacklist, pi->fi->line_number, pi->fi->include_file->num);
 }
 
-int search_location(struct location *first, int line_num, int file_num)
+int
+search_location(struct location *first, int line_num, int file_num)
 {
-    struct location *loc;
-    for (loc = first; loc; loc = loc->next) {
-        if (loc->line_num == line_num && loc->file_num == file_num) {
-            return True;
-        }
-    }
-    return False;
+	struct location *loc;
+	for (loc = first; loc; loc = loc->next) {
+		if (loc->line_num == line_num && loc->file_num == file_num) {
+			return True;
+		}
+	}
+	return False;
 }
 
-void free_defs(struct prog_info *pi)
+void
+free_defs(struct prog_info *pi)
 {
-  struct def *def, *temp_def;
-  for(def = pi->first_def; def;) {
-	  temp_def = def;
-	  def = def->next;
-	  free(temp_def->name);
-	  free(temp_def);
-  }
-  pi->first_def = NULL;
-  pi->last_def = NULL;
+	struct def *def, *temp_def;
+	for (def = pi->first_def; def;) {
+		temp_def = def;
+		def = def->next;
+		free(temp_def->name);
+		free(temp_def);
+	}
+	pi->first_def = NULL;
+	pi->last_def = NULL;
 }
 
-void free_labels(struct prog_info *pi)
+void
+free_labels(struct prog_info *pi)
 {
-  struct label *label, *temp_label;
-  for(label = pi->first_label; label;) {
-    temp_label = label;
-	  label = label->next;
-	  free(temp_label->name);
-	  free(temp_label);
-  }
-  pi->first_label = NULL;
-  pi->last_label = NULL;
+	struct label *label, *temp_label;
+	for (label = pi->first_label; label;) {
+		temp_label = label;
+		label = label->next;
+		free(temp_label->name);
+		free(temp_label);
+	}
+	pi->first_label = NULL;
+	pi->last_label = NULL;
 }
 
-void free_constants(struct prog_info *pi)
+void
+free_constants(struct prog_info *pi)
 {
-  struct label *label, *temp_label;
-  for(label = pi->first_constant; label;) {
-    temp_label = label;
-	  label = label->next;
-	  free(temp_label->name);
-	  free(temp_label);
-  }
-  pi->first_constant = NULL;
-  pi->last_constant = NULL;
+	struct label *label, *temp_label;
+	for (label = pi->first_constant; label;) {
+		temp_label = label;
+		label = label->next;
+		free(temp_label->name);
+		free(temp_label);
+	}
+	pi->first_constant = NULL;
+	pi->last_constant = NULL;
 }
 
-void free_ifdef_blacklist(struct prog_info *pi) 
+void
+free_ifdef_blacklist(struct prog_info *pi)
 {
-    struct location *loc, *temp_loc;
-    for (loc = pi->first_ifdef_blacklist; loc;) {
-        temp_loc = loc;
-        loc = loc->next;
-        free(temp_loc);
-    }
-    pi->first_ifdef_blacklist = NULL;
-    pi->last_ifdef_blacklist = NULL;
+	struct location *loc, *temp_loc;
+	for (loc = pi->first_ifdef_blacklist; loc;) {
+		temp_loc = loc;
+		loc = loc->next;
+		free(temp_loc);
+	}
+	pi->first_ifdef_blacklist = NULL;
+	pi->last_ifdef_blacklist = NULL;
 }
 
-void free_ifndef_blacklist(struct prog_info *pi) 
+void
+free_ifndef_blacklist(struct prog_info *pi)
 {
-    struct location *loc, *temp_loc;
-    for (loc = pi->first_ifndef_blacklist; loc;) {
-        temp_loc = loc;
-        loc = loc->next;
-        free(temp_loc);
-    }
-    pi->first_ifndef_blacklist = NULL;
-    pi->last_ifndef_blacklist = NULL;
+	struct location *loc, *temp_loc;
+	for (loc = pi->first_ifndef_blacklist; loc;) {
+		temp_loc = loc;
+		loc = loc->next;
+		free(temp_loc);
+	}
+	pi->first_ifndef_blacklist = NULL;
+	pi->last_ifndef_blacklist = NULL;
 }
 
-void free_variables(struct prog_info *pi)
+void
+free_variables(struct prog_info *pi)
 {
-  struct label *label, *temp_label;
-  for(label = pi->first_variable; label;) {
-	  temp_label = label;
-	  label = label->next;
-	  free(temp_label->name);
-	  free(temp_label);
-  }
-  pi->first_variable = NULL;
-  pi->last_variable = NULL;
+	struct label *label, *temp_label;
+	for (label = pi->first_variable; label;) {
+		temp_label = label;
+		label = label->next;
+		free(temp_label->name);
+		free(temp_label);
+	}
+	pi->first_variable = NULL;
+	pi->last_variable = NULL;
 }
 
-void free_orglist(struct prog_info *pi)
+void
+free_orglist(struct prog_info *pi)
 {
-  struct orglist *orglist, *temp_orglist;
-  for(orglist = pi->first_orglist; orglist;) {
-	  temp_orglist = orglist;
-	  orglist = orglist->next;
-	  free(temp_orglist);
-  }
-  pi->first_orglist = NULL;
-  pi->last_orglist = NULL;
+	struct orglist *orglist, *temp_orglist;
+	for (orglist = pi->first_orglist; orglist;) {
+		temp_orglist = orglist;
+		orglist = orglist->next;
+		free(temp_orglist);
+	}
+	pi->first_orglist = NULL;
+	pi->last_orglist = NULL;
 }
 
 

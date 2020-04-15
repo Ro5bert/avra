@@ -39,14 +39,15 @@
  * Case insensetive strcmp()
  */
 
-int nocase_strcmp(const char *s, const char *t)
+int
+nocase_strcmp(const char *s, const char *t)
 {
 	int i;
 
-	for(i = 0; tolower(s[i]) == tolower(t[i]); i++)
-		if(s[i] == '\0')
-			return(0);
-	return(tolower(s[i]) - tolower(t[i]));
+	for (i = 0; tolower(s[i]) == tolower(t[i]); i++)
+		if (s[i] == '\0')
+			return (0);
+	return (tolower(s[i]) - tolower(t[i]));
 }
 
 
@@ -54,14 +55,15 @@ int nocase_strcmp(const char *s, const char *t)
  * Case insensetive strncmp()
  */
 
-int nocase_strncmp(char *s, char *t, int n)
+int
+nocase_strncmp(char *s, char *t, int n)
 {
 	int i;
 
-	for(i = 0; (tolower(s[i]) == tolower(t[i])); i++, n--)
-		if((s[i] == '\0') || (n == 1))
-			return(0);
-	return(tolower(s[i]) - tolower(t[i]));
+	for (i = 0; (tolower(s[i]) == tolower(t[i])); i++, n--)
+		if ((s[i] == '\0') || (n == 1))
+			return (0);
+	return (tolower(s[i]) - tolower(t[i]));
 }
 
 
@@ -69,27 +71,27 @@ int nocase_strncmp(char *s, char *t, int n)
  * Case insensetive strstr()
  */
 
-char *nocase_strstr(char *s, char *t)
+char *
+nocase_strstr(char *s, char *t)
 {
 	int i = 0, j, found = False;
 
-	while((s[i] != '\0') && !found)	{
+	while ((s[i] != '\0') && !found)	{
 		j = 0;
-		while(tolower(t[j]) == tolower(s[i + j])) {
+		while (tolower(t[j]) == tolower(s[i + j])) {
 			j++;
-			if(t[j] == '\0') {
+			if (t[j] == '\0') {
 				found = True;
 				break;
-				}
-			else if(s[i + j] == '\0')
+			} else if (s[i + j] == '\0')
 				break;
-			}
-		i++;
 		}
+		i++;
+	}
 	i--;
-	if(found)
-		return(&s[i]);
-	return(NULL);
+	if (found)
+		return (&s[i]);
+	return (NULL);
 }
 
 
@@ -98,21 +100,22 @@ char *nocase_strstr(char *s, char *t)
  * ignores "0x"
  */
 
-int atox(char *s)
+int
+atox(char *s)
 {
 	int i = 0, ret = 0;
 
-	while(s[i] != '\0') {
+	while (s[i] != '\0') {
 		ret <<= 4;
-		if((s[i] <= 'F') && (s[i] >= 'A'))
+		if ((s[i] <= 'F') && (s[i] >= 'A'))
 			ret |= s[i] - 'A' + 10;
-		else if((s[i] <= 'f') && (s[i] >= 'a'))
+		else if ((s[i] <= 'f') && (s[i] >= 'a'))
 			ret |= s[i] - 'a' + 10;
-		else if((s[i] <= '9') && (s[i] >= '0'))
+		else if ((s[i] <= '9') && (s[i] >= '0'))
 			ret |= s[i] - '0';
 		i++;
 	}
-	return(ret);
+	return (ret);
 }
 
 
@@ -120,16 +123,17 @@ int atox(char *s)
  * n ascii chars to int
  */
 
-int atoi_n(char *s, int n)
+int
+atoi_n(char *s, int n)
 {
 	int i = 0, ret = 0;
 
-	while((s[i] != '\0') && n) {
+	while ((s[i] != '\0') && n) {
 		ret = 10 * ret + (s[i] - '0');
 		i++;
 		n--;
 	}
-	return(ret);
+	return (ret);
 }
 
 
@@ -139,22 +143,23 @@ int atoi_n(char *s, int n)
  * ignores "0x"
  */
 
-int atox_n(char *s, int n)
+int
+atox_n(char *s, int n)
 {
 	int i = 0, ret = 0;
 
-	while((s[i] != '\0') && n) {
+	while ((s[i] != '\0') && n) {
 		ret <<= 4;
-		if((s[i] <= 'F') && (s[i] >= 'A'))
+		if ((s[i] <= 'F') && (s[i] >= 'A'))
 			ret |= s[i] - 'A' + 10;
-		else if((s[i] <= 'f') && (s[i] >= 'a'))
+		else if ((s[i] <= 'f') && (s[i] >= 'a'))
 			ret |= s[i] - 'a' + 10;
-		else if((s[i] <= '9') && (s[i] >= '0'))
+		else if ((s[i] <= '9') && (s[i] >= '0'))
 			ret |= s[i] - '0';
 		i++;
 		n--;
 	}
-	return(ret);
+	return (ret);
 }
 
 
@@ -162,14 +167,15 @@ int atox_n(char *s, int n)
  * My own strlwr function since this one only exists in win
  */
 
-char *my_strlwr(char *in)
+char *
+my_strlwr(char *in)
 {
-  int i;
+	int i;
 
-  for(i = 0; in[i] != '\0'; i++)
-    in[i] = tolower(in[i]);
+	for (i = 0; in[i] != '\0'; i++)
+		in[i] = tolower(in[i]);
 
-  return(in);
+	return (in);
 }
 
 
@@ -177,21 +183,23 @@ char *my_strlwr(char *in)
  * My own strupr function since this one only exists in win
  */
 
-char *my_strupr(char *in)
+char *
+my_strupr(char *in)
 {
-  int i;
+	int i;
 
-  for(i = 0; in[i] != '\0'; i++)
-    in[i] = toupper(in[i]);
+	for (i = 0; in[i] != '\0'; i++)
+		in[i] = toupper(in[i]);
 
-  return(in);
+	return (in);
 }
 
 static int
-snprint(char ** buf, size_t *limit, const char * const str) {
+snprint(char **buf, size_t *limit, const char *const str)
+{
 	int rc;
 	rc = snprintf(*buf, *limit, "%s", str);
-	if (rc <= (int)*limit) 
+	if (rc <= (int)*limit)
 		*buf += rc, *limit -= rc;
 	else
 		*limit = 0;
@@ -199,32 +207,33 @@ snprint(char ** buf, size_t *limit, const char * const str) {
 }
 
 char *
-snprint_list(char * buf, size_t limit, const char * const str_list[]) {
-  int i, rc;
-  char *ptr = buf;
-  if (str_list[0] != NULL)
-		  if (str_list[1] != NULL)
-				  snprint(&ptr, &limit, "either "); 
-  for (i = 0; str_list[i] != NULL; i++) {
-	if (i > 0) {
-		if (str_list[i+1] == NULL)
-			snprint(&ptr, &limit, " or ");
+snprint_list(char *buf, size_t limit, const char *const str_list[])
+{
+	int i, rc;
+	char *ptr = buf;
+	if (str_list[0] != NULL)
+		if (str_list[1] != NULL)
+			snprint(&ptr, &limit, "either ");
+	for (i = 0; str_list[i] != NULL; i++) {
+		if (i > 0) {
+			if (str_list[i+1] == NULL)
+				snprint(&ptr, &limit, " or ");
+			else
+				snprint(&ptr, &limit, ", ");
+		}
+		rc = snprintf(ptr, limit, "\"%s\"", str_list[i]);
+		if (rc <= (int)limit)
+			ptr += rc, limit -= rc;
 		else
-			snprint(&ptr, &limit, ", ");
+			limit = 0;
 	}
-	rc = snprintf(ptr, limit, "\"%s\"", str_list[i]);
-	if (rc <= (int)limit)
-		ptr += rc, limit -= rc;
-	else
-		limit = 0;
-  }
-  return buf;
+	return buf;
 }
 
 void
 test_print_list(void)
 {
-	static const char * const test_value[] = {
+	static const char *const test_value[] = {
 		"DEFAULT",
 		"IGNORE",
 		"ERROR",
@@ -236,8 +245,8 @@ test_print_list(void)
 	};
 	char buf[73] = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 	int i;
-	for (i = 0; i < sizeof(buf); i++) 
-			fprintf(stderr, "(%s)\n", snprint_list(buf, i, test_value));
+	for (i = 0; i < sizeof(buf); i++)
+		fprintf(stderr, "(%s)\n", snprint_list(buf, i, test_value));
 }
 /* stdextra.c */
 
