@@ -18,15 +18,14 @@
 #define DF_NO_EIJMP  0x00004000 // No EIJMP instruction
 #define DF_AVR8L     0x00008000	/* ATtiny10, 20, 40 set No ADIW, SBIW, one word LDS/STS */
 
-struct device
-	{
+struct device {
 	char *name;
 	int flash_size;
 	int ram_start;
 	int ram_size;
 	int eeprom_size;
 	int flag;
-	};
+};
 
 /* device.c */
 struct device *get_device(struct prog_info *pi,char *name);

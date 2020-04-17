@@ -1,17 +1,17 @@
 //
 // coff.h - Common Object File Format (COFF) support
 //
-//	This file was developed for the avra assembler in order to produce COFF output files 
-//	for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs 
+//	This file was developed for the avra assembler in order to produce COFF output files
+//	for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
 //	output was used as input to the assembler.
 //
-//	This software has absolutely no warrantee!  The money you paid for this will be 
+//	This software has absolutely no warrantee!  The money you paid for this will be
 //	promptly refunded if not fully satisfied.
 //
 //	Beta release 1/20/2000 by Bob Harris
 //
 //	This software has not been fully tested and probably has a few software deficiencies.
-//	Some software support may be possible by sending a problem description report to 
+//	Some software support may be possible by sending a problem description report to
 //	rth@mclean.sparta.com
 
 #define MAGIC_NUMBER_AVR   0xa12
@@ -134,14 +134,12 @@ struct external_scnhdr {
 
 /*********************************************************************/
 
-struct lineno
-{
-   union
-   {
-             long  l_symndx;  /* symtbl index of func name */
-             long  l_paddr;   /* paddr of line number */
-   } l_addr;
-   unsigned short  l_lnno;    /* line number */
+struct lineno {
+	union {
+		long  l_symndx;  /* symtbl index of func name */
+		long  l_paddr;   /* paddr of line number */
+	} l_addr;
+	unsigned short  l_lnno;    /* line number */
 };
 
 #define LINENO      struct lineno
@@ -190,28 +188,25 @@ struct lineno
 #define E_FILNMLEN	14	/* # characters in a file name		*/
 #define E_DIMNUM	4	/* # array dimensions in auxiliary entry */
 
-struct syment
-{
-  union
-  {
-      char          _n_name[E_SYMNMLEN];  /* symbol name*/
-      struct
-      {
-            long    _n_zeroes;          /* symbol name */
+struct syment {
+	union {
+		char          _n_name[E_SYMNMLEN];  /* symbol name*/
+		struct {
+			long    _n_zeroes;          /* symbol name */
 
-            long    _n_offset;          /* location in string table */
-      } _n_n;
-      char          *_n_nptr[2];        /* allows overlaying */
-  } _n;
-  unsigned long     n_value;            /* value of symbol */
+			long    _n_offset;          /* location in string table */
+		} _n_n;
+		char          *_n_nptr[2];        /* allows overlaying */
+	} _n;
+	unsigned long     n_value;            /* value of symbol */
 
-  short             n_scnum;            /* section number */
+	short             n_scnum;            /* section number */
 
-  unsigned short    n_type;             /* type and derived */
+	unsigned short    n_type;             /* type and derived */
 
-  char              n_sclass;           /* storage class */
+	char              n_sclass;           /* storage class */
 
-  char              n_numaux;           /* number of aux entries */
+	char              n_numaux;           /* number of aux entries */
 };
 
 #define  n_name          _n._n_name
@@ -222,54 +217,44 @@ struct syment
 #define  SYMNMLEN  8
 #define  SYMESZ    18                    /* size of a symbol table entry */
 
-union auxent
-{
-     struct
-     {
-           long   x_tagndx;
-           union
-           {
-               struct
-               {
-                     unsigned short   x_lnno;
-                     unsigned short   x_size;
-               } x_lnsz;
-               long    x_fsize;
-           } x_misc;
-           union
-           {
-               struct
-               {
-                     long    x_lnnoptr;
-                     long    x_endndx;
-               } x_fcn;
-               struct
-               {
-                     unsigned short   x_dimen[E_DIMNUM];
-               } x_ary;
-           } x_fcnary;
-           unsigned short   x_tvndx;
-       } x_sym;
-       union
-       {
-           char   x_fname[E_FILNMLEN];
+union auxent {
+	struct {
+		long   x_tagndx;
+		union {
 			struct {
-				unsigned long x_zeroes;
-				unsigned long x_offset;
-			} x_n;
-       } x_file;
-       struct
-       {
-           long   x_scnlen;
-           unsigned short   x_nreloc;
-           unsigned short   x_nlinno;
-       } x_scn;
-       struct
-       {
-           long   x_tvfill;
-           unsigned short   x_tvlen;
-           unsigned short   x_tvran[2];
-       } x_tv;
+				unsigned short   x_lnno;
+				unsigned short   x_size;
+			} x_lnsz;
+			long    x_fsize;
+		} x_misc;
+		union {
+			struct {
+				long    x_lnnoptr;
+				long    x_endndx;
+			} x_fcn;
+			struct {
+				unsigned short   x_dimen[E_DIMNUM];
+			} x_ary;
+		} x_fcnary;
+		unsigned short   x_tvndx;
+	} x_sym;
+	union {
+		char   x_fname[E_FILNMLEN];
+		struct {
+			unsigned long x_zeroes;
+			unsigned long x_offset;
+		} x_n;
+	} x_file;
+	struct {
+		long   x_scnlen;
+		unsigned short   x_nreloc;
+		unsigned short   x_nlinno;
+	} x_scn;
+	struct {
+		long   x_tvfill;
+		unsigned short   x_tvlen;
+		unsigned short   x_tvran[2];
+	} x_tv;
 };
 
 #define FILNMLEN  14
@@ -279,10 +264,10 @@ union auxent
 
 
 /* Coff additions */
-typedef struct ListNodeTag{
+typedef struct ListNodeTag {
 	struct ListNodeTag *Next;	/* Double Linked List */
 	struct ListNodeTag *Last;	/* Double Linked List */
-	void *pObject;	/* points to list object */	
+	void *pObject;	/* points to list object */
 	unsigned long Size;
 	int FileNumber;		/* corresponds to individual file(s) */
 } LISTNODE;
@@ -316,12 +301,12 @@ struct coff_info {
 	/* Internal */
 	unsigned char *pRomMemory;	/* 16 bit wide words/addresses */
 	unsigned char *pEEPRomMemory;	/* 8 bit wide words/addresses */
-   int MaxRomAddress;
-   int MaxEepromAddress;
-   int NeedLineNumberFixup;
-   int GlobalStartAddress;
-   int GlobalEndAddress;
-   LISTNODEHEAD ListOfSplitLines;
+	int MaxRomAddress;
+	int MaxEepromAddress;
+	int NeedLineNumberFixup;
+	int GlobalStartAddress;
+	int GlobalEndAddress;
+	LISTNODEHEAD ListOfSplitLines;
 
 	/* External */
 	struct external_filehdr FileHeader;		/* Only one of these per output file */
@@ -341,63 +326,63 @@ struct coff_info {
 
 FILE *open_coff_file(struct prog_info *pi, char *filename);
 void write_coff_file(struct prog_info *pi);
-void write_coff_eeprom( struct prog_info *pi, int address, unsigned char data);
-void write_coff_program( struct prog_info *pi, int address, unsigned char data);
+void write_coff_eeprom(struct prog_info *pi, int address, unsigned char data);
+void write_coff_program(struct prog_info *pi, int address, unsigned char data);
 void close_coff_file(struct prog_info *pi, FILE *fp);
-int parse_stabs( struct prog_info *pi, char *p );
-int parse_stabn( struct prog_info *pi, char *p );
+int parse_stabs(struct prog_info *pi, char *p);
+int parse_stabn(struct prog_info *pi, char *p);
 
 #endif
 
 /**************************************************************/
 /*********** Internal Routines ********************************/
 /**************************************************************/
-int stab_add_lineno(  struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction );
-int stab_add_lbracket( struct prog_info *pi, int Level, char *pLabel, char *pFunction );
-int stab_add_rbracket( struct prog_info *pi, int Level, char *pLabel, char *pFunction );
-int stab_add_filename( char *pName, char *pLabel );
-int stab_add_function( struct prog_info *pi, char *pName, char *pLabel );
-int stab_add_global( struct prog_info *pi, char *pName, char *pType );
-int stab_add_local(  struct prog_info *pi, char *pName, char *pType, char *pOffset  );
-int stab_add_parameter_symbol( struct prog_info *pi, char *pName, char *pType, char *pOffset  );
-int stab_add_static_symbol(  struct prog_info *pi, char *pName, char *pType, char *pLabel  );
-int stab_add_local_register(  struct prog_info *pi, char *pName, char *pType, char *pRegister  );
-int stab_add_local_type( char *pString, char *pType );
-int stab_add_tag_type( char *pName, char *pDesciptor );
+int stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction);
+int stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction);
+int stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction);
+int stab_add_filename(char *pName, char *pLabel);
+int stab_add_function(struct prog_info *pi, char *pName, char *pLabel);
+int stab_add_global(struct prog_info *pi, char *pName, char *pType);
+int stab_add_local(struct prog_info *pi, char *pName, char *pType, char *pOffset);
+int stab_add_parameter_symbol(struct prog_info *pi, char *pName, char *pType, char *pOffset);
+int stab_add_static_symbol(struct prog_info *pi, char *pName, char *pType, char *pLabel);
+int stab_add_local_register(struct prog_info *pi, char *pName, char *pType, char *pRegister);
+int stab_add_local_type(char *pString, char *pType);
+int stab_add_tag_type(char *pName, char *pDesciptor);
 
-int GetStabType( char *p, unsigned short *pType, char **pEnd );
-int AddNameToEntry( char *pName, struct syment *pEntry );
-int GetArrayType( char *p, char **pEnd, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels );
-int GetEnumTagItem( char *p, char **pEnd, char **pEnumName, int *pEnumValue );
-int GetStructUnionTagItem( char *p, char **pEnd, char **pName, unsigned short *pType, unsigned short *pBitOffset, unsigned short *pBitSize);
-int GetStringDelimiters( char *pString, char **pTokens, int MaxTokens );
-int SetupDefinedType( unsigned short Type, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels );
-int GetArrayDefinitions( STABCOFFMAP *pMap , char *pMinIndex, char *pMaxIndex, char *pType, unsigned short *DerivedBits, int ExtraLevels );
-int GetInternalType( char *pName, STABCOFFMAP *pMap );
-unsigned short GetCoffType( unsigned short StabType );
-unsigned short GetCoffTypeSize( unsigned short StabType );
-int CopyStabCoffMap( unsigned short StabType, STABCOFFMAP *pMap );
-int IsTypeArray( unsigned short CoffType );
-void AddArrayAuxInfo( union auxent *pAux, unsigned short SymbolIndex, STABCOFFMAP *pMap );
-int GetSubRangeType( unsigned short Type, STABCOFFMAP *pMap , char *pLow, char *pHigh );
-char *SkipPastDigits( char *p );
-int GetDigitLength( char *p );
+int GetStabType(char *p, unsigned short *pType, char **pEnd);
+int AddNameToEntry(char *pName, struct syment *pEntry);
+int GetArrayType(char *p, char **pEnd, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels);
+int GetEnumTagItem(char *p, char **pEnd, char **pEnumName, int *pEnumValue);
+int GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType, unsigned short *pBitOffset, unsigned short *pBitSize);
+int GetStringDelimiters(char *pString, char **pTokens, int MaxTokens);
+int SetupDefinedType(unsigned short Type, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels);
+int GetArrayDefinitions(STABCOFFMAP *pMap, char *pMinIndex, char *pMaxIndex, char *pType, unsigned short *DerivedBits, int ExtraLevels);
+int GetInternalType(char *pName, STABCOFFMAP *pMap);
+unsigned short GetCoffType(unsigned short StabType);
+unsigned short GetCoffTypeSize(unsigned short StabType);
+int CopyStabCoffMap(unsigned short StabType, STABCOFFMAP *pMap);
+int IsTypeArray(unsigned short CoffType);
+void AddArrayAuxInfo(union auxent *pAux, unsigned short SymbolIndex, STABCOFFMAP *pMap);
+int GetSubRangeType(unsigned short Type, STABCOFFMAP *pMap, char *pLow, char *pHigh);
+char *SkipPastDigits(char *p);
+int GetDigitLength(char *p);
 
 /****************************************************************************************/
 /* List management routines */
 /****************************************************************************************/
 
-void InitializeList( LISTNODEHEAD *pNode );
-void *AllocateTwoListObjects( LISTNODEHEAD *pHead, int size );
-void *AllocateListObject( LISTNODEHEAD *pHead, int size );
-LISTNODE *AllocateListNode( void *pObject, int size );
-void AddNodeToList( LISTNODEHEAD *pHead, LISTNODE *pNode );
-void *FindFirstListObject( LISTNODEHEAD *pHead );
-void *FindNextListObject( LISTNODEHEAD *pHead );
-LISTNODE *GetCurrentNode( LISTNODEHEAD *pHead );
-void *GetCurrentListObject( LISTNODEHEAD *pHead );
-void *FindLastListObject( LISTNODEHEAD *pHead );
-void *FindNextLastListObject( LISTNODEHEAD *pHead );
-void FreeList( LISTNODEHEAD *pHead );
-LISTNODE  *AddListObject(LISTNODEHEAD *pHead, void *pObject, int size );
+void InitializeList(LISTNODEHEAD *pNode);
+void *AllocateTwoListObjects(LISTNODEHEAD *pHead, int size);
+void *AllocateListObject(LISTNODEHEAD *pHead, int size);
+LISTNODE *AllocateListNode(void *pObject, int size);
+void AddNodeToList(LISTNODEHEAD *pHead, LISTNODE *pNode);
+void *FindFirstListObject(LISTNODEHEAD *pHead);
+void *FindNextListObject(LISTNODEHEAD *pHead);
+LISTNODE *GetCurrentNode(LISTNODEHEAD *pHead);
+void *GetCurrentListObject(LISTNODEHEAD *pHead);
+void *FindLastListObject(LISTNODEHEAD *pHead);
+void *FindNextLastListObject(LISTNODEHEAD *pHead);
+void FreeList(LISTNODEHEAD *pHead);
+LISTNODE  *AddListObject(LISTNODEHEAD *pHead, void *pObject, int size);
 

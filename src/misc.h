@@ -9,11 +9,10 @@
 
 enum boolean {False = 0, True};
 
-enum filetype
-{
-    AVRSTUDIO = 0,
-    GENERIC,
-    INTEL,
-    MOTOROLA
+enum filetype {
+	AVRSTUDIO = 0,
+	GENERIC,
+	INTEL,
+	MOTOROLA
 };
 
