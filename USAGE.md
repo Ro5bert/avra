@@ -145,9 +145,9 @@ There are 3 data types that can be used in macro definitions. The data types
 are specified by appending one of the following codes that start with an
 underscore to the end of a macro name:
 
-| immediate values | `_i`                                           |
-| registers        | `_8`,`_16`,`_24`,`_32`,`_40`,`_48`,`_56`,`_64` |
-| void parameter   | `_v`                                           |
+	immediate values  _i
+	registers         _8,_16,_24,_32,_40,_48,_56,_64
+	void parameter    _v
 
 See the following section for examples on how these types work.
 
@@ -177,12 +177,12 @@ following command sequence:
 Now we can use macros to simplify subtraction with 16 bit values:
 
 	.macro subs
-        .message "no parameters specified"
+		.message "no parameters specified"
 	.endm
 
 	.macro subs_16_16
-        sub @1,@3
-        sbc @0,@2 
+		sub @1,@3
+		sbc @0,@2 
 	.endm
 
 	.macro subs_16_8
@@ -214,18 +214,18 @@ Another example of macro overloading follows.
 	; value as second parameter:
 
 	.macro load_16_i
-        ldi @0,high(@2)
-        ldi @1,low(@2)
+		ldi @0,high(@2)
+		ldi @1,low(@2)
 	.endm
 
 	; The same case, but now with a 32 bit register value as first
 	; parameter:
 
 	.macro load_32_i
-        ldi @0,BYTE4(@4)
-        ldi @1,BYTE3(@4)
-        ldi @2,high(@4)
-        ldi @3,low(@4)
+		ldi @0,BYTE4(@4)
+		ldi @1,BYTE3(@4)
+		ldi @2,high(@4)
+		ldi @3,low(@4)
 	.endm
 
 	; Now these macros can be invoked as follows:
@@ -280,27 +280,27 @@ Another example of macro overloading follows.
        ; This writes 9999 into the memory at 'counter' using only the working
 	   ; register for transfering the values.
 
-       poke     [counter,w:w,9999]
+       poke [counter,w:w,9999]
 
        ; This works the same as above, but the transferred value 9999 is also
        ; kept in the pair of registers a:b.
 
-       poke     [counter,a:b,9999]
+       poke [counter,a:b,9999]
 
        ; In this design 'w' is always a working register, which implies that
        ; it cannot be used for normal variables. The following example
        ; uses poke_i_i because the parameter contains two immediate values.
 
-       poke     [counter,9999] ;uses poke_i_i
+       poke [counter,9999] ;uses poke_i_i
 
        ; To be able to choose between a 8, 16, or 32 bit operation, you just
        ; add a void parameter.
 
-       poke     [counter,,9999] ;uses poke_i_v_i
+       poke [counter,,9999] ;uses poke_i_v_i
 
        ; And the same for 32 bit pokes:
 
-       poke     [counter,,,,9999] ;uses poke_i_v_v_v_i
+       poke [counter,,,,9999] ;uses poke_i_v_v_v_i
 
 ### Loops Within Macros
 
@@ -311,30 +311,30 @@ replaced by a running number.
 
 #### Loop Example
 
-       ; Definition of the macro
+	; Definition of the macro
 
-       .macro   write_8_8
-       write_%:
-            st      Z+,@0
-            dec     @1
-            brne    write_%
-       .endm
+	.macro write_8_8
+	write_%:
+		st   Z+,@0
+		dec  @1
+		brne write_%
+	.endm
 
-       ; Use in user code
+	; Use in user code
 
-       write   [a,b]
-       write   [c,d]
+	write [a,b]
+	write [c,d]
 
-       ; After assembling this code, the result looks like this:
+	; After assembling this code, the result looks like this:
 
-       write_1:
-            st          Z+,a
-            dec         b
-            brne        write_1
-       write_2:
-            st          Z+,c
-            dec         d
-            brne        write_2
+	write_1:
+		st   Z+,a
+		dec  b
+		brne write_1
+	write_2:
+		st   Z+,c
+		dec  d
+		brne write_2
 
 ## Warnings and Errors
 
