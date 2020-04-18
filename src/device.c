@@ -97,6 +97,7 @@ struct device device_list[] = {
 	// AT90USB1287
 	/* ATmega series */
 	{    "ATmega8",        4096,      0x60,     1024,    512, DF_NO_JMP|DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{   "ATmega8A",        4096,      0x60,     1024,    512, DF_NO_JMP|DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{  "ATmega161",        8192,      0x60,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{  "ATmega162",        8192,     0x100,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{  "ATmega163",        8192,      0x60,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
