@@ -188,11 +188,7 @@ parse_directive(struct prog_info *pi)
 			        pi->segment->ident, pi->segment->addr, pi->list_line);
 			pi->list_line = NULL;
 		}
-		if (i > 0) {
-			fix_orglist(pi->segment);
-			advance_ip(pi->segment, i);
-			def_orglist(pi->segment);
-		}
+		advance_ip(pi->segment, i);
 		break;
 	case DIRECTIVE_CSEG:
 		fix_orglist(pi->segment);
