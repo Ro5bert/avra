@@ -208,6 +208,7 @@ parse_line(struct prog_info *pi, char *line)
 	char temp[LINEBUFFER_LENGTH];
 	struct label *label = NULL;
 	struct macro_call *macro_call;
+	int len;
 
 	while (IS_HOR_SPACE(*line)) line++;			/* At first remove leading spaces / tabs */
 	if (IS_END_OR_COMMENT(*line))				/* Skip comment line or empty line */
@@ -227,35 +228,41 @@ parse_line(struct prog_info *pi, char *line)
 	/* Meta information translation */
 	ptr=line;
 	k=0;
+	len = strlen(ptr);
 	while ((ptr=strchr(ptr, '%')) != NULL) {
 		if (!strncmp(ptr, "%MINUTE%", 8)) {		/* Replacement always shorter than tag -> no length check */
-			k=strftime(ptr,3,"%M", localtime(&pi->time));
-			strcpy(ptr+k,ptr+8);
-			ptr+=k;
+			k=strftime(ptr, 3, "%M", localtime(&pi->time));
+			memmove(ptr+k, ptr+8, len);
+			ptr += k;
+			len -= 6;
 			continue;
 		}
 		if (!strncmp(ptr, "%HOUR%", 6)) {
-			k=strftime(ptr,3,"%H", localtime(&pi->time));
-			strcpy(ptr+k,ptr+6);
-			ptr+=k;
+			k=strftime(ptr, 3, "%H", localtime(&pi->time));
+			memmove(ptr+k , ptr+6, len);
+			ptr += k;
+			len -= 4;
 			continue;
 		}
 		if (!strncmp(ptr, "%DAY%", 5)) {
-			k=strftime(ptr,3,"%d", localtime(&pi->time));
-			strcpy(ptr+k,ptr+5);
+			k=strftime(ptr, 3, "%d", localtime(&pi->time));
+			memmove(ptr+k ,ptr+5, len);
 			ptr+=k;
+			len -= 3;
 			continue;
 		}
 		if (!strncmp(ptr, "%MONTH%", 7)) {
-			k=strftime(ptr,3,"%m", localtime(&pi->time));
-			strcpy(ptr+k,ptr+7);
-			ptr+=k;
+			k=strftime(ptr, 3, "%m", localtime(&pi->time));
+			memmove(ptr+k, ptr+7, len);
+			ptr += k;
+			len -= 5;
 			continue;
 		}
 		if (!strncmp(ptr, "%YEAR%", 6)) {
-			k=strftime(ptr,5,"%Y", localtime(&pi->time));
-			strcpy(ptr+k,ptr+6);
-			ptr+=k;
+			k=strftime(ptr, 5, "%Y", localtime(&pi->time));
+			memmove(ptr+k, ptr+6, len);
+			ptr += k;
+			len -= 4;
 			continue;
 		}
 		ptr++;
