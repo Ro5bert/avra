@@ -178,8 +178,10 @@ parse_directive(struct prog_info *pi)
 			print_msg(pi, MSGTYPE_ERROR, ".BYTE needs a size operand");
 			return (True);
 		}
-		if (pi->segment == pi->cseg)
+		if (pi->segment == pi->cseg) {
 			print_msg(pi, MSGTYPE_ERROR, ".BYTE directive cannot be used within the code segment (.CSEG)");
+			return False;
+		}
 		get_next_token(next, TERM_END);
 		if (!get_expr(pi, next, &i))
 			return (False);
