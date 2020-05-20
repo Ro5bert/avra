@@ -183,16 +183,16 @@ parse_directive(struct prog_info *pi)
 		get_next_token(next, TERM_END);
 		if (!get_expr(pi, next, &i))
 			return (False);
+		if (i < 0) {
+			print_msg(pi, MSGTYPE_ERROR, ".BYTE directive must have nonnegative operand");
+			return False;
+		}
 		if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
 			fprintf(pi->list_file, "%c:%06x    %s\n",
 			        pi->segment->ident, pi->segment->addr, pi->list_line);
 			pi->list_line = NULL;
 		}
-		if (i > 0) {
-			fix_orglist(pi->segment);
-			advance_ip(pi->segment, i);
-			def_orglist(pi->segment);
-		}
+		advance_ip(pi->segment, i);
 		break;
 	case DIRECTIVE_CSEG:
 		fix_orglist(pi->segment);
