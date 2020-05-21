@@ -1,0 +1,26 @@
+#!/bin/sh
+
+try() {
+	if ! ${AVRA} test.asm > /dev/null; then
+		echo "AVRA had non-zero exit status"
+		exit 1
+	fi
+	# This is a bit of a hack. Basically, this gets the date in the same format
+	# as in the test.asm file, converts it to ASCII values, concatenates all
+	# the ASCII values, and then searches for that string of ASCII values in
+	# the output hex file.
+	if grep "$(date +%Y%m%d%H%M | od -A n -t x1 | awk '{printf $1$2$3$4$5$6$7$8$9$10$11$12}')" test.hex > /dev/null; then
+		rm test.hex test.eep.hex test.obj
+		exit 0
+	fi
+}
+
+# Try twice, because it's possible that the minute changes in between
+# compilation and testing the output. (If the first one succeeds, the second
+# one won't run.)
+
+try
+try
+
+exit 1
+
