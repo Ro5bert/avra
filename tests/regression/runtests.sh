@@ -14,12 +14,12 @@ for dir in */; do
 	base="$(basename "${dir}")"
 	tstfile="${base}/test"
 	srcfile="${base}/test.asm"
-    hexfile="${base}/test.hex"
-    eepfile="${base}/test.eep.hex"
+	hexfile="${base}/test.hex"
+	eepfile="${base}/test.eep.hex"
 
 	failed=0
 	tstcnt=$((tstcnt+1))
-    printf "\nTesting %s\n" "${base}"
+	printf "\nTesting %s\n" "${base}"
 
 	# First look for test executable.
 	if [ -f "${tstfile}" ]; then
