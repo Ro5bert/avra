@@ -74,9 +74,9 @@ struct device device_list[] = {
 	{   "ATtiny88",        4096,     0x100,      512,     64, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 	// ATtiny87
 	// ATtiny167
-	// ATtiny261A
-	// ATtiny461A
-	// ATtiny861A
+	{ "ATtiny261A",        2048,      0x60,      128,    128, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
+	{ "ATtiny461A",        4096,      0x60,      256,    256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
+	{ "ATtiny861A",        8192,      0x60,      512,    512, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 	{ "ATtiny2313",        1024,      0x60,      128,    128, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 	{ "ATtiny2313A",       1024,      0x60,      128,    128, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 	{ "ATtiny4313",        2048,      0x60,      256,    256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
