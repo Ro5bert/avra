@@ -3,7 +3,7 @@
 *Assember for the Atmel AVR microcontroller family*
 
 AVRA is an assembler for Atmel AVR microcontrollers, and it is almost
-compatible with Atmel's own assembler, AVRASM32. AVRA is written in ANSI C.
+compatible with Atmel's own assembler, AVRASM32. AVRA is written in C99.
 
 ## Differences between AVRA and AVRASM32
 
