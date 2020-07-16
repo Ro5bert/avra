@@ -135,7 +135,7 @@ struct device device_list[] = {
 	{ "ATmega644PA",      32768,     0x100,     4096,   2096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{ "ATmega1284P",      65536,     0x100,    16384,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ESPM},
 	{ "ATmega1284PA",     65536,     0x100,    16384,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ESPM},
-	{ "ATmega2560",      262144,     0x200,     8192,   4096, DF_NO_ESPM},
+	{ "ATmega2560",      131072,     0x200,     8192,   4096, DF_NO_ESPM},
 	/* Other */
 	{      "AT94K",        8192,      0x60,    16384,      0, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_BREAK}, // 137 - EICALL - EIJMP - ELPM(3) - SPM - ESPM - BREAK = 129
 	{NULL, 0, 0, 0, 0}

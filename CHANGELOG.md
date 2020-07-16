@@ -4,7 +4,7 @@
 
 - Remove bug with wrong start of DSEG for processors with SRAM start != 0x60
 - Fix segment check for SRAM. End address wasn't correct calculated
-- Fix wrong flash size of mega644
+- Fix wrong flash size of mega644 and mega2560
 - Add support for ATmega164P/PA, ATmega324P/PA, ATmega644P/PA, ATmega1284P/PA, ATmega328PB
 - Changed width of name column for nicer printing in --devices
 - Add some device definitions in include directory
