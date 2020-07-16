@@ -61,7 +61,7 @@ all versions until v0.7. Tobias Weber later took over, followed by Burkhard
 Arenfeld (v1.2) then Jerry Jacobs (v1.3).
 
 After a long 8 years of inactivity, Virgil Dupras took over, preparing a
-v1.4 release and onwards.
+v1.4 release.
 
 See AUTHORS for a complete list of contributors.
 
