@@ -50,9 +50,8 @@ used to generate customer specific serial numbers.
 
 ## Compatibility
 
-Since AVRA is written in ANSI C, it should be possible to compile it on
-most system platforms. If you have problems compiling AVRA, please open an
-issue in the tracker.
+It should be possible to compile AVRA on most system platforms.
+If you have problems compiling AVRA, please open an issue in the tracker.
 
 ## History
 
