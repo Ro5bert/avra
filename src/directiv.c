@@ -285,7 +285,7 @@ parse_directive(struct prog_info *pi)
 			if ((pi->cseg->addr != pi->cseg->lo_addr)
 			        || (pi->dseg->addr != pi->dseg->lo_addr)
 			        || (pi->eseg->addr != pi->eseg->lo_addr)) {
-				/* B.A.: Check if something was already assembled XXX probably redundant */
+				/* B.A.: Check if something was already assembled */
 				print_msg(pi, MSGTYPE_ERROR, ".DEVICE definition must be before any .ORG directive");
 			}
 		}
@@ -301,7 +301,12 @@ parse_directive(struct prog_info *pi)
 		 * start memory allocation from the correct offsets.
 		 */
 		fix_orglist(pi->segment);
-		rewind_segments(pi);
+
+		/* B.A. 07/2020: Bug in 1.4.1. Buggy code when SRAM start != 0x60.
+		 * Used not updated pi->dseg->lo_addr variable instead of
+		 * device->ram_start */
+		/* rewind_segments(pi);  */
+		init_segment_size(pi, pi->device); 	/* Resync. ...->lo_addr variables */
 		def_orglist(pi->segment);
 		break;
 	case DIRECTIVE_DSEG:

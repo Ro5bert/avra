@@ -123,9 +123,18 @@ struct device device_list[] = {
 	{"ATmega168PA",        8192,     0x100,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{  "ATmega328",       16384,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{ "ATmega328P",       16384,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
-	{  "ATmega644",       65536,     0x100,     4096,   2048, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega328PB",      16384,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{ "ATmega8515",        8192,      0x60,      512,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
 	{ "ATmega1280",       65536,     0x200,     8192,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ESPM},
+	{ "ATmega164P",        8192,     0x100,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega164PA",       8192,     0x100,     1024,    512, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega324P",       16384,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega324PA",      16384,     0x100,     2048,   1024, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega644",        32768,     0x100,     4096,   2048, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM}, // Datasheet doc2593.pdf from 02/2012, Atmel has ELPM listed but same function as LPM
+ 	{ "ATmega644P",       32768,     0x100,     4096,   2096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega644PA",      32768,     0x100,     4096,   2096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_ESPM},
+	{ "ATmega1284P",      65536,     0x100,    16384,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ESPM},
+	{ "ATmega1284PA",     65536,     0x100,    16384,   4096, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ESPM},
 	{ "ATmega2560",      262144,     0x200,     8192,   4096, DF_NO_ESPM},
 	/* Other */
 	{      "AT94K",        8192,      0x60,    16384,      0, DF_NO_EICALL|DF_NO_EIJMP|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_BREAK}, // 137 - EICALL - EIJMP - ELPM(3) - SPM - ESPM - BREAK = 129
@@ -208,17 +217,17 @@ void
 list_devices(void)
 {
 	int i = 1;
-	printf("Device name | Flash size | RAM start | RAM size | EEPROM size |  Supported\n"
-	       "            |  (words)   | (bytes)   | (bytes)  |   (bytes)   | instructions\n"
-	       "------------+------------+-----------+----------+-------------+--------------\n"
-	       " (default)  |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
+	printf("Device name   | Flash size | RAM start | RAM size | EEPROM size |  Supported\n"
+	       "              |  (words)   | (bytes)   | (bytes)  |   (bytes)   | instructions\n"
+	       "--------------+------------+-----------+----------+-------------+--------------\n"
+	       " (default)    |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
 	       device_list[0].flash_size,
 	       device_list[0].ram_start,
 	       device_list[0].ram_size,
 	       device_list[0].eeprom_size,
 	       count_supported_instructions(device_list[0].flag));
 	while (device_list[i].name) {
-		printf(" %-10s |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
+		printf(" %-12s |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
 		       device_list[i].name,
 		       device_list[i].flash_size,
 		       device_list[i].ram_start,

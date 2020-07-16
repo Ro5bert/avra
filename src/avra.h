@@ -279,6 +279,7 @@ void free_pi(struct prog_info *pi);
 void print_msg(struct prog_info *pi, int type, char *fmt, ...);
 void get_rootpath(struct prog_info *pi, struct args *args);
 
+void init_segment_size(struct prog_info *pi, struct device *device);
 void rewind_segments(struct prog_info *pi);
 void advance_ip(struct segment_info *si, int offset);
 

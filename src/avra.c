@@ -43,7 +43,7 @@
 
 const char *title =
     "AVRA: advanced AVR macro assembler Version %s\n"
-    "Copyright (C) 1998-2010. Check out README file for more info\n"
+    "Copyright (C) 1998-2020. Check out README file for more info\n"
     "\n"
     "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
     "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
@@ -331,11 +331,16 @@ rewind_segments(struct prog_info *pi)
 void
 init_segment_size(struct prog_info *pi, struct device *device)
 {
+	/* Comment B.A 07/2020: Was nice idea to use unique name convention. But I
+	 * think would be better to replace old vars in device struct completely
+	 * instead 2 variables and syncing them manually... */
 	pi->cseg->hi_addr = device->flash_size;
 	pi->cseg->cellsize = 2;
 
 	pi->dseg->lo_addr = device->ram_start;
-	pi->dseg->hi_addr = device->ram_size;
+	/* B.A. 07/2020: Bug in 1.4.1: End address was wrong, because start offset
+	 * wasn't added! */
+	pi->dseg->hi_addr = device->ram_size+device->ram_start;
 	pi->dseg->cellsize = 1;
 
 	pi->eseg->hi_addr = device->eeprom_size;
@@ -613,6 +618,11 @@ fprint_segments(FILE *file, struct prog_info *pi)
 }
 
 /* B.A.: Test for overlapping segments and device space */
+
+/* Comment B.A. 07/2020 : I don't understand, why you replaced the former
+ * function parameter "struct prog_info *pi" with "struct segment_info *si" and
+ * include in *si a new pointer to *pi. I think nicer would simply *si as
+ * second parameter instead of recursive pointers. */
 int
 test_orglist(struct segment_info *si)
 {

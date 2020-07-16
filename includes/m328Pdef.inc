@@ -761,11 +761,13 @@
 .equ	CLKPCE	= 7	; Clock Prescaler Change Enable
 
 ; SPMCSR - Store Program Memory Control and Status Register
-.equ	SELFPRGEN	= 0	; Self Programming Enable
+.equ	SELFPRGEN = 0	; Added for backwards compatibility
+.equ	SPMEN	= 0	; Store Program Memory
 .equ	PGERS	= 1	; Page Erase
 .equ	PGWRT	= 2	; Page Write
 .equ	BLBSET	= 3	; Boot Lock Bit Set
 .equ	RWWSRE	= 4	; Read-While-Write section read enable
+.equ	SIGRD	= 5	; Signature Row Read
 .equ	RWWSB	= 6	; Read-While-Write Section Busy
 .equ	SPMIE	= 7	; SPM Interrupt Enable
 
