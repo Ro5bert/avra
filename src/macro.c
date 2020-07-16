@@ -2,7 +2,7 @@
  *
  *  avra - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2004 Jon Anders Haugum, TObias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
  *
  *  Authors of avra can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
- *     www: http://sourceforge.net/projects/avra
+ *     www: https://github.com/Ro5bert/avra
  */
 
 /*

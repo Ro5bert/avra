@@ -2,28 +2,32 @@
  *
  *  avra - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2004 Jon Anders Haugum, Tobias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
- * coff.c - Common Object File Format (COFF) support
+ *  coff.c - Common Object File Format (COFF) support
  *
- *	This file was developed for the avra assembler in order to produce COFF output files
- *  for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
- *	output was used as input to the assembler.  The information used to develop this file
- *  was obtained from various sources on the Internet, most notably, the Free Software Foundation,
- *  The "stabs" debug format, ??? Chapter 7: Common Object File Format (COFF),
+ *	This file was developed for the avra assembler in order to produce
+ *	COFF output files for use with the Atmel AVR Studio.  The Lean C
+ *	Compiler (LCC) debugging stabs output was used as input to the
+ *	assembler.  The information used to develop this file was obtained
+ *	from various sources on the Internet, most notably, the Free
+ *	Software Foundation, The "stabs" debug format, ??? Chapter 7:
+ *	Common Object File Format (COFF).
  *
- *	This software has absolutely no warrantee!  The money you paid for this will be
- *  promptly refunded if not fully satisfied.
+ *	This software has absolutely no warrantee!  The money you paid for
+ *	this will be promptly refunded if not fully satisfied.
  *
  *	Beta release 1/20/2000 by Bob Harris
  *
- *	This software has not been fully tested and probably has a few software deficiencies.
- *  Some software support may be possible by sending a problem description report to
- *  rth@mclean.sparta.com
+ *	This software has not been fully tested and probably has a few
+ *	software deficiencies.
+ *  Some software support may be possible by sending a problem
+ *  description report to rth@mclean.sparta.com
  *
  *  Made the recommended change in write_coff_program().
- *  Fixed an obvious typo in SkipPastDigits().  The if() statement was terminated
- *  with a semicolon, which terminated the if(); early.  JEG 4-01-03
+ *  Fixed an obvious typo in SkipPastDigits().  The if() statement
+ *  was terminated with a semicolon, which terminated the if(); early.
+ *  JEG 4-01-03
  */
 
 #include <stdio.h>
