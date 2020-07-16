@@ -1,13 +1,17 @@
 # ARVA Change log
 
-## Release 1.4.2 (2020-07-16, by Burkhard Arenfeld)
+## Release 1.4.2 (2020-07-16, by Burkhard Arenfeld, Robert Russell, and others)
 
 - Remove bug with wrong start of DSEG for processors with SRAM start != 0x60
 - Fix segment check for SRAM. End address wasn't correct calculated
-- Fix wrong flash size of mega644 and mega2560
-- Add support for ATmega164P/PA, ATmega324P/PA, ATmega644P/PA, ATmega1284P/PA, ATmega328PB
+- Fix wrong flash size of mega2560
+- Add support for ATmega164P/PA, ATmega324P/PA, ATmega644P/PA, ATmega1284P/PA,
+  ATmega328PB, ATmega8A, ATtiny261A, ATtiny461A, ATtiny861A
 - Changed width of name column for nicer printing in --devices
 - Add some device definitions in include directory
+- Fix ifdef and ifndef (again)
+- Fix DSEG overlap detection with .BYTE directives
+- Enhance regression testing system
 
 ## Release 1.4.1 (2019-04-24)
 
