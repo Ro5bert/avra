@@ -1,6 +1,5 @@
 TODO
 ====
-  - .elif does not work within macros
   - LDS and STS instructions don't address I/O
   - ATmega8 CALL instruction is bogus
   - recursion - sigsegv
