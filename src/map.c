@@ -1,6 +1,6 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
  *  Copyright (C) 1998-2020 The AVRA Authors
  *
@@ -20,7 +20,7 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
  *     www: https://github.com/Ro5bert/avra
  */

@@ -1,12 +1,12 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
  *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  coff.c - Common Object File Format (COFF) support
  *
- *	This file was developed for the avra assembler in order to produce
+ *	This file was developed for the AVRA assembler in order to produce
  *	COFF output files for use with the Atmel AVR Studio.  The Lean C
  *	Compiler (LCC) debugging stabs output was used as input to the
  *	assembler.  The information used to develop this file was obtained

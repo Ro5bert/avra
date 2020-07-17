@@ -1,6 +1,6 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
  *  Copyright (C) 1998-2020 The AVRA Authors
  *
@@ -20,7 +20,7 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
  *     www: https://github.com/Ro5bert/avra
  */
@@ -47,10 +47,10 @@ const char *title =
     "\n"
     "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
     "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
-    "   shipped with AVR Studio. We do not guarantee full compatibility for avra.\n"
+    "   shipped with AVR Studio. We do not guarantee full compatibility for AVRA.\n"
     "\n"
     "   AVRA comes with NO WARRANTY, to the extent permitted by law.\n"
-    "   You may redistribute copies of avra under the terms\n"
+    "   You may redistribute copies of AVRA under the terms\n"
     "   of the GNU General Public License.\n"
     "   For more information about these matters, see the files named COPYING.\n"
     "\n";
@@ -83,7 +83,7 @@ const char *usage =
     "   --help, -h       : This help text.\n"
     "\n"
     "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
-    "AVRStudio directories to avra's binary.\n";
+    "AVRStudio directories to AVRA's binary.\n";
 
 const struct dataset overlap_choice[4] = {
 	{ OVERLAP_ERROR,   "e"},
