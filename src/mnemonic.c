@@ -643,10 +643,10 @@ parse_mnemonic(struct prog_info *pi)
 		opcode |= instruction_list[mnemonic].opcode;
 		if (pi->list_on && pi->list_line) {
 			if (instruction_long)
-				fprintf(pi->list_file, "%c:%06x %04x %04x %s\n",
+				fprintf(pi->list_file, "%c:%06lx %04x %04x %s\n",
 				        pi->cseg->ident, pi->cseg->addr, opcode, opcode2, pi->list_line);
 			else
-				fprintf(pi->list_file, "%c:%06x %04x      %s\n",
+				fprintf(pi->list_file, "%c:%06lx %04x      %s\n",
 				        pi->cseg->ident, pi->cseg->addr, opcode, pi->list_line);
 			pi->list_line = NULL;
 		}

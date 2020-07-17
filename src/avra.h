@@ -119,10 +119,10 @@ extern const int SEG_BSS_DATA;
 struct segment_info {
 	const char *name;
 	char ident;	  /* C, D, E */
-	int addr;     /* address in cells */
-	int count;    /* length in cells  */
-	int lo_addr;  /* lowest addr supported */
-	int hi_addr;  /* one past highest addr supported */
+	long addr;    /* address in cells */
+	long count;   /* length in cells  */
+	long lo_addr; /* lowest addr supported */
+	long hi_addr; /* one past highest addr supported */
 	int	cellsize; /* 1 for data/eeprom, 2 for flash  */
 	int flags;	  /* SEG_BSS_DATA */
 

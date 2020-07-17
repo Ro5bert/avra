@@ -6,3 +6,5 @@ TODO
   - Conditional assembly with forward referenced label on .DW directive generates incorrect code
   - AVRA complains about "((str_start_%)<<1)" beeing invalid
   - if last line in include is a remark line, it is written twice in the listing
+  - Printing of diagnostic messages with hexademical numbers is inconsistent
+    (some are %x; others %X)

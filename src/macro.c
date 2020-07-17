@@ -440,7 +440,7 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 			}
 		}
 		if (pi->list_line && pi->list_on) {
-			fprintf(pi->list_file, "%c:%06x   +  %s\n",
+			fprintf(pi->list_file, "%c:%06lx   +  %s\n",
 			        pi->cseg->ident, pi->cseg->addr, pi->list_line);
 			pi->list_line = NULL;
 		}

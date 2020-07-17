@@ -227,14 +227,14 @@ list_devices(void)
 	printf("Device name   | Flash size | RAM start | RAM size | EEPROM size |  Supported\n"
 	       "              |  (words)   | (bytes)   | (bytes)  |   (bytes)   | instructions\n"
 	       "--------------+------------+-----------+----------+-------------+--------------\n"
-	       " (default)    |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
+	       " (default)    |    %7ld |    0x%04lx |  %7ld |       %5ld |          %3d\n",
 	       device_list[0].flash_size,
 	       device_list[0].ram_start,
 	       device_list[0].ram_size,
 	       device_list[0].eeprom_size,
 	       count_supported_instructions(device_list[0].flag));
 	while (device_list[i].name) {
-		printf(" %-12s |    %7d |    0x%04x |  %7d |       %5d |          %3d\n",
+		printf(" %-12s |    %7ld |    0x%04lx |  %7ld |       %5ld |          %3d\n",
 		       device_list[i].name,
 		       device_list[i].flash_size,
 		       device_list[i].ram_start,

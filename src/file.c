@@ -151,9 +151,9 @@ close_out_files(struct prog_info *pi)
 	if (pi->error_count == 0) {
 		snprintf(stmp, sizeof(stmp),
 		         "Segment usage:\n"
-		         "   Code      :   %7d words (%d bytes)\n"
-		         "   Data      :   %7d bytes\n"
-		         "   EEPROM    :   %7d bytes\n",
+		         "   Code      :   %7ld words (%ld bytes)\n"
+		         "   Data      :   %7ld bytes\n"
+		         "   EEPROM    :   %7ld bytes\n",
 		         pi->cseg->count, pi->cseg->count * 2, pi->dseg->count, pi->eseg->count);
 		printf("%s", stmp);
 	}

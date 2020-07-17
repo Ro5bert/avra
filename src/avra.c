@@ -640,13 +640,13 @@ test_orglist(struct segment_info *si)
 		if (orglist->length > 0) {
 			/* Make sure address area is valid */
 			if (orglist->start < si->lo_addr) {
-				fprintf(stderr, "Segment start below allowed start address: 0x%04X",
+				fprintf(stderr, "Segment start below allowed start address: 0x%04lX",
 				        si->lo_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;
 			}
 			if (orglist->start + orglist->length > si->hi_addr) {
-				fprintf(stderr, "Segment start above allowed high address: 0x%04X",
+				fprintf(stderr, "Segment start above allowed high address: 0x%04lX",
 				        si->hi_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;

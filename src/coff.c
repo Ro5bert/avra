@@ -441,7 +441,7 @@ write_coff_eeprom(struct prog_info *pi, int address, unsigned char data)
 				ci->MaxEepromAddress = address;   /* keep high water mark */
 		} else {
 			pi->error_count++;
-			fprintf(stderr, "Error: EEPROM address %d exceeds max range %d", address, pi->device->eeprom_size);
+			fprintf(stderr, "Error: EEPROM address %d exceeds max range %ld", address, pi->device->eeprom_size);
 		}
 	}
 }
@@ -466,7 +466,7 @@ write_coff_program(struct prog_info *pi, int address, unsigned int data)
 		} else {
 			pi->error_count++;
 			/* JEG		fprintf(stderr, "Error: FLASH address %d exceeds max range %d", address, pi->device->flash_size ); */
-			fprintf(stderr, "Error: FLASH address %d exceeds max range %d", address, pi->device->flash_size*2);
+			fprintf(stderr, "Error: FLASH address %d exceeds max range %ld", address, pi->device->flash_size*2);
 		}
 	}
 }

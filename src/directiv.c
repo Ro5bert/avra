@@ -193,7 +193,7 @@ parse_directive(struct prog_info *pi)
 			return False;
 		}
 		if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
-			fprintf(pi->list_file, "%c:%06x    %s\n",
+			fprintf(pi->list_file, "%c:%06lx    %s\n",
 			        pi->segment->ident, pi->segment->addr, pi->list_line);
 			pi->list_line = NULL;
 		}
@@ -337,7 +337,7 @@ parse_directive(struct prog_info *pi)
 				if (pi->list_line && pi->list_on) {
 					fprintf(pi->list_file, "          %s\n", pi->list_line);
 					pi->list_line = NULL;
-					fprintf(pi->list_file, "%c:%06x %04x\n",
+					fprintf(pi->list_file, "%c:%06lx %04x\n",
 					        pi->segment->ident, pi->segment->addr, i);
 				}
 				if (pi->segment == pi->eseg) {
@@ -814,7 +814,7 @@ parse_db(struct prog_info *pi, char *next)
 
 	count = 0;
 	if (pi->pass == PASS_2 && pi->list_on) {
-		fprintf(pi->list_file, "%c:%06X ", pi->segment->ident, pi->segment->addr);
+		fprintf(pi->list_file, "%c:%06lX ", pi->segment->ident, pi->segment->addr);
 	}
 	/* get each db token */
 	while (next) {

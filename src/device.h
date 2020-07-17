@@ -51,10 +51,10 @@
 
 struct device {
 	char *name;
-	int flash_size;
-	int ram_start;
-	int ram_size;
-	int eeprom_size;
+	long flash_size;
+	long ram_start;
+	long ram_size;
+	long eeprom_size;
 	int flag;
 };
 
