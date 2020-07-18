@@ -1,8 +1,8 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2004 Jon Anders Haugum, TObias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,14 +20,9 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
- *     www: http://sourceforge.net/projects/avra
- */
-
-/*
- * In append_type: added generic register names support
- * Alexey Pavluchenko, 16.Nov.2005
+ *     www: https://github.com/Ro5bert/avra
  */
 
 #include <stdio.h>
@@ -129,7 +124,7 @@ read_macro(struct prog_info *pi, char *name)
 			fprintf(pi->list_file, "          %s\n", pi->list_line);
 			pi->list_line = NULL;
 		}
-		// reset macro label running numbers
+		/* reset macro label running numbers */
 		get_next_token(name, TERM_END);
 		macro = get_macro(pi, name);
 		if (!macro) {
@@ -261,10 +256,7 @@ append_type(struct prog_info *pi, char *name, int c, char *value)
 }
 
 
-/*********************************************************
- * This routine replaces the macro call with mnemonics.  *
- *********************************************************/
-
+/* Replace the macro call with mnemonics.  */
 int
 expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 {
@@ -275,13 +267,13 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 	char  tmp[7];
 	char 	buff[LINEBUFFER_LENGTH];
 	char	arg = False;
-	char	*nmn; //string buffer for 'n'ew 'm'acro 'n'ame
+	char	*nmn; /* string buffer for 'n'ew 'm'acro 'n'ame */
 	struct 	macro_line *old_macro_line;
 	struct 	macro_call *macro_call;
 	struct	macro_label *macro_label;
 
 	if (rest_line) {
-		//we reserve some extra space for extended macro parameters
+		/* we reserve some extra space for extended macro parameters */
 		line = malloc(strlen(rest_line) + 20);
 		if (!line) {
 			print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
@@ -309,8 +301,6 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 					line[b++] = rest_line[c];
 				}
 				break;
-//        case ';':
-//          break;
 			default:
 				line[b++] = rest_line[c];
 			}
@@ -319,36 +309,35 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 
 
 		/*  here we split up the macro arguments into "macro_args"
-		 *  Extended macro code interpreter added by TW 2002
-		 */
+		 *  Extended macro code interpreter added by TW 2002 */
 
 		temp = line;
 		/* test for advanced parameters */
-		if (temp[0] == '[') {  // there must be "[" " then "]", else it is garbage
+		if (temp[0] == '[') {  /* there must be "[" " then "]", else it is garbage */
 			if (!strchr(temp, ']')) {
 				print_msg(pi, MSGTYPE_ERROR, "found no closing ']'");
 				return (False);
 			}
 
-			// Okay now we are within the advanced code interpreter
+			/* Okay now we are within the advanced code interpreter */
 
-			temp++; // = &temp[1]; // skip the first bracket
+			temp++; /* skip the first bracket */
 			nmn = malloc(LINEBUFFER_LENGTH);
 			if (!nmn) {
 				print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
 				return (False);
 			}
-			strcpy(nmn,macro->name); // create a new macro name buffer
-			c = 1; // byte counter
-			arg = True; // loop flag
+			strcpy(nmn,macro->name); /* create a new macro name buffer */
+			c = 1; /* byte counter */
+			arg = True; /* loop flag */
 
 			while (arg) {
-				while (IS_HOR_SPACE(temp[0])) { //skip leading spaces
-					temp++; // = &temp[1];
+				while (IS_HOR_SPACE(temp[0])) { /* skip leading spaces */
+					temp++;
 				}
-				off = 0; // pointer offset
+				off = 0; /* pointer offset */
 				do {
-					switch (temp[off]) { //test current character code
+					switch (temp[off]) { /* test current character code */
 					case ':':
 						temp[off] = '\0';
 						if (off > 0) {
@@ -440,7 +429,7 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 			}
 		}
 		if (pi->list_line && pi->list_on) {
-			fprintf(pi->list_file, "%c:%06x   +  %s\n",
+			fprintf(pi->list_file, "%c:%06lx   +  %s\n",
 			        pi->cseg->ident, pi->cseg->addr, pi->list_line);
 			pi->list_line = NULL;
 		}
@@ -449,8 +438,6 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 	macro_call->line_index = 0;
 	pi->macro_call = macro_call;
 	old_macro_line = pi->macro_line;
-
-	//printf("\nconvert macro: '%s'\n",macro->name);
 
 	for (macro_label = macro->first_label; macro_label; macro_label = macro_label->next) {
 		/* mark all local flags as not yet defined */
@@ -465,7 +452,7 @@ expand_macro(struct prog_info *pi, struct macro *macro, char *rest_line)
 			pi->list_line = NULL;
 
 		/* here we change jumps/calls within macro that corresponds to macro labels.
-		   Only in case there is an entry in macro_label list */
+		 * Only in case there is an entry in macro_label list */
 
 		strcpy(buff,"\0");
 		macro_label = get_macro_label(pi->macro_line->line,macro);

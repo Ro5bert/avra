@@ -1,8 +1,8 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2006 Jon Anders Haugum, Tobias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
- *     www: http://sourceforge.net/projects/avra
+ *     www: https://github.com/Ro5bert/avra
  */
 
 #include <stdio.h>
@@ -41,19 +41,7 @@
 #define VERSION "undefined"
 #endif
 
-const char *title =
-    "AVRA: advanced AVR macro assembler Version %s\n"
-    "Copyright (C) 1998-2010. Check out README file for more info\n"
-    "\n"
-    "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
-    "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
-    "   shipped with AVR Studio. We do not guarantee full compatibility for avra.\n"
-    "\n"
-    "   AVRA comes with NO WARRANTY, to the extent permitted by law.\n"
-    "   You may redistribute copies of avra under the terms\n"
-    "   of the GNU General Public License.\n"
-    "   For more information about these matters, see the files named COPYING.\n"
-    "\n";
+const char *title = "AVRA: advanced AVR macro assembler (version %s)\n";
 
 const char *usage =
     "usage: avra [-f][O|M|I|G] output file type\n"
@@ -67,7 +55,6 @@ const char *usage =
     "            [--max_errors <number>] [--devices] [--version]\n"
     "            [-O e|w|i]\n"
     "            [-h] [--help] general help\n"
-    "            "
     "            <file to assemble>\n"
     "\n"
     "   --listfile    -l : Create list file\n"
@@ -80,10 +67,7 @@ const char *usage =
     "   --devices        : List out supported devices.\n"
     "   --version        : Version information.\n"
     "   -O e|w|i         : Issue error/warning/ignore overlapping code.\n"
-    "   --help, -h       : This help text.\n"
-    "\n"
-    "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
-    "AVRStudio directories to avra's binary.\n";
+    "   --help, -h       : This help text.\n";
 
 const struct dataset overlap_choice[4] = {
 	{ OVERLAP_ERROR,   "e"},
@@ -127,9 +111,9 @@ main(int argc, const char *argv[])
 		define_arg(args, ARG_DEVICES,     ARGTYPE_BOOLEAN,              0,  "devices",     NULL, NULL);
 		define_arg(args, ARG_VER,         ARGTYPE_BOOLEAN,              0,  "version",     NULL, NULL);
 		define_arg(args, ARG_HELP,        ARGTYPE_BOOLEAN,             'h', "help",        NULL, NULL);
-		define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL, NULL);	// Not implemented ? B.A.
+		define_arg(args, ARG_WRAP,        ARGTYPE_BOOLEAN,             'w', "wrap",        NULL, NULL);	/* Not implemented ? B.A. */
 		define_arg(args, ARG_WARNINGS,    ARGTYPE_STRING_MULTISINGLE,  'W', "warn",        NULL, NULL);
-		define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0",	 NULL);	// Not implemented ? B.A.
+		define_arg(args, ARG_FILEFORMAT,  ARGTYPE_CHAR_ATTACHED,       'f', "filetype",    "0",	 NULL);	/* Not implemented ? B.A. */
 		define_arg(args, ARG_LISTFILE,    ARGTYPE_STRING,              'l', "listfile",    NULL, NULL);
 		define_arg(args, ARG_OUTFILE,     ARGTYPE_STRING,              'o', "outfile",     NULL, NULL);
 		define_arg(args, ARG_MAPFILE,     ARGTYPE_STRING,              'm', "mapfile",     NULL, NULL);
@@ -172,7 +156,7 @@ main(int argc, const char *argv[])
 #endif
 	}
 	exit(EXIT_SUCCESS);
-	return (0);  /* compiler warning, JEG 4-23-03 */
+	return (0);
 }
 
 void
@@ -218,7 +202,7 @@ assemble(struct prog_info *pi)
 		printf("Pass 1...\n");
 		if (load_arg_defines(pi)==False)
 			return -1;
-		if (predef_dev(pi)==False) /* B.A.: Now with error check */
+		if (predef_dev(pi)==False)
 			return -1;
 
 		/*** FIRST PASS ***/
@@ -230,14 +214,14 @@ assemble(struct prog_info *pi)
 		test_orglist(pi->eseg);
 
 		if (c != False) {
-			/* if there are no furter errors, we can continue with 2nd pass */
+			/* if there are no further errors, we can continue with 2nd pass */
 			if (pi->error_count == 0) {
 				pi->segment = pi->cseg;
 				rewind_segments(pi);
 				pi->pass=PASS_2;
 				if (load_arg_defines(pi)==False)
 					return -1;
-				if (predef_dev(pi)==False)	/* B.A.: Now with error check */
+				if (predef_dev(pi)==False)
 					return -1;
 				/*** SECOND PASS ***/
 				c = open_out_files(pi, pi->args->first_data->data,
@@ -288,15 +272,15 @@ load_arg_defines(struct prog_info *pi)
 		strcpy(buff, define->data);
 		expr = get_next_token(buff, TERM_EQUAL);
 		if (expr) {
-			// we reach this, when there is actually a value passed..
+			/* we reach this, when there is actually a value passed.. */
 			if (!get_expr(pi, expr, &i)) {
 				return (False);
 			}
 		} else {
-			// if user didnt specify a value, we default to 1
+			/* if user didnt specify a value, we default to 1 */
 			i = 1;
 		}
-		/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
+		/* Forward references allowed. But check, if everything is ok... */
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,buff,NULL)!=NULL) {
 				fprintf(stderr,"Error: Can't define symbol %s twice\n", buff);
@@ -335,7 +319,7 @@ init_segment_size(struct prog_info *pi, struct device *device)
 	pi->cseg->cellsize = 2;
 
 	pi->dseg->lo_addr = device->ram_start;
-	pi->dseg->hi_addr = device->ram_size;
+	pi->dseg->hi_addr = device->ram_size+device->ram_start;
 	pi->dseg->cellsize = 1;
 
 	pi->eseg->hi_addr = device->eeprom_size;
@@ -399,8 +383,8 @@ init_prog_info(struct prog_info *pi, struct args *args)
 	pi->segment = pi->cseg;
 
 	pi->max_errors = GET_ARG_I(args, ARG_MAX_ERRORS);
-	pi->pass=PASS_1; 		/* B.A. : The pass variable is now stored in the pi struct */
-	pi->time=time(NULL); 		/* B.A. : Now use a global timestamp  */
+	pi->pass=PASS_1;
+	pi->time=time(NULL);
 	pi->effective_overlap = GET_ARG_I(pi->args, ARG_OVERLAP);
 	pi->segment_overlap = SEG_DONT_OVERLAP;
 	return (pi);
@@ -409,7 +393,7 @@ init_prog_info(struct prog_info *pi, struct args *args)
 void
 free_pi(struct prog_info *pi)
 {
-	free_defs(pi);			/* B.A. : Now free in pi included structures first */
+	free_defs(pi);
 	free_labels(pi);
 	free_constants(pi);
 	free_variables(pi);
@@ -433,9 +417,9 @@ print_msg(struct prog_info *pi, int type, char *fmt, ...)
 	if (type == MSGTYPE_OUT_OF_MEM) {
 		fprintf(stderr, "Error: Unable to allocate memory!\n");
 	} else {
-		if (type != MSGTYPE_APPEND) { 				/* B.A. Added for .message directive */
-			if ((pi->fi != NULL) && (pi->fi->include_file->name != NULL)) { 	/* B.A.: Skip, if filename or fi is NULL (Bug 1462900) */
-				/* check if adding path name is needed*/
+		if (type != MSGTYPE_APPEND) {
+			if ((pi->fi != NULL) && (pi->fi->include_file->name != NULL)) {
+				/* check if adding path name is needed */
 				pc = strstr(pi->fi->include_file->name, pi->root_path);
 				if (pc == NULL) {
 					fprintf(stderr, "%s%s(%d) : ", pi->root_path,pi->fi->include_file->name, pi->fi->line_number);
@@ -458,7 +442,7 @@ print_msg(struct prog_info *pi, int type, char *fmt, ...)
 						case MSGTYPE_APPEND: */
 			break;
 		}
-		if (type != MSGTYPE_APPEND) { /* B.A. Added for .message directive */
+		if (type != MSGTYPE_APPEND) {
 			if (pi->macro_call) {
 				fprintf(stderr, "[Macro: %s: %d:] ", pi->macro_call->macro->include_file->name,
 				        pi->macro_call->line_index + pi->macro_call->macro->first_line_number);
@@ -471,14 +455,12 @@ print_msg(struct prog_info *pi, int type, char *fmt, ...)
 			va_end(args);
 		}
 
-		if ((type != MSGTYPE_APPEND) && (type != MSGTYPE_MESSAGE_NO_LF))   /* B.A. Added for .message directive */
+		if ((type != MSGTYPE_APPEND) && (type != MSGTYPE_MESSAGE_NO_LF))
 			fprintf(stderr, "\n");
 	}
 }
 
 
-/* B.A. : New functions to create / search / remove constant, variables, labels */
-/* def_const, def_var moved from device.c to this place */
 int
 def_const(struct prog_info *pi, const char *name, int value)
 {
@@ -535,7 +517,7 @@ def_var(struct prog_info *pi, char *name, int value)
 	return (True);
 }
 
-/* B.A.: Store programmed areas for later check */
+/* Store programmed areas for later check */
 int
 def_orglist(struct segment_info *si)
 {
@@ -562,7 +544,7 @@ def_orglist(struct segment_info *si)
 	return True;
 }
 
-/* B.A.: Fill length entry of last orglist */
+/* Fill length entry of last orglist */
 int
 fix_orglist(struct segment_info *si)
 {
@@ -612,7 +594,7 @@ fprint_segments(FILE *file, struct prog_info *pi)
 	fprint_seg_orglist(file, pi->eseg);
 }
 
-/* B.A.: Test for overlapping segments and device space */
+/* Test for overlapping segments and device space */
 int
 test_orglist(struct segment_info *si)
 {
@@ -630,13 +612,13 @@ test_orglist(struct segment_info *si)
 		if (orglist->length > 0) {
 			/* Make sure address area is valid */
 			if (orglist->start < si->lo_addr) {
-				fprintf(stderr, "Segment start below allowed start address: 0x%04X",
+				fprintf(stderr, "Segment start below allowed start address: 0x%04lX",
 				        si->lo_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;
 			}
 			if (orglist->start + orglist->length > si->hi_addr) {
-				fprintf(stderr, "Segment start above allowed high address: 0x%04X",
+				fprintf(stderr, "Segment start above allowed high address: 0x%04lX",
 				        si->hi_addr);
 				fprint_orglist(stderr, si, orglist);
 				error_count ++;

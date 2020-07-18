@@ -4,12 +4,10 @@
  * Copyright (c) 1990 by Sun Microsystems, Inc.
  */
 
-/*
- * This file gives definitions supplementing <a.out.h>
+/* This file gives definitions supplementing <a.out.h>
  * for permanent symbol table entries.
  * These must have one of the N_STAB bits on,
- * and are subject to relocation according to the masks in <a.out.h>.
- */
+ * and are subject to relocation according to the masks in <a.out.h>. */
 
 #ifndef _STAB_H
 #define _STAB_H
@@ -18,8 +16,7 @@
 #if !defined(_a_out_h) && !defined(_A_OUT_H)
 /* this file contains fragments of a.out.h and stab.h relevant to
  * support of stabX processing within ELF files - see the
- * Format of a symbol table entry
- */
+ * Format of a symbol table entry */
 struct  nlist {
 	union {
 		char    *n_name;     /* for use when in-core */
@@ -31,9 +28,7 @@ struct  nlist {
 	unsigned long   n_value;     /* value of symbol (or sdb offset) */
 };
 
-/*
- * Simple values for n_type.
- */
+/* Simple values for n_type. */
 #define N_UNDF  0x0             /* undefined */
 #define N_ABS   0x2             /* absolute */
 #define N_TEXT  0x4             /* text */
@@ -47,9 +42,7 @@ struct  nlist {
 
 #endif
 
-/*
- * for symbolic debugger, sdb(1):
- */
+/* for symbolic debugger, sdb(1): */
 #define	N_GSYM	0x20		/* global symbol: name,,0,type,0 */
 #define	N_FNAME	0x22		/* procedure name (f77 kludge): name,,0 */
 #define	N_FUN	0x24		/* procedure: name,,0,linenumber,address */
@@ -79,20 +72,14 @@ struct  nlist {
 #define	N_ECOML	0xe8		/* end common (local name): ,,address */
 #define	N_LENG	0xfe		/* second stab entry with length information */
 
-/*
- * for the berkeley pascal compiler, pc(1):
- */
+/* for the berkeley pascal compiler, pc(1): */
 #define	N_PC	0x30		/* global pascal symbol: name,,0,subtype,line */
 #define	N_WITH	0xea		/* pascal with statement: type,,0,0,offset */
 
-/*
- * for code browser only
- */
+/* for code browser only */
 #define N_BROWS	0x48		/* path to associated .cb file */
 
-/*
- * Optional langauge designations for N_SO
- */
+/* Optional langauge designations for N_SO */
 #define N_SO_AS         1       /* Assembler    */
 #define N_SO_C          2       /* C            */
 #define N_SO_ANSI_C     3       /* ANSI C       */
@@ -100,9 +87,7 @@ struct  nlist {
 #define N_SO_FORTRAN    5       /* Fortran 77   */
 #define N_SO_PASCAL     6       /* Pascal       */
 
-/*
- * Floating point type values
- */
+/* Floating point type values */
 #define NF_NONE		0	/* Undefined type 	*/
 #define NF_SINGLE	1	/* IEEE 32 bit float	*/
 #define NF_DOUBLE	2	/* IEEE 64 bit float	*/

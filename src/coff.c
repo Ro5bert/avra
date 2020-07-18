@@ -1,29 +1,33 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2004 Jon Anders Haugum, Tobias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
- * coff.c - Common Object File Format (COFF) support
+ *  coff.c - Common Object File Format (COFF) support
  *
- *	This file was developed for the avra assembler in order to produce COFF output files
- *  for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
- *	output was used as input to the assembler.  The information used to develop this file
- *  was obtained from various sources on the Internet, most notably, the Free Software Foundation,
- *  The "stabs" debug format, ??? Chapter 7: Common Object File Format (COFF),
+ *	This file was developed for the AVRA assembler in order to produce
+ *	COFF output files for use with the Atmel AVR Studio.  The Lean C
+ *	Compiler (LCC) debugging stabs output was used as input to the
+ *	assembler.  The information used to develop this file was obtained
+ *	from various sources on the Internet, most notably, the Free
+ *	Software Foundation, The "stabs" debug format, ??? Chapter 7:
+ *	Common Object File Format (COFF).
  *
- *	This software has absolutely no warrantee!  The money you paid for this will be
- *  promptly refunded if not fully satisfied.
+ *	This software has absolutely no warrantee!  The money you paid for
+ *	this will be promptly refunded if not fully satisfied.
  *
  *	Beta release 1/20/2000 by Bob Harris
  *
- *	This software has not been fully tested and probably has a few software deficiencies.
- *  Some software support may be possible by sending a problem description report to
- *  rth@mclean.sparta.com
+ *	This software has not been fully tested and probably has a few
+ *	software deficiencies.
+ *  Some software support may be possible by sending a problem
+ *  description report to rth@mclean.sparta.com
  *
  *  Made the recommended change in write_coff_program().
- *  Fixed an obvious typo in SkipPastDigits().  The if() statement was terminated
- *  with a semicolon, which terminated the if(); early.  JEG 4-01-03
+ *  Fixed an obvious typo in SkipPastDigits().  The if() statement
+ *  was terminated with a semicolon, which terminated the if(); early.
+ *  JEG 4-01-03
  */
 
 #include <stdio.h>
@@ -37,7 +41,7 @@
 #include "args.h"
 
 #include "coff.h"
-#include "device.h"	/* device flash and eeprom size */
+#include "device.h"
 
 
 struct FundamentalType {
@@ -75,15 +79,13 @@ struct FundamentalType FundamentalTypes[] = {
 
 struct coff_info *ci;
 
-/****************************************************************************************/
 
 FILE *
 open_coff_file(struct prog_info *pi, char *filename)
 {
 
-	int ok /*, i*/;
+	int ok;
 	FILE *fp;
-	//unsigned long *pu4;
 	char *p;
 
 
@@ -154,14 +156,11 @@ open_coff_file(struct prog_info *pi, char *filename)
 	return (fp);
 }
 
-/****************************************************************************************/
 void
 write_coff_file(struct prog_info *pi)
 {
 
-	//FILE *fp;
-	//struct label *label;
-	char /* File[256],*/*p;
+	char *p;
 	struct external_scnhdr *pSectionHdr;
 	struct syment *pEntry;
 	union auxent *pAux;
@@ -266,10 +265,9 @@ write_coff_file(struct prog_info *pi)
 		SymbolIndex -= (pNode->Size / sizeof(struct syment));
 	}
 
-	// File Header
+	/* File Header */
 	ci->FileHeader.f_magic = MAGIC_NUMBER_AVR;
 	ci->FileHeader.f_nscns = 2;
-//    ci->FileHeader.f_timdat = time( (time_t *)&ci->FileHeader.f_timdat);
 	ci->FileHeader.f_timdat = pi->time;
 	ci->FileHeader.f_symptr = SymbolsOffset;
 	ci->FileHeader.f_nsyms = NumberOfSymbols;
@@ -282,9 +280,9 @@ write_coff_file(struct prog_info *pi)
 		return;
 	}
 
-	// Optional Information
+	/* Optional Information */
 
-	// Section 1 Header
+	/* Section 1 Header */
 	pSectionHdr = (struct external_scnhdr *)FindFirstListObject(&ci->ListOfSectionHeaders);
 	if (!pSectionHdr) {
 		fprintf(stderr, "\nInternal Coff error - cannot find section header .text!");
@@ -308,7 +306,7 @@ write_coff_file(struct prog_info *pi)
 		return;
 	}
 
-	// Section 2 Header
+	/* Section 2 Header */
 	pSectionHdr = (struct external_scnhdr *)FindNextListObject(&ci->ListOfSectionHeaders);
 	if (!pSectionHdr) {
 		fprintf(stderr, "\nInternal Coff error - cannot find section header .bss!");
@@ -329,7 +327,7 @@ write_coff_file(struct prog_info *pi)
 
 	/* Section N Header - .data or eeprom */
 
-	// Raw Data for Section 1
+	/* Raw Data for Section 1 */
 	if ((p = FindFirstListObject(&ci->ListOfRawData)) == 0) {
 		fprintf(stderr,"\nInternal error - unable to find binary data!");
 		return;
@@ -340,13 +338,13 @@ write_coff_file(struct prog_info *pi)
 		fprintf(stderr,"\nFile error writing raw .text data ...(disk full?)");
 		return;
 	}
-	// Raw data for section n
+	/* Raw data for section n */
 
-	// Relocation Info for section 1
+	/* Relocation Info for section 1 */
 
-	// Relocation info for section n
+	/* Relocation info for section n */
 
-	// Line numbers for section 1
+	/* Line numbers for section 1 */
 	for (pLine = (struct lineno *)FindFirstListObject(&ci->ListOfLineNumbers);
 	        pLine != 0;
 	        pLine = (struct lineno *)FindNextListObject(&ci->ListOfLineNumbers)) {
@@ -361,9 +359,9 @@ write_coff_file(struct prog_info *pi)
 	}
 
 
-	// Line numbers for section n
+	/* Line numbers for section n */
 
-	// Symbol table
+	/* Symbol table */
 	for (pEntry = (struct syment *)FindFirstListObject(&ci->ListOfSymbols);
 	        pEntry != 0;
 	        pEntry = (struct syment *)FindNextListObject(&ci->ListOfSymbols)) {
@@ -377,7 +375,7 @@ write_coff_file(struct prog_info *pi)
 		}
 	}
 
-	// Symbol table of Globals
+	/* Symbol table of Globals */
 	for (pEntry = (struct syment *)FindFirstListObject(&ci->ListOfGlobals);
 	        pEntry != 0;
 	        pEntry = (struct syment *)FindNextListObject(&ci->ListOfGlobals)) {
@@ -406,7 +404,7 @@ write_coff_file(struct prog_info *pi)
 		}
 	}
 
-	// String Table
+	/* String Table */
 	for (p = (char *)FindFirstListObject(&ci->ListOfStrings);
 	        p != 0;
 	        p = (char *)FindNextListObject(&ci->ListOfStrings)) {
@@ -423,8 +421,6 @@ write_coff_file(struct prog_info *pi)
 	return;
 }
 
-/****************************************************************************************/
-
 void
 write_coff_eeprom(struct prog_info *pi, int address, unsigned char data)
 {
@@ -437,11 +433,10 @@ write_coff_eeprom(struct prog_info *pi, int address, unsigned char data)
 				ci->MaxEepromAddress = address;   /* keep high water mark */
 		} else {
 			pi->error_count++;
-			fprintf(stderr, "Error: EEPROM address %d exceeds max range %d", address, pi->device->eeprom_size);
+			fprintf(stderr, "Error: EEPROM address %d exceeds max range %ld", address, pi->device->eeprom_size);
 		}
 	}
 }
-/****************************************************************************************/
 
 void
 write_coff_program(struct prog_info *pi, int address, unsigned int data)
@@ -462,12 +457,10 @@ write_coff_program(struct prog_info *pi, int address, unsigned int data)
 		} else {
 			pi->error_count++;
 			/* JEG		fprintf(stderr, "Error: FLASH address %d exceeds max range %d", address, pi->device->flash_size ); */
-			fprintf(stderr, "Error: FLASH address %d exceeds max range %d", address, pi->device->flash_size*2);
+			fprintf(stderr, "Error: FLASH address %d exceeds max range %ld", address, pi->device->flash_size*2);
 		}
 	}
 }
-
-/****************************************************************************************/
 
 void
 close_coff_file(struct prog_info *pi, FILE *fp)
@@ -494,8 +487,6 @@ close_coff_file(struct prog_info *pi, FILE *fp)
 	free(ci);
 	ci = 0;
 }
-
-/****************************************************************************************/
 
 int
 parse_stabs(struct prog_info *pi, char *p)
@@ -648,14 +639,13 @@ parse_stabs(struct prog_info *pi, char *p)
 
 	return (ok);
 }
-/****************************************************************************************/
 
 int
 parse_stabn(struct prog_info *pi, char *p)
 {
 
 	int ok = True;
-	int TypeCode /* , LineNumber */, Level;
+	int TypeCode, Level;
 	char *p1, *p2, *p3, *p4, *pLabel, *pFunction;
 
 	/* stabn debugging information is in the form:
@@ -712,7 +702,6 @@ parse_stabn(struct prog_info *pi, char *p)
 	return (ok);
 }
 
-/****************************************************************************************/
 int
 stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction)
 {
@@ -760,7 +749,6 @@ stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunct
 
 	return (True);
 }
-/****************************************************************************************/
 
 int
 stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction)
@@ -769,8 +757,6 @@ stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction
 	int Address;
 	struct syment *pEntry;
 	union auxent *pAux;
-	//char *p;
-	//struct lineno *pln;
 
 	if (!get_symbol(pi, pLabel, &Address)) {
 		fprintf(stderr, "\nUnable to locate label %s", pLabel);
@@ -800,7 +786,6 @@ stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction
 	return (True);
 }
 
-/****************************************************************************************/
 int
 stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction)
 {
@@ -808,8 +793,6 @@ stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction
 	int Address;
 	struct syment *pEntry;
 	union auxent *pAux;
-	//char *p;
-	//struct lineno *pln;
 
 	if (!get_symbol(pi, pLabel, &Address)) {
 		fprintf(stderr, "\nUnable to locate label %s", pLabel);
@@ -858,7 +841,6 @@ stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction
 	return (True);
 }
 
-/****************************************************************************************/
 int
 stab_add_filename(char *pName, char *pLabel)
 {
@@ -921,7 +903,6 @@ stab_add_filename(char *pName, char *pLabel)
 	return (ok);
 }
 
-/****************************************************************************************/
 int
 stab_add_function(struct prog_info *pi, char *pName, char *pLabel)
 {
@@ -966,9 +947,6 @@ stab_add_function(struct prog_info *pi, char *pName, char *pLabel)
 	pEntry++;   /* point to aux entry */
 	pAux = (union auxent *)pEntry;
 	pAux->x_sym.x_tagndx = SymbolIndex + 1; /* point to the .bf entry index */
-	// wrong!
-	//	pAux->x_sym.x_misc.x_lnsz.x_lnno = ci->ListOfLineNumbers.TotalBytes; /* Relative Fixup point to where line numbers start */
-	//	pAux->x_sym.x_misc.x_lnsz.x_size = 0; /* UNKNOWN till next function called */
 	pAux->x_sym.x_misc.x_fsize = 0; /* unknown till end */
 	pAux->x_sym.x_fcnary.x_fcn.x_lnnoptr = ci->ListOfLineNumbers.TotalBytes; /* relative offset to line number entry */
 	pAux->x_sym.x_fcnary.x_fcn.x_endndx = 0; /* index to next entry */
@@ -1008,7 +986,6 @@ stab_add_function(struct prog_info *pi, char *pName, char *pLabel)
 	ci->NeedLineNumberFixup++; /* once for .bf block */
 	return (True);
 }
-/****************************************************************************************/
 
 int
 stab_add_global(struct prog_info *pi, char *pName, char *pType)
@@ -1077,7 +1054,6 @@ stab_add_global(struct prog_info *pi, char *pName, char *pType)
 	return (True);
 }
 
-/****************************************************************************************/
 int
 stab_add_local(struct prog_info *pi, char *pName, char *pType, char *pOffset)
 {
@@ -1121,7 +1097,6 @@ stab_add_local(struct prog_info *pi, char *pName, char *pType, char *pOffset)
 	return (True);
 }
 
-/****************************************************************************************/
 int
 stab_add_parameter_symbol(struct prog_info *pi, char *pName, char *pType, char *pOffset)
 {
@@ -1149,7 +1124,7 @@ stab_add_parameter_symbol(struct prog_info *pi, char *pName, char *pType, char *
 	pEntry->n_numaux = 0;
 	return (True);
 }
-/****************************************************************************************/
+
 int
 stab_add_static_symbol(struct prog_info *pi, char *pName, char *pType, char *pLabel)
 {
@@ -1180,7 +1155,6 @@ stab_add_static_symbol(struct prog_info *pi, char *pName, char *pType, char *pLa
 	pEntry->n_numaux = 0;
 	return (True);
 }
-/****************************************************************************************/
 
 int
 stab_add_local_register(struct prog_info *pi, char *pName, char *pType, char *pRegister)
@@ -1205,14 +1179,7 @@ stab_add_local_register(struct prog_info *pi, char *pName, char *pType, char *pR
 		return (False);
 	}
 	pEntry->n_type = CoffType;
-	//	if( (*pType == 'r') || (*pType == 'R') )
-	//		pEntry->n_sclass = C_REG;
-	//	else if( (*pType == 'p') || (*pType == 'P') )
 	pEntry->n_sclass = C_REGPARM;   /* Silly avr studio only accepts this for registers */
-	//	else{
-	//	    fprintf(stderr,"\nUnknown register type -> %s", pType );
-	//		return(False);
-	//	}
 	pEntry->n_scnum = N_ABS;
 	pEntry->n_numaux = 0;
 	if (Size == 1)
@@ -1227,8 +1194,6 @@ stab_add_local_register(struct prog_info *pi, char *pName, char *pType, char *pR
 	}
 	return (True);
 }
-
-/****************************************************************************************/
 
 int
 stab_add_local_type(char *pName, char *pType)
@@ -1249,8 +1214,6 @@ stab_add_local_type(char *pName, char *pType)
 	return (True);
 }
 
-/****************************************************************************************/
-
 int
 GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType, unsigned short *pBitOffset, unsigned short *pBitSize)
 {
@@ -1260,12 +1223,12 @@ GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType,
 
 	/* name */
 	*pName = p;
-	while (*p && (*p != ':')) p++;   // locate colon
+	while (*p && (*p != ':')) p++;   /* locate colon */
 	if (*p != ':') {
 		fprintf(stderr,"\nNo colon found in structure item -> %s", *pName);
 		return (False);
 	}
-	*p++ = 0; // Asciiz
+	*p++ = 0; /* Asciiz */
 
 	/* Stab Type - convert to Coff type at end (after inline assignments */
 	if (GetStabType(p, &StabType, &p) != True) {
@@ -1279,7 +1242,7 @@ GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType,
 		return (False);
 	}
 	*pBitOffset = (unsigned short)atoi(++p);
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 
 	/* BitOffset */
 	if (*p != ',') {
@@ -1287,7 +1250,7 @@ GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType,
 		return (False);
 	}
 	*pBitSize = (unsigned short)atoi(++p);
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 
 	/* Now convert stab type to COFF */
 	if ((*pType = GetCoffType((unsigned short)StabType)) == 0) {
@@ -1300,7 +1263,6 @@ GetStructUnionTagItem(char *p, char **pEnd, char **pName, unsigned short *pType,
 
 	return (True);
 }
-/****************************************************************************************/
 
 int
 GetEnumTagItem(char *p, char **pEnd, char **pEnumName, int *pEnumValue)
@@ -1308,15 +1270,15 @@ GetEnumTagItem(char *p, char **pEnd, char **pEnumName, int *pEnumValue)
 
 	/* Enum Tag Item consists of -> member1:value,member2:value2,; */
 	*pEnumName = p;
-	while (*p && (*p != ':')) p++;   // locate colon
+	while (*p && (*p != ':')) p++;   /* locate colon */
 	if (*p != ':') {
 		fprintf(stderr,"\nNo colon found in enum item -> %s", *pEnumName);
 		return (False);
 	}
-	*p++ = 0; // Asciiz
+	*p++ = 0; /* Asciiz */
 	*pEnumValue = atoi(p);
 
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 	if (*p != ',') {
 		fprintf(stderr,"\nNo comma found after enum value -> %s", p);
 		return (False);
@@ -1327,7 +1289,6 @@ GetEnumTagItem(char *p, char **pEnd, char **pEnumName, int *pEnumValue)
 	return (True);
 }
 
-/****************************************************************************************/
 int
 GetArrayType(char *p, char **pEnd, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels)
 {
@@ -1384,7 +1345,6 @@ GetArrayType(char *p, char **pEnd, STABCOFFMAP *pMap, unsigned short *DerivedBit
 	return (True);
 }
 
-/****************************************************************************************/
 int
 GetStabType(char *p, unsigned short *pType, char **pEnd)
 {
@@ -1397,7 +1357,7 @@ GetStabType(char *p, unsigned short *pType, char **pEnd)
 
 
 	LStabType = atoi(p);
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 
 	*pType = LStabType;
 
@@ -1424,8 +1384,8 @@ GetStabType(char *p, unsigned short *pType, char **pEnd)
 		if (isdigit(*p)) {
 			/* Finally found base type, try to terminate loop */
 			GetStabType(p, &RStabType, &p);
-			//			RStabType = atoi( p );
-			while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+			/*			RStabType = atoi( p ); */
+			while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 			if (SetupDefinedType(RStabType, pMap, &derivedbits[0], extra) != True)
 				return (False);
 			break;
@@ -1447,9 +1407,6 @@ GetStabType(char *p, unsigned short *pType, char **pEnd)
 			derivedbits[extra] = DT_PTR;
 			p++;
 		} else if (*p == 'r') {
-			//			if( LStabType < 15 )
-			//				ok = GetInternalType( pString, pMap ); /* internal types not yet installed */
-			//			else
 			while (*p && (*p != ';')) p++;
 			pLow = p++;
 			while (*p && (*p != ';')) p++;
@@ -1470,8 +1427,6 @@ GetStabType(char *p, unsigned short *pType, char **pEnd)
 	return (True);
 }
 
-
-/****************************************************************************************/
 int
 stab_add_tag_type(char *pName, char *pString)
 {
@@ -1503,7 +1458,7 @@ stab_add_tag_type(char *pName, char *pString)
 		fprintf(stderr,"\nInvalid .stabs type format - no information! - > %s", p);
 		return (False);
 	}
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 	if (*p != '=') {
 		fprintf(stderr,"\nInvalid .stabs type format - no equals - > %s", p);
 		return (False);
@@ -1542,7 +1497,7 @@ stab_add_tag_type(char *pName, char *pString)
 		fprintf(stderr,"\nUnknown tag type -> %s", p);
 		return (False);
 	}
-	while (*p && (*p >= '0') && (*p <= '9')) p++;   // locate end of digits
+	while (*p && (*p >= '0') && (*p <= '9')) p++;   /* locate end of digits */
 	pEntry++;   /* point to aux entry */
 	pAux = (union auxent *)pEntry;
 	pAux->x_sym.x_tagndx = SymbolIndex;
@@ -1617,7 +1572,6 @@ stab_add_tag_type(char *pName, char *pString)
 	return (True);
 }
 
-/****************************************************************************************/
 int
 SetupDefinedType(unsigned short Type, STABCOFFMAP *pMap, unsigned short *DerivedBits, int ExtraLevels)
 {
@@ -1650,7 +1604,6 @@ SetupDefinedType(unsigned short Type, STABCOFFMAP *pMap, unsigned short *Derived
 	return (True);
 }
 
-/****************************************************************************************/
 int
 GetArrayDefinitions(STABCOFFMAP *pMap, char *pMinIndex, char *pMaxIndex, char *pType, unsigned short *DerivedBits, int ExtraLevels)
 {
@@ -1696,8 +1649,6 @@ GetArrayDefinitions(STABCOFFMAP *pMap, char *pMinIndex, char *pMaxIndex, char *p
 	return (True);
 }
 
-/****************************************************************************************/
-
 int
 GetInternalType(char *pName, STABCOFFMAP *pMap)
 {
@@ -1722,7 +1673,6 @@ GetInternalType(char *pName, STABCOFFMAP *pMap)
 	return (found);
 }
 
-/****************************************************************************************/
 int
 GetSubRangeType(unsigned short Type, STABCOFFMAP *pMap, char *pLow, char *pHigh)
 {
@@ -1810,7 +1760,6 @@ GetSubRangeType(unsigned short Type, STABCOFFMAP *pMap, char *pLow, char *pHigh)
 	return (True);
 }
 
-/****************************************************************************************/
 int
 CopyStabCoffMap(unsigned short StabType, STABCOFFMAP *pMap)
 {
@@ -1826,7 +1775,6 @@ CopyStabCoffMap(unsigned short StabType, STABCOFFMAP *pMap)
 	return (False);  /* Nothing found */
 }
 
-/****************************************************************************************/
 unsigned short
 GetCoffType(unsigned short StabType)
 {
@@ -1840,7 +1788,6 @@ GetCoffType(unsigned short StabType)
 	return (0);  /* Nothing found */
 }
 
-/****************************************************************************************/
 unsigned short
 GetCoffTypeSize(unsigned short StabType)
 {
@@ -1855,7 +1802,6 @@ GetCoffTypeSize(unsigned short StabType)
 }
 
 
-/****************************************************************************************/
 int
 GetDigitLength(char *p)
 {
@@ -1871,7 +1817,6 @@ GetDigitLength(char *p)
 
 }
 
-/****************************************************************************************/
 int
 GetStringDelimiters(char *pString, char **pTokens, int MaxTokens)
 {
@@ -1899,7 +1844,6 @@ GetStringDelimiters(char *pString, char **pTokens, int MaxTokens)
 	return (i);
 }
 
-/****************************************************************************************/
 int
 IsTypeArray(unsigned short CoffType)
 {
@@ -1924,7 +1868,6 @@ IsTypeArray(unsigned short CoffType)
 	return (Result);
 }
 
-/****************************************************************************************/
 void
 AddArrayAuxInfo(union auxent *pAux, unsigned short SymbolIndex, STABCOFFMAP *pMap)
 {
@@ -1938,7 +1881,6 @@ AddArrayAuxInfo(union auxent *pAux, unsigned short SymbolIndex, STABCOFFMAP *pMa
 		pAux->x_sym.x_fcnary.x_ary.x_dimen[i] = pMap->Dimensions[i];
 }
 
-/****************************************************************************************/
 int
 AddNameToEntry(char *pName, struct syment *pEntry)
 {
@@ -1961,32 +1903,18 @@ AddNameToEntry(char *pName, struct syment *pEntry)
 	return (n); /* return size of string */
 }
 
-/****************************************************************************************/
-
 char *
 SkipPastDigits(char *p)
 {
 
 	if (!p)
 		return (p);
-	/*	if ( *p == 0 );  */  /* JEG 5-01-03 */
 	if (*p == 0)
-		return (p);  /* This line s/b indented JEG */
+		return (p);
 	for (p--; (*p >= '0') && (*p <= '9') && (*p != 0); p--);
 	return (p);
 }
 
-/****************************************************************************************/
-
-/****************************************************************************************/
-/****************************************************************************************/
-/* List management routines */
-/****************************************************************************************/
-/****************************************************************************************/
-
-/****************************************************************************************/
-
-/****************************************************************************************/
 void
 InitializeList(LISTNODEHEAD *pHead)
 {
@@ -1999,8 +1927,6 @@ InitializeList(LISTNODEHEAD *pHead)
 	return;
 }
 
-/****************************************************************************************/
-
 void *
 AllocateTwoListObjects(LISTNODEHEAD *pHead, int size)
 {
@@ -2012,7 +1938,6 @@ AllocateTwoListObjects(LISTNODEHEAD *pHead, int size)
 	return (p);
 }
 
-/****************************************************************************************/
 void *
 AllocateListObject(LISTNODEHEAD *pHead, int size)
 {
@@ -2030,7 +1955,6 @@ AllocateListObject(LISTNODEHEAD *pHead, int size)
 	return (pObject);
 }
 
-/****************************************************************************************/
 LISTNODE  *
 AddListObject(LISTNODEHEAD *pHead, void *pObject, int size)
 {
@@ -2046,7 +1970,6 @@ AddListObject(LISTNODEHEAD *pHead, void *pObject, int size)
 	return (pNode);
 }
 
-/****************************************************************************************/
 LISTNODE *
 AllocateListNode(void *pObject, int size)
 {
@@ -2062,7 +1985,6 @@ AllocateListNode(void *pObject, int size)
 	return (pNew);
 }
 
-/****************************************************************************************/
 void
 AddNodeToList(LISTNODEHEAD *pHead, LISTNODE *pNode)
 {
@@ -2081,7 +2003,6 @@ AddNodeToList(LISTNODEHEAD *pHead, LISTNODE *pNode)
 	pHead->TotalItems++;
 }
 
-/****************************************************************************************/
 void
 RemoveNodeFromList(LISTNODEHEAD *pHead, LISTNODE *pNode)
 {
@@ -2093,8 +2014,6 @@ RemoveNodeFromList(LISTNODEHEAD *pHead, LISTNODE *pNode)
 	pHead->TotalItems--;
 }
 
-
-/****************************************************************************************/
 void *
 FindFirstListObject(LISTNODEHEAD *pHead)
 {
@@ -2105,7 +2024,7 @@ FindFirstListObject(LISTNODEHEAD *pHead)
 	pHead->current = pHead->Node.Next;
 	return (pHead->current->pObject);
 }
-/****************************************************************************************/
+
 void *
 FindNextListObject(LISTNODEHEAD *pHead)
 {
@@ -2117,7 +2036,6 @@ FindNextListObject(LISTNODEHEAD *pHead)
 
 	return (pHead->current->pObject);
 }
-/****************************************************************************************/
 
 LISTNODE *
 GetCurrentNode(LISTNODEHEAD *pHead)
@@ -2126,7 +2044,6 @@ GetCurrentNode(LISTNODEHEAD *pHead)
 	return (pHead->current);
 }
 
-/****************************************************************************************/
 void *
 GetCurrentListObject(LISTNODEHEAD *pHead)
 {
@@ -2134,8 +2051,6 @@ GetCurrentListObject(LISTNODEHEAD *pHead)
 	return (pHead->current->pObject);
 }
 
-
-/****************************************************************************************/
 void *
 FindLastListObject(LISTNODEHEAD *pHead)
 {
@@ -2146,7 +2061,7 @@ FindLastListObject(LISTNODEHEAD *pHead)
 	pHead->current = pHead->Node.Last;
 	return (pHead->current->pObject);
 }
-/****************************************************************************************/
+
 void *
 FindNextLastListObject(LISTNODEHEAD *pHead)
 {
@@ -2158,8 +2073,6 @@ FindNextLastListObject(LISTNODEHEAD *pHead)
 
 	return (pHead->current->pObject);
 }
-
-/****************************************************************************************/
 
 void
 FreeList(LISTNODEHEAD *pHead)
@@ -2177,6 +2090,4 @@ FreeList(LISTNODEHEAD *pHead)
 	pHead->TotalItems = 0;
 	pHead->current = &pHead->Node;
 }
-/****************************************************************************************/
-
 

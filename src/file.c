@@ -1,8 +1,8 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2004 Jon Anders Haugum, Tobias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,16 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
- *     www: http://sourceforge.net/projects/avra
+ *     www: https://github.com/Ro5bert/avra
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h> /* B.A. for unlink function */
+#include <unistd.h>
 
 
 #include "misc.h"
@@ -151,9 +151,9 @@ close_out_files(struct prog_info *pi)
 	if (pi->error_count == 0) {
 		snprintf(stmp, sizeof(stmp),
 		         "Segment usage:\n"
-		         "   Code      :   %7d words (%d bytes)\n"
-		         "   Data      :   %7d bytes\n"
-		         "   EEPROM    :   %7d bytes\n",
+		         "   Code      :   %7ld words (%ld bytes)\n"
+		         "   Data      :   %7ld bytes\n"
+		         "   EEPROM    :   %7ld bytes\n",
 		         pi->cseg->count, pi->cseg->count * 2, pi->dseg->count, pi->eseg->count);
 		printf("%s", stmp);
 	}
@@ -227,10 +227,10 @@ write_prog_word(struct prog_info *pi, int address, int data)
 		if (hfi->count != 0)
 			do_hex_line(hfi);
 		hfi->segment = address >> 16;
-		if (hfi->segment >= 16) // Use 04 record for addresses above 1 meg since 02 can support max 1 meg
+		if (hfi->segment >= 16) /* Use 04 record for addresses above 1 meg since 02 can support max 1 meg */
 			fprintf(hfi->fp, ":02000004%04X%02X\x0d\x0a", hfi->segment & 0xffff,
 			        (0 - 2 - 4 - ((hfi->segment >> 8) & 0xff) - (hfi->segment & 0xff)) & 0xff);
-		else // Use 02 record for addresses below 1 meg since more programmers know about the 02 instead of the 04
+		else /* Use 02 record for addresses below 1 meg since more programmers know about the 02 instead of the 04 */
 			fprintf(hfi->fp, ":02000002%04X%02X\x0d\x0a", (hfi->segment << 12) & 0xffff,
 			        (0 - 2 - 2 - ((hfi->segment << 4) & 0xf0)) & 0xff);
 	}

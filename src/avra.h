@@ -1,8 +1,8 @@
 /***********************************************************************
  *
- *  avra - Assembler for the Atmel AVR microcontroller series
+ *  AVRA - Assembler for the Atmel AVR microcontroller series
  *
- *  Copyright (C) 1998-2006 Jon Anders Haugum, Tobias Weber
+ *  Copyright (C) 1998-2020 The AVRA Authors
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@
  *  Boston, MA 02111-1307, USA.
  *
  *
- *  Authors of avra can be reached at:
+ *  Authors of AVRA can be reached at:
  *     email: jonah@omegav.ntnu.no, tobiw@suprafluid.com
- *     www: http://sourceforge.net/projects/avra
+ *     www: https://github.com/Ro5bert/avra
  */
 
-#ifndef _AVRA_H_ /* avoid multiple inclusion */
+#ifndef _AVRA_H_
 #define _AVRA_H_
 
 #include <stdio.h>
@@ -71,9 +71,8 @@ enum {
 	MSGTYPE_WARNING,
 	MSGTYPE_MESSAGE,
 	MSGTYPE_OUT_OF_MEM,
-	MSGTYPE_MESSAGE_NO_LF,		/* B.A. : Like MSGTYPE_MESSAGE, but without /n */
-	MSGTYPE_APPEND			/* B.A. : Print Message without any header and without /n. To append messages */
-	/*	MSGTYPE_INCLUDE		B.A. Removed. Was not in used */
+	MSGTYPE_MESSAGE_NO_LF, /* Like MSGTYPE_MESSAGE, but without /n */
+	MSGTYPE_APPEND         /* Print Message without any header and without /n. To append messages */
 };
 
 enum {
@@ -119,10 +118,10 @@ extern const int SEG_BSS_DATA;
 struct segment_info {
 	const char *name;
 	char ident;	  /* C, D, E */
-	int addr;     /* address in cells */
-	int count;    /* length in cells  */
-	int lo_addr;  /* lowest addr supported */
-	int hi_addr;  /* one past highest addr supported */
+	long addr;    /* address in cells */
+	long count;   /* length in cells  */
+	long lo_addr; /* lowest addr supported */
+	long hi_addr; /* one past highest addr supported */
 	int	cellsize; /* 1 for data/eeprom, 2 for flash  */
 	int flags;	  /* SEG_BSS_DATA */
 
@@ -172,12 +171,12 @@ struct prog_info {
 	struct macro *last_macro;
 	struct macro_call *first_macro_call;
 	struct macro_call *last_macro_call;
-	struct orglist *first_orglist;	/* B.A. : List of used memory segments. Needed for overlap-check */
+	struct orglist *first_orglist;	/* List of used memory segments. Needed for overlap-check */
 	struct orglist *last_orglist;
 	int effective_overlap; /* as specified by #pragma overlap */
 	int segment_overlap;   /* set by .NOOVERLAP, .OVERLAP     */
 	int conditional_depth;
-	time_t time;			/* B.A. : Use a global timestamp for listing header and %hour% ... tags */
+	time_t time;			/* Use a global timestamp for listing header and %hour% ... tags */
 	/* coff additions */
 	FILE *coff_file;
 	/* Warning additions */
@@ -279,6 +278,7 @@ void free_pi(struct prog_info *pi);
 void print_msg(struct prog_info *pi, int type, char *fmt, ...);
 void get_rootpath(struct prog_info *pi, struct args *args);
 
+void init_segment_size(struct prog_info *pi, struct device *device);
 void rewind_segments(struct prog_info *pi);
 void advance_ip(struct segment_info *si, int offset);
 
@@ -318,12 +318,6 @@ char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream);
 
 /* expr.c */
 int get_expr(struct prog_info *pi, char *data, int *value);
-//int get_operator(char *op);
-//int test_operator_at_precedence(int operator, int precedence);
-//int calc(struct prog_info *pi, int left, int operator, int right);
-//int get_function(char *function);
-//int do_function(int function, int value);
-//int log2(int value);
 int get_symbol(struct prog_info *pi, char *label_name, int *data);
 int par_length(char *data);
 
