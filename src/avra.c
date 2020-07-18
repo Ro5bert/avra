@@ -55,7 +55,6 @@ const char *usage =
     "            [--max_errors <number>] [--devices] [--version]\n"
     "            [-O e|w|i]\n"
     "            [-h] [--help] general help\n"
-    "            "
     "            <file to assemble>\n"
     "\n"
     "   --listfile    -l : Create list file\n"
@@ -68,10 +67,7 @@ const char *usage =
     "   --devices        : List out supported devices.\n"
     "   --version        : Version information.\n"
     "   -O e|w|i         : Issue error/warning/ignore overlapping code.\n"
-    "   --help, -h       : This help text.\n"
-    "\n"
-    "Just replace the AVRASM32.EXE with AVRA.EXE in your\n"
-    "AVRStudio directories to AVRA's binary.\n";
+    "   --help, -h       : This help text.\n";
 
 const struct dataset overlap_choice[4] = {
 	{ OVERLAP_ERROR,   "e"},
