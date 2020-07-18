@@ -918,11 +918,7 @@ check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int *do
 
 	*do_next = False;
 	while (IS_HOR_SPACE(linebuff[i]) && !IS_END_OR_COMMENT(linebuff[i])) i++;
-#if 0
-	if (linebuff[i] == '.') {
-#else
 	if ((linebuff[i] == '.') || (linebuff[i] == '#')) {
-#endif
 		i++;
 		if (!nocase_strncmp(&linebuff[i], "if", 2))
 			(*current_depth)++;

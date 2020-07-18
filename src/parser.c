@@ -301,11 +301,7 @@ parse_line(struct prog_info *pi, char *line)
 			break;
 		}
 
-#if 0
-	if (pi->fi->scratch[0] == '.') {
-#else
 	if ((pi->fi->scratch[0] == '.') || (pi->fi->scratch[0] == '#')) {
-#endif
 		pi->fi->label = label;
 		flag = parse_directive(pi);
 		if ((pi->pass == PASS_2) && pi->list_on && pi->list_line) { /* Diff tilpassing */

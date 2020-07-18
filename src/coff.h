@@ -305,18 +305,6 @@ struct coff_info {
 	LISTNODEHEAD ListOfTypes;
 };
 
-#if 0 /* defined in avra.h */
-
-FILE *open_coff_file(struct prog_info *pi, char *filename);
-void write_coff_file(struct prog_info *pi);
-void write_coff_eeprom(struct prog_info *pi, int address, unsigned char data);
-void write_coff_program(struct prog_info *pi, int address, unsigned char data);
-void close_coff_file(struct prog_info *pi, FILE *fp);
-int parse_stabs(struct prog_info *pi, char *p);
-int parse_stabn(struct prog_info *pi, char *p);
-
-#endif
-
 /* Internal routines */
 int stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction);
 int stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction);
