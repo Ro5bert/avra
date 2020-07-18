@@ -25,8 +25,6 @@
  *     www: https://github.com/Ro5bert/avra
  */
 
-/* Misc stuff */
-
 enum boolean {False = 0, True};
 
 enum filetype {

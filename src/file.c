@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h> /* B.A. for unlink function */
+#include <unistd.h>
 
 
 #include "misc.h"
@@ -227,10 +227,10 @@ write_prog_word(struct prog_info *pi, int address, int data)
 		if (hfi->count != 0)
 			do_hex_line(hfi);
 		hfi->segment = address >> 16;
-		if (hfi->segment >= 16) // Use 04 record for addresses above 1 meg since 02 can support max 1 meg
+		if (hfi->segment >= 16) /* Use 04 record for addresses above 1 meg since 02 can support max 1 meg */
 			fprintf(hfi->fp, ":02000004%04X%02X\x0d\x0a", hfi->segment & 0xffff,
 			        (0 - 2 - 4 - ((hfi->segment >> 8) & 0xff) - (hfi->segment & 0xff)) & 0xff);
-		else // Use 02 record for addresses below 1 meg since more programmers know about the 02 instead of the 04
+		else /* Use 02 record for addresses below 1 meg since more programmers know about the 02 instead of the 04 */
 			fprintf(hfi->fp, ":02000002%04X%02X\x0d\x0a", (hfi->segment << 12) & 0xffff,
 			        (0 - 2 - 2 - ((hfi->segment << 4) & 0xf0)) & 0xff);
 	}

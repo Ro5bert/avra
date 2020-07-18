@@ -25,20 +25,12 @@
  *     www: https://github.com/Ro5bert/avra
  */
 
-/********************************************************************
- * Extra standard functions
- */
-
 #include <stdio.h>
 #include <ctype.h>
 
 #include "misc.h"
 
-
-/********************************************************************
- * Case insensetive strcmp()
- */
-
+/* Case insensetive strcmp() */
 int
 nocase_strcmp(const char *s, const char *t)
 {
@@ -50,11 +42,7 @@ nocase_strcmp(const char *s, const char *t)
 	return (tolower(s[i]) - tolower(t[i]));
 }
 
-
-/********************************************************************
- * Case insensetive strncmp()
- */
-
+/* Case insensetive strncmp() */
 int
 nocase_strncmp(char *s, char *t, int n)
 {
@@ -66,11 +54,7 @@ nocase_strncmp(char *s, char *t, int n)
 	return (tolower(s[i]) - tolower(t[i]));
 }
 
-
-/********************************************************************
- * Case insensetive strstr()
- */
-
+/* Case insensetive strstr() */
 char *
 nocase_strstr(char *s, char *t)
 {
@@ -94,12 +78,7 @@ nocase_strstr(char *s, char *t)
 	return (NULL);
 }
 
-
-/********************************************************************
- * ascii to hex
- * ignores "0x"
- */
-
+/* Convert ascii to hex. Ignores "0x". */
 int
 atox(char *s)
 {
@@ -118,11 +97,7 @@ atox(char *s)
 	return (ret);
 }
 
-
-/********************************************************************
- * n ascii chars to int
- */
-
+/* n ascii chars to int. */
 int
 atoi_n(char *s, int n)
 {
@@ -136,13 +111,7 @@ atoi_n(char *s, int n)
 	return (ret);
 }
 
-
-/********************************************************************
- * n ascii chars to hex
- * 0 < n <= 8
- * ignores "0x"
- */
-
+/* n ascii chars to hex, where 0 < n <= 8. Ignores "0x". */
 int
 atox_n(char *s, int n)
 {
@@ -163,10 +132,7 @@ atox_n(char *s, int n)
 }
 
 
-/*
- * My own strlwr function since this one only exists in win
- */
-
+/* My own strlwr function since this one only exists in win. */
 char *
 my_strlwr(char *in)
 {
@@ -179,10 +145,7 @@ my_strlwr(char *in)
 }
 
 
-/*
- * My own strupr function since this one only exists in win
- */
-
+/* My own strupr function since this one only exists in win. */
 char *
 my_strupr(char *in)
 {

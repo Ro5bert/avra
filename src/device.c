@@ -33,14 +33,14 @@
 #include "avra.h"
 #include "device.h"
 
-#define DEV_VAR    "__DEVICE__"	// Device var name
-#define FLASH_VAR  "__FLASH_SIZE__"	// Flash size var name
-#define EEPROM_VAR "__EEPROM_SIZE__"	// EEPROM size var name
-#define RAM_VAR    "__RAM_SIZE__"	// RAM size var name
-#define DEV_PREFIX "__"		// Device name prefix
-#define DEV_SUFFIX "__"		// Device name suffix
-#define DEF_DEV_NAME "DEFAULT"	// Default device name (without prefix/suffix)
-#define MAX_DEV_NAME 32		// Max device name length
+#define DEV_VAR    "__DEVICE__"	/* Device var name */
+#define FLASH_VAR  "__FLASH_SIZE__"	/* Flash size var name */
+#define EEPROM_VAR "__EEPROM_SIZE__"	/* EEPROM size var name */
+#define RAM_VAR    "__RAM_SIZE__"	/* RAM size var name */
+#define DEV_PREFIX "__"		/* Device name prefix */
+#define DEV_SUFFIX "__"		/* Device name suffix */
+#define DEF_DEV_NAME "DEFAULT"	/* Default device name (without prefix/suffix) */
+#define MAX_DEV_NAME 32		/* Max device name length */
 
 
 /* Field Order:
@@ -49,7 +49,7 @@
 /* IMPORTANT: THE FLASH SIZE IS IN WORDS, NOT BYTES. This has been a fairly
  * consistent source of bugs when new devices are added. */
 struct device device_list[] = {
-	/* Default device. */
+	/* Default device */
 	{NULL, 4194304, 0x60, 8388608, 65536, 0}, /* Total instructions: 137 */
 
 	/* ATtiny Series */
@@ -150,10 +150,7 @@ struct device device_list[] = {
 
 static int LastDevice=0;
 
-/*********************************************/
-/* Define vars for device in LastDevice   */
-/*********************************************/
-
+/* Define vars for device in LastDevice. */
 static void
 def_dev(struct prog_info *pi)
 {
@@ -184,7 +181,7 @@ struct device *get_device(struct prog_info *pi, char *name)
 	return (NULL);
 }
 
-// Pre-define devices. B.A. : Return value change from void to int
+/* Pre-define devices. */
 int
 predef_dev(struct prog_info *pi)
 {
@@ -196,7 +193,7 @@ predef_dev(struct prog_info *pi)
 		if (!i) strncat(temp,DEF_DEV_NAME,MAX_DEV_NAME);
 		else strncat(temp,device_list[i].name,MAX_DEV_NAME);
 		strncat(temp,DEV_SUFFIX,MAX_DEV_NAME);
-		/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
+		/* Forward references allowed. But check, if everything is ok ... */
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,temp,NULL)!=NULL) {
 				fprintf(stderr,"Error: Can't define symbol %s twice. Please don't use predefined symbols !\n", temp);

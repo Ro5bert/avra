@@ -81,10 +81,8 @@ struct element {
 };
 
 char *function_list[] = {
-	/*
-	** allow whitespace between function name
-	** and opening brace...
-	*/
+	/* allow whitespace between function name
+	 * and opening brace... */
 	"low",
 	"byte1",
 	"high",
@@ -196,7 +194,7 @@ test_operator_at_precedence(int operator, int precedence)
 
 
 int
-calc(struct prog_info *pi, int left, int operator, int right) // TODO: Sjekk litt resultater
+calc(struct prog_info *pi, int left, int operator, int right) /* TODO: Sjekk litt resultater */
 {
 	switch (operator) {
 	case OPERATOR_MUL:
@@ -255,10 +253,8 @@ get_function(char *function)
 
 	for (i = 0; i < FUNCTION_COUNT; i++) {
 		if (!nocase_strncmp(function, function_list[i], strlen(function_list[i]))) {
-			/*
-			** some more checks to allow whitespace between function name
-			** and opening brace...
-			*/
+			/* some more checks to allow whitespace between function name
+			 * and opening brace... */
 			char *tmp = function + strlen(function_list[i]);
 			while (*tmp <= ' ')
 				tmp++;
@@ -410,23 +406,23 @@ get_expr(struct prog_info *pi, char *data, int *value)
 			if (isdigit(data[i])) {
 				if (tolower(data[i + 1]) == 'x') {
 					i += 2;
-					while (isxdigit(data[i + length])) length++; // TODO: Sjekk overflow
+					while (isxdigit(data[i + length])) length++; /* TODO: Sjekk overflow */
 					element->data = atox_n(&data[i], length);
 				} else if (tolower(data[i + 1]) == 'b') {
 					i += 2;
 					element->data = 0;
 					while ((data[i + length] == '1') || (data[i + length] == '0')) {
 						element->data <<= 1;
-						element->data |= data[i + length++] - '0'; // TODO: Sjekk overflow
+						element->data |= data[i + length++] - '0'; /* TODO: Sjekk overflow */
 					}
 				} else {
 					while (isdigit(data[i + length])) length++;
-					element->data = atoi_n(&data[i], length); // TODO: Sjekk overflow
+					element->data = atoi_n(&data[i], length); /* TODO: Sjekk overflow */
 				}
 			} else if (data[i] == '$') {
 				i++;
 				while (isxdigit(data[i + length])) length++;
-				element->data = atox_n(&data[i], length); // TODO: Sjekk overflow
+				element->data = atox_n(&data[i], length); /* TODO: Sjekk overflow */
 			} else if (data[i] == '\'') {
 				i++;
 				if (data[i+1] != '\'') {
@@ -521,7 +517,7 @@ get_expr(struct prog_info *pi, char *data, int *value)
 			}
 			/* now the expression has been evaluated */
 			i += length - 1;
-			switch (unary) { // TODO: Få den til å takle flere unary på rad.
+			switch (unary) { /* TODO: Få den til å takle flere unary på rad. */
 			case '-':
 				element->data = -element->data;
 				break;
@@ -540,7 +536,7 @@ get_expr(struct prog_info *pi, char *data, int *value)
 	if (end) {
 		for (i = 13; (i >= 4) && (count != 1); i--) {
 			for (element = first_element; element->next;) {
-				if (test_operator_at_precedence(element->next->data, i)) { // TODO: Vurder en hi_i for kjapphet
+				if (test_operator_at_precedence(element->next->data, i)) { /* TODO: Vurder en hi_i for kjapphet */
 					element->data = calc(pi, element->data, element->next->data, element->next->next->data);
 					temp_element = element->next->next->next;
 					free(element->next->next);

@@ -125,10 +125,9 @@ read_args(struct args *args, int argc, const char *argv[])
 {
 	int i, j, k, ok, i_old;
 	struct data_list **last_data;
-	/*** init ***/
+
 	ok = True;
 	args->first_data = NULL;
-	/*** end of init ***/
 
 	last_data = &args->first_data;
 

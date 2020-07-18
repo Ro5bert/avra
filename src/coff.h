@@ -1,18 +1,17 @@
-//
-// coff.h - Common Object File Format (COFF) support
-//
-//	This file was developed for the AVRA assembler in order to produce COFF output files
-//	for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
-//	output was used as input to the assembler.
-//
-//	This software has absolutely no warrantee!  The money you paid for this will be
-//	promptly refunded if not fully satisfied.
-//
-//	Beta release 1/20/2000 by Bob Harris
-//
-//	This software has not been fully tested and probably has a few software deficiencies.
-//	Some software support may be possible by sending a problem description report to
-//	rth@mclean.sparta.com
+/* coff.h - Common Object File Format (COFF) support
+ *
+ * This file was developed for the AVRA assembler in order to produce COFF output files
+ * for use with the Atmel AVR Studio.  The Lean C Compiler (LCC) debugging stabs
+ * output was used as input to the assembler.
+ * 
+ * This software has absolutely no warrantee!  The money you paid for this will be
+ * promptly refunded if not fully satisfied.
+ * 
+ * Beta release 1/20/2000 by Bob Harris
+ * 
+ * This software has not been fully tested and probably has a few software deficiencies.
+ * Some software support may be possible by sending a problem description report to
+ * rth@mclean.sparta.com */
 
 #define MAGIC_NUMBER_AVR   0xa12
 
@@ -46,9 +45,7 @@
 #define	N_LENG	0xfe		/* second stab entry with length information */
 
 
-/*
- * Type of a symbol, in low N bits of the word
- */
+/* Type of a symbol, in low N bits of the word */
 #define T_NULL		0
 #define T_VOID		1	/* function argument (only used by compiler) */
 #define T_CHAR		2	/* character		*/
@@ -67,9 +64,7 @@
 #define T_ULONG		15	/* unsigned long	*/
 #define T_LNGDBL	16	/* long double		*/
 
-/*
- * derived types, in n_type
-*/
+/* derived types, in n_type */
 #define DT_NON		(0)	/* no derived type */
 #define DT_PTR		(1)	/* pointer */
 #define DT_FCN		(2)	/* function */
@@ -90,15 +85,13 @@ struct external_filehdr {
  *	F_EXEC		file is executable (no unresolved external references)
  *	F_LNNO		line numbers stripped from file
  *	F_LSYMS		local symbols stripped from file
- *	F_AR32WR	file has byte ordering of an AR32WR machine (e.g. vax)
- */
+ *	F_AR32WR	file has byte ordering of an AR32WR machine (e.g. vax) */
 
 #define F_RELFLG	(0x0001)
 #define F_EXEC		(0x0002)
 #define F_LNNO		(0x0004)
 #define F_LSYMS		(0x0008)
 
-/*********************************************************************/
 struct external_scnhdr {
 	char		s_name[8];	/* section name			*/
 	unsigned long		s_paddr;	/* physical address, aliased s_nlib */
@@ -115,24 +108,18 @@ struct external_scnhdr {
 #define	SCNHDR	struct external_scnhdr
 #define	SCNHSZ	sizeof(SCNHDR)
 
-/*
- * names of "special" sections
- */
+/* names of "special" sections */
 #define _TEXT	".text"
 #define _DATA	".data"
 #define _BSS	".bss"
 #define _COMMENT ".comment"
 #define _LIB ".lib"
 
-/*
- * s_flags "type"
- */
+/* s_flags "type" */
 #define STYP_TEXT	 (0x0020)	/* section contains text only */
 #define STYP_DATA	 (0x0040)	/* section contains data only */
 #define STYP_BSS	 (0x0080)	/* section contains bss only */
 
-
-/*********************************************************************/
 
 struct lineno {
 	union {
@@ -151,7 +138,7 @@ struct lineno {
 #define N_ABS	((short)-1)	/* value of symbol is absolute */
 #define N_DEBUG	((short)-2)	/* debugging symbol -- value is meaningless */
 
-/********************** STORAGE CLASSES **********************/
+/* STORAGE CLASSES */
 
 /* This used to be defined as -1, but now n_sclass is unsigned.  */
 #define C_EFCN		0xff	/* physical end of function	*/
@@ -272,12 +259,8 @@ typedef struct ListNodeTag {
 	int FileNumber;		/* corresponds to individual file(s) */
 } LISTNODE;
 
-//#define LISTNODE struct ListNodeTag;
-
 typedef struct ListNodeHeadTag {
 	LISTNODE Node;
-//	struct ListNodeTag *Next;	/* Double Linked List */
-//	struct ListNodeTag *Last;	/* Double Linked List */
 	int TotalBytes;	/* size of allocated object(s) */
 	int TotalItems; /* number of allocated objects */
 	LISTNODE *current;	/* pointer for FindFirst/FindNext */
@@ -334,9 +317,7 @@ int parse_stabn(struct prog_info *pi, char *p);
 
 #endif
 
-/**************************************************************/
-/*********** Internal Routines ********************************/
-/**************************************************************/
+/* Internal routines */
 int stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction);
 int stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction);
 int stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction);
@@ -368,9 +349,7 @@ int GetSubRangeType(unsigned short Type, STABCOFFMAP *pMap, char *pLow, char *pH
 char *SkipPastDigits(char *p);
 int GetDigitLength(char *p);
 
-/****************************************************************************************/
 /* List management routines */
-/****************************************************************************************/
 
 void InitializeList(LISTNODEHEAD *pNode);
 void *AllocateTwoListObjects(LISTNODEHEAD *pHead, int size);

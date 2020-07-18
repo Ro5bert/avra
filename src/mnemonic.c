@@ -34,161 +34,160 @@
 #include "avra.h"
 #include "device.h"
 
-#define MAX_MNEMONIC_LEN	8	// Maximum mnemonic length
+#define MAX_MNEMONIC_LEN	8	/* Maximum mnemonic length */
 
 enum {
-	MNEMONIC_NOP = 0,  //          0000 0000 0000 0000
-	MNEMONIC_SEC,      //          1001 0100 0000 1000
-	MNEMONIC_CLC,      //          1001 0100 1000 1000
-	MNEMONIC_SEN,      //          1001 0100 0010 1000
-	MNEMONIC_CLN,      //          1001 0100 1010 1000
-	MNEMONIC_SEZ,      //          1001 0100 0001 1000
-	MNEMONIC_CLZ,      //          1001 0100 1001 1000
-	MNEMONIC_SEI,      //          1001 0100 0111 1000
-	MNEMONIC_CLI,      //          1001 0100 1111 1000
-	MNEMONIC_SES,      //          1001 0100 0100 1000
-	MNEMONIC_CLS,      //          1001 0100 1100 1000
-	MNEMONIC_SEV,      //          1001 0100 0011 1000
-	MNEMONIC_CLV,      //          1001 0100 1011 1000
-	MNEMONIC_SET,      //          1001 0100 0110 1000
-	MNEMONIC_CLT,      //          1001 0100 1110 1000
-	MNEMONIC_SEH,      //          1001 0100 0101 1000
-	MNEMONIC_CLH,      //          1001 0100 1101 1000
-	MNEMONIC_SLEEP,    //          1001 0101 1000 1000
-	MNEMONIC_WDR,      //          1001 0101 1010 1000
-	MNEMONIC_IJMP,     //          1001 0100 0000 1001
-	MNEMONIC_EIJMP,    //          1001 0100 0001 1001
-	MNEMONIC_ICALL,    //          1001 0101 0000 1001
-	MNEMONIC_EICALL,   //          1001 0101 0001 1001
-	MNEMONIC_RET,      //          1001 0101 0000 1000
-	MNEMONIC_RETI,     //          1001 0101 0001 1000
-	MNEMONIC_SPM,      //          1001 0101 1110 1000
-	MNEMONIC_ESPM,     //          1001 0101 1111 1000
-	MNEMONIC_BREAK,    //          1001 0101 1001 1000
-	MNEMONIC_LPM,      //          1001 0101 1100 1000
-	MNEMONIC_ELPM,     //          1001 0101 1101 1000
-	MNEMONIC_BSET,     // s        1001 0100 0sss 1000
-	MNEMONIC_BCLR,     // s        1001 0100 1sss 1000
-	MNEMONIC_SER,      // Rd       1110 1111 dddd 1111
-	MNEMONIC_COM,      // Rd       1001 010d dddd 0000
-	MNEMONIC_NEG,      // Rd       1001 010d dddd 0001
-	MNEMONIC_INC,      // Rd       1001 010d dddd 0011
-	MNEMONIC_DEC,      // Rd       1001 010d dddd 1010
-	MNEMONIC_LSR,      // Rd       1001 010d dddd 0110
-	MNEMONIC_ROR,      // Rd       1001 010d dddd 0111
-	MNEMONIC_ASR,      // Rd       1001 010d dddd 0101
-	MNEMONIC_SWAP,     // Rd       1001 010d dddd 0010
-	MNEMONIC_PUSH,     // Rr       1001 001r rrrr 1111
-	MNEMONIC_POP,      // Rd       1001 000d dddd 1111
-	MNEMONIC_TST,      // Rd       0010 00dd dddd dddd
-	MNEMONIC_CLR,      // Rd       0010 01dd dddd dddd
-	MNEMONIC_LSL,      // Rd       0000 11dd dddd dddd
-	MNEMONIC_ROL,      // Rd       0001 11dd dddd dddd
-	MNEMONIC_BREQ,     // k        1111 00kk kkkk k001
-	MNEMONIC_BRNE,     // k        1111 01kk kkkk k001
-	MNEMONIC_BRCS,     // k        1111 00kk kkkk k000
-	MNEMONIC_BRCC,     // k        1111 01kk kkkk k000
-	MNEMONIC_BRSH,     // k        1111 01kk kkkk k000
-	MNEMONIC_BRLO,     // k        1111 00kk kkkk k000
-	MNEMONIC_BRMI,     // k        1111 00kk kkkk k010
-	MNEMONIC_BRPL,     // k        1111 01kk kkkk k010
-	MNEMONIC_BRGE,     // k        1111 01kk kkkk k100
-	MNEMONIC_BRLT,     // k        1111 00kk kkkk k100
-	MNEMONIC_BRHS,     // k        1111 00kk kkkk k101
-	MNEMONIC_BRHC,     // k        1111 01kk kkkk k101
-	MNEMONIC_BRTS,     // k        1111 00kk kkkk k110
-	MNEMONIC_BRTC,     // k        1111 01kk kkkk k110
-	MNEMONIC_BRVS,     // k        1111 00kk kkkk k011
-	MNEMONIC_BRVC,     // k        1111 01kk kkkk k011
-	MNEMONIC_BRIE,     // k        1111 00kk kkkk k111
-	MNEMONIC_BRID,     // k        1111 01kk kkkk k111
-	MNEMONIC_RJMP,     // k        1100 kkkk kkkk kkkk
-	MNEMONIC_RCALL,    // k        1101 kkkk kkkk kkkk
-	MNEMONIC_JMP,      // k        1001 010k kkkk 110k + 16k
-	MNEMONIC_CALL,     // k        1001 010k kkkk 111k + 16k
-	MNEMONIC_BRBS,     // s, k     1111 00kk kkkk ksss
-	MNEMONIC_BRBC,     // s, k     1111 01kk kkkk ksss
-	MNEMONIC_ADD,      // Rd, Rr   0000 11rd dddd rrrr
-	MNEMONIC_ADC,      // Rd, Rr   0001 11rd dddd rrrr
-	MNEMONIC_SUB,      // Rd, Rr   0001 10rd dddd rrrr
-	MNEMONIC_SBC,      // Rd, Rr   0000 10rd dddd rrrr
-	MNEMONIC_AND,      // Rd, Rr   0010 00rd dddd rrrr
-	MNEMONIC_OR,       // Rd, Rr   0010 10rd dddd rrrr
-	MNEMONIC_EOR,      // Rd, Rr   0010 01rd dddd rrrr
-	MNEMONIC_CP,       // Rd, Rr   0001 01rd dddd rrrr
-	MNEMONIC_CPC,      // Rd, Rr   0000 01rd dddd rrrr
-	MNEMONIC_CPSE,     // Rd, Rr   0001 00rd dddd rrrr
-	MNEMONIC_MOV,      // Rd, Rr   0010 11rd dddd rrrr
-	MNEMONIC_MUL,      // Rd, Rr   1001 11rd dddd rrrr
-	MNEMONIC_MOVW,     // Rd, Rr   0000 0001 dddd rrrr
-	MNEMONIC_MULS,     // Rd, Rr   0000 0010 dddd rrrr
-	MNEMONIC_MULSU,    // Rd, Rr   0000 0011 0ddd 0rrr
-	MNEMONIC_FMUL,     // Rd, Rr   0000 0011 0ddd 1rrr
-	MNEMONIC_FMULS,    // Rd, Rr   0000 0011 1ddd 0rrr
-	MNEMONIC_FMULSU,   // Rd, Rr   0000 0011 1ddd 1rrr
-	MNEMONIC_ADIW,     // Rd, K    1001 0110 KKdd KKKK
-	MNEMONIC_SBIW,     // Rd, K    1001 0111 KKdd KKKK
-	MNEMONIC_SUBI,     // Rd, K    0101 KKKK dddd KKKK
-	MNEMONIC_SBCI,     // Rd, K    0100 KKKK dddd KKKK
-	MNEMONIC_ANDI,     // Rd, K    0111 KKKK dddd KKKK
-	MNEMONIC_ORI,      // Rd, K    0110 KKKK dddd KKKK
-	MNEMONIC_SBR,      // Rd, K    0110 KKKK dddd KKKK
-	MNEMONIC_CPI,      // Rd, K    0011 KKKK dddd KKKK
-	MNEMONIC_LDI,      // Rd, K    1110 KKKK dddd KKKK
-	MNEMONIC_CBR,      // Rd, K    0111 KKKK dddd KKKK ~K
-	MNEMONIC_SBRC,     // Rr, b    1111 110r rrrr 0bbb
-	MNEMONIC_SBRS,     // Rr, b    1111 111r rrrr 0bbb
-	MNEMONIC_BST,      // Rr, b    1111 101d dddd 0bbb
-	MNEMONIC_BLD,      // Rd, b    1111 100d dddd 0bbb
-	MNEMONIC_IN,       // Rd, P    1011 0PPd dddd PPPP
-	MNEMONIC_OUT,      // P, Rr    1011 1PPr rrrr PPPP
-	MNEMONIC_SBIC,     // P, b     1001 1001 PPPP Pbbb
-	MNEMONIC_SBIS,     // P, b     1001 1011 PPPP Pbbb
-	MNEMONIC_SBI,      // P, b     1001 1010 PPPP Pbbb
-	MNEMONIC_CBI,      // P, b     1001 1000 PPPP Pbbb
-	MNEMONIC_LDS,      // Rd, k    1001 000d dddd 0000 + 16k
-	MNEMONIC_STS,      // k, Rr    1001 001d dddd 0000 + 16k
-	MNEMONIC_LD,       // Rd, __   dummy
-	MNEMONIC_ST,       // __, Rr   dummy
-	MNEMONIC_LDD,      // Rd, _+q  dummy
-	MNEMONIC_STD,      // _+q, Rr  dummy
+	MNEMONIC_NOP = 0,  /*          0000 0000 0000 0000 */
+	MNEMONIC_SEC,      /*          1001 0100 0000 1000 */
+	MNEMONIC_CLC,      /*          1001 0100 1000 1000 */
+	MNEMONIC_SEN,      /*          1001 0100 0010 1000 */
+	MNEMONIC_CLN,      /*          1001 0100 1010 1000 */
+	MNEMONIC_SEZ,      /*          1001 0100 0001 1000 */
+	MNEMONIC_CLZ,      /*          1001 0100 1001 1000 */
+	MNEMONIC_SEI,      /*          1001 0100 0111 1000 */
+	MNEMONIC_CLI,      /*          1001 0100 1111 1000 */
+	MNEMONIC_SES,      /*          1001 0100 0100 1000 */
+	MNEMONIC_CLS,      /*          1001 0100 1100 1000 */
+	MNEMONIC_SEV,      /*          1001 0100 0011 1000 */
+	MNEMONIC_CLV,      /*          1001 0100 1011 1000 */
+	MNEMONIC_SET,      /*          1001 0100 0110 1000 */
+	MNEMONIC_CLT,      /*          1001 0100 1110 1000 */
+	MNEMONIC_SEH,      /*          1001 0100 0101 1000 */
+	MNEMONIC_CLH,      /*          1001 0100 1101 1000 */
+	MNEMONIC_SLEEP,    /*          1001 0101 1000 1000 */
+	MNEMONIC_WDR,      /*          1001 0101 1010 1000 */
+	MNEMONIC_IJMP,     /*          1001 0100 0000 1001 */
+	MNEMONIC_EIJMP,    /*          1001 0100 0001 1001 */
+	MNEMONIC_ICALL,    /*          1001 0101 0000 1001 */
+	MNEMONIC_EICALL,   /*          1001 0101 0001 1001 */
+	MNEMONIC_RET,      /*          1001 0101 0000 1000 */
+	MNEMONIC_RETI,     /*          1001 0101 0001 1000 */
+	MNEMONIC_SPM,      /*          1001 0101 1110 1000 */
+	MNEMONIC_ESPM,     /*          1001 0101 1111 1000 */
+	MNEMONIC_BREAK,    /*          1001 0101 1001 1000 */
+	MNEMONIC_LPM,      /*          1001 0101 1100 1000 */
+	MNEMONIC_ELPM,     /*          1001 0101 1101 1000 */
+	MNEMONIC_BSET,     /* s        1001 0100 0sss 1000 */
+	MNEMONIC_BCLR,     /* s        1001 0100 1sss 1000 */
+	MNEMONIC_SER,      /* Rd       1110 1111 dddd 1111 */
+	MNEMONIC_COM,      /* Rd       1001 010d dddd 0000 */
+	MNEMONIC_NEG,      /* Rd       1001 010d dddd 0001 */
+	MNEMONIC_INC,      /* Rd       1001 010d dddd 0011 */
+	MNEMONIC_DEC,      /* Rd       1001 010d dddd 1010 */
+	MNEMONIC_LSR,      /* Rd       1001 010d dddd 0110 */
+	MNEMONIC_ROR,      /* Rd       1001 010d dddd 0111 */
+	MNEMONIC_ASR,      /* Rd       1001 010d dddd 0101 */
+	MNEMONIC_SWAP,     /* Rd       1001 010d dddd 0010 */
+	MNEMONIC_PUSH,     /* Rr       1001 001r rrrr 1111 */
+	MNEMONIC_POP,      /* Rd       1001 000d dddd 1111 */
+	MNEMONIC_TST,      /* Rd       0010 00dd dddd dddd */
+	MNEMONIC_CLR,      /* Rd       0010 01dd dddd dddd */
+	MNEMONIC_LSL,      /* Rd       0000 11dd dddd dddd */
+	MNEMONIC_ROL,      /* Rd       0001 11dd dddd dddd */
+	MNEMONIC_BREQ,     /* k        1111 00kk kkkk k001 */
+	MNEMONIC_BRNE,     /* k        1111 01kk kkkk k001 */
+	MNEMONIC_BRCS,     /* k        1111 00kk kkkk k000 */
+	MNEMONIC_BRCC,     /* k        1111 01kk kkkk k000 */
+	MNEMONIC_BRSH,     /* k        1111 01kk kkkk k000 */
+	MNEMONIC_BRLO,     /* k        1111 00kk kkkk k000 */
+	MNEMONIC_BRMI,     /* k        1111 00kk kkkk k010 */
+	MNEMONIC_BRPL,     /* k        1111 01kk kkkk k010 */
+	MNEMONIC_BRGE,     /* k        1111 01kk kkkk k100 */
+	MNEMONIC_BRLT,     /* k        1111 00kk kkkk k100 */
+	MNEMONIC_BRHS,     /* k        1111 00kk kkkk k101 */
+	MNEMONIC_BRHC,     /* k        1111 01kk kkkk k101 */
+	MNEMONIC_BRTS,     /* k        1111 00kk kkkk k110 */
+	MNEMONIC_BRTC,     /* k        1111 01kk kkkk k110 */
+	MNEMONIC_BRVS,     /* k        1111 00kk kkkk k011 */
+	MNEMONIC_BRVC,     /* k        1111 01kk kkkk k011 */
+	MNEMONIC_BRIE,     /* k        1111 00kk kkkk k111 */
+	MNEMONIC_BRID,     /* k        1111 01kk kkkk k111 */
+	MNEMONIC_RJMP,     /* k        1100 kkkk kkkk kkkk */
+	MNEMONIC_RCALL,    /* k        1101 kkkk kkkk kkkk */
+	MNEMONIC_JMP,      /* k        1001 010k kkkk 110k + 16k */
+	MNEMONIC_CALL,     /* k        1001 010k kkkk 111k + 16k */
+	MNEMONIC_BRBS,     /* s, k     1111 00kk kkkk ksss */
+	MNEMONIC_BRBC,     /* s, k     1111 01kk kkkk ksss */
+	MNEMONIC_ADD,      /* Rd, Rr   0000 11rd dddd rrrr */
+	MNEMONIC_ADC,      /* Rd, Rr   0001 11rd dddd rrrr */
+	MNEMONIC_SUB,      /* Rd, Rr   0001 10rd dddd rrrr */
+	MNEMONIC_SBC,      /* Rd, Rr   0000 10rd dddd rrrr */
+	MNEMONIC_AND,      /* Rd, Rr   0010 00rd dddd rrrr */
+	MNEMONIC_OR,       /* Rd, Rr   0010 10rd dddd rrrr */
+	MNEMONIC_EOR,      /* Rd, Rr   0010 01rd dddd rrrr */
+	MNEMONIC_CP,       /* Rd, Rr   0001 01rd dddd rrrr */
+	MNEMONIC_CPC,      /* Rd, Rr   0000 01rd dddd rrrr */
+	MNEMONIC_CPSE,     /* Rd, Rr   0001 00rd dddd rrrr */
+	MNEMONIC_MOV,      /* Rd, Rr   0010 11rd dddd rrrr */
+	MNEMONIC_MUL,      /* Rd, Rr   1001 11rd dddd rrrr */
+	MNEMONIC_MOVW,     /* Rd, Rr   0000 0001 dddd rrrr */
+	MNEMONIC_MULS,     /* Rd, Rr   0000 0010 dddd rrrr */
+	MNEMONIC_MULSU,    /* Rd, Rr   0000 0011 0ddd 0rrr */
+	MNEMONIC_FMUL,     /* Rd, Rr   0000 0011 0ddd 1rrr */
+	MNEMONIC_FMULS,    /* Rd, Rr   0000 0011 1ddd 0rrr */
+	MNEMONIC_FMULSU,   /* Rd, Rr   0000 0011 1ddd 1rrr */
+	MNEMONIC_ADIW,     /* Rd, K    1001 0110 KKdd KKKK */
+	MNEMONIC_SBIW,     /* Rd, K    1001 0111 KKdd KKKK */
+	MNEMONIC_SUBI,     /* Rd, K    0101 KKKK dddd KKKK */
+	MNEMONIC_SBCI,     /* Rd, K    0100 KKKK dddd KKKK */
+	MNEMONIC_ANDI,     /* Rd, K    0111 KKKK dddd KKKK */
+	MNEMONIC_ORI,      /* Rd, K    0110 KKKK dddd KKKK */
+	MNEMONIC_SBR,      /* Rd, K    0110 KKKK dddd KKKK */
+	MNEMONIC_CPI,      /* Rd, K    0011 KKKK dddd KKKK */
+	MNEMONIC_LDI,      /* Rd, K    1110 KKKK dddd KKKK */
+	MNEMONIC_CBR,      /* Rd, K    0111 KKKK dddd KKKK ~K */
+	MNEMONIC_SBRC,     /* Rr, b    1111 110r rrrr 0bbb */
+	MNEMONIC_SBRS,     /* Rr, b    1111 111r rrrr 0bbb */
+	MNEMONIC_BST,      /* Rr, b    1111 101d dddd 0bbb */
+	MNEMONIC_BLD,      /* Rd, b    1111 100d dddd 0bbb */
+	MNEMONIC_IN,       /* Rd, P    1011 0PPd dddd PPPP */
+	MNEMONIC_OUT,      /* P, Rr    1011 1PPr rrrr PPPP */
+	MNEMONIC_SBIC,     /* P, b     1001 1001 PPPP Pbbb */
+	MNEMONIC_SBIS,     /* P, b     1001 1011 PPPP Pbbb */
+	MNEMONIC_SBI,      /* P, b     1001 1010 PPPP Pbbb */
+	MNEMONIC_CBI,      /* P, b     1001 1000 PPPP Pbbb */
+	MNEMONIC_LDS,      /* Rd, k    1001 000d dddd 0000 + 16k */
+	MNEMONIC_STS,      /* k, Rr    1001 001d dddd 0000 + 16k */
+	MNEMONIC_LD,       /* Rd, __   dummy */
+	MNEMONIC_ST,       /* __, Rr   dummy */
+	MNEMONIC_LDD,      /* Rd, _+q  dummy */
+	MNEMONIC_STD,      /* _+q, Rr  dummy */
 	MNEMONIC_COUNT,
-	MNEMONIC_LPM_Z,    // Rd, Z    1001 000d dddd 0100
-	MNEMONIC_LPM_ZP,   // Rd, Z+   1001 000d dddd 0101
-	MNEMONIC_ELPM_Z,   // Rd, Z    1001 000d dddd 0110
-	MNEMONIC_ELPM_ZP,  // Rd, Z+   1001 000d dddd 0111
-	MNEMONIC_LD_X,     // Rd, X    1001 000d dddd 1100
-	MNEMONIC_LD_XP,    // Rd, X+   1001 000d dddd 1101
-	MNEMONIC_LD_MX,    // Rd, -X   1001 000d dddd 1110
-	MNEMONIC_LD_Y,     // Rd, Y    1000 000d dddd 1000
-	MNEMONIC_LD_YP,    // Rd, Y+   1001 000d dddd 1001
-	MNEMONIC_LD_MY,    // Rd, -Y   1001 000d dddd 1010
-	MNEMONIC_LD_Z,     // Rd, Z    1000 000d dddd 0000
-	MNEMONIC_LD_ZP,    // Rd, Z+   1001 000d dddd 0001
-	MNEMONIC_LD_MZ,    // Rd, -Z   1001 000d dddd 0010
-	MNEMONIC_ST_X,     // X, Rr    1001 001d dddd 1100
-	MNEMONIC_ST_XP,    // X+, Rr   1001 001d dddd 1101
-	MNEMONIC_ST_MX,    // -X, Rr   1001 001d dddd 1110
-	MNEMONIC_ST_Y,     // Y, Rr    1000 001d dddd 1000
-	MNEMONIC_ST_YP,    // Y+, Rr   1001 001d dddd 1001
-	MNEMONIC_ST_MY,    // -Y, Rr   1001 001d dddd 1010
-	MNEMONIC_ST_Z,     // Z, Rr    1000 001d dddd 0000
-	MNEMONIC_ST_ZP,    // Z+, Rr   1001 001d dddd 0001
-	MNEMONIC_ST_MZ,    // -Z, Rr   1001 001d dddd 0010
-	MNEMONIC_LDD_Y,    // Rd, Y+q  10q0 qq0d dddd 1qqq
-	MNEMONIC_LDD_Z,    // Rd, Z+q  10q0 qq0d dddd 0qqq
-	MNEMONIC_STD_Y,    // Y+q, Rr  10q0 qq1r rrrr 1qqq
-	MNEMONIC_STD_Z,    // Z+q, Rr  10q0 qq1r rrrr 0qqq
-	MNEMONIC_LDS_AVR8L,// Rd, k    1010 0kkk dddd kkkk
-	MNEMONIC_STS_AVR8L,// Rd, k    1010 1kkk dddd kkkk
+	MNEMONIC_LPM_Z,    /* Rd, Z    1001 000d dddd 0100 */
+	MNEMONIC_LPM_ZP,   /* Rd, Z+   1001 000d dddd 0101 */
+	MNEMONIC_ELPM_Z,   /* Rd, Z    1001 000d dddd 0110 */
+	MNEMONIC_ELPM_ZP,  /* Rd, Z+   1001 000d dddd 0111 */
+	MNEMONIC_LD_X,     /* Rd, X    1001 000d dddd 1100 */
+	MNEMONIC_LD_XP,    /* Rd, X+   1001 000d dddd 1101 */
+	MNEMONIC_LD_MX,    /* Rd, -X   1001 000d dddd 1110 */
+	MNEMONIC_LD_Y,     /* Rd, Y    1000 000d dddd 1000 */
+	MNEMONIC_LD_YP,    /* Rd, Y+   1001 000d dddd 1001 */
+	MNEMONIC_LD_MY,    /* Rd, -Y   1001 000d dddd 1010 */
+	MNEMONIC_LD_Z,     /* Rd, Z    1000 000d dddd 0000 */
+	MNEMONIC_LD_ZP,    /* Rd, Z+   1001 000d dddd 0001 */
+	MNEMONIC_LD_MZ,    /* Rd, -Z   1001 000d dddd 0010 */
+	MNEMONIC_ST_X,     /* X, Rr    1001 001d dddd 1100 */
+	MNEMONIC_ST_XP,    /* X+, Rr   1001 001d dddd 1101 */
+	MNEMONIC_ST_MX,    /* -X, Rr   1001 001d dddd 1110 */
+	MNEMONIC_ST_Y,     /* Y, Rr    1000 001d dddd 1000 */
+	MNEMONIC_ST_YP,    /* Y+, Rr   1001 001d dddd 1001 */
+	MNEMONIC_ST_MY,    /* -Y, Rr   1001 001d dddd 1010 */
+	MNEMONIC_ST_Z,     /* Z, Rr    1000 001d dddd 0000 */
+	MNEMONIC_ST_ZP,    /* Z+, Rr   1001 001d dddd 0001 */
+	MNEMONIC_ST_MZ,    /* -Z, Rr   1001 001d dddd 0010 */
+	MNEMONIC_LDD_Y,    /* Rd, Y+q  10q0 qq0d dddd 1qqq */
+	MNEMONIC_LDD_Z,    /* Rd, Z+q  10q0 qq0d dddd 0qqq */
+	MNEMONIC_STD_Y,    /* Y+q, Rr  10q0 qq1r rrrr 1qqq */
+	MNEMONIC_STD_Z,    /* Z+q, Rr  10q0 qq1r rrrr 0qqq */
+	MNEMONIC_LDS_AVR8L,/* Rd, k    1010 0kkk dddd kkkk */
+	MNEMONIC_STS_AVR8L,/* Rd, k    1010 1kkk dddd kkkk */
 	MNEMONIC_END
 };
 
 struct instruction {
 	char *mnemonic;
 	int opcode;
-	int flag;	/* Device flags meaning the instruction is not
-                           supported */
+	int flag;	/* Device flags meaning the instruction is not supported */
 };
 
 struct instruction instruction_list[] = {
@@ -341,8 +340,7 @@ struct instruction instruction_list[] = {
 
 
 /* We try to parse the command name. Is it a assembler mnemonic or anything else ?
- * If so, it may be a macro.
-*/
+ * If so, it may be a macro. */
 
 int
 parse_mnemonic(struct prog_info *pi)
@@ -357,13 +355,13 @@ parse_mnemonic(struct prog_info *pi)
 	struct macro *macro;
 	char temp[MAX_MNEMONIC_LEN + 1];
 
-	operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  // we get the first word on line
+	operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  /* we get the first word on line */
 	mnemonic = get_mnemonic_type(pi);
-	if (mnemonic == -1) {				// if -1 this must be a macro name
-		macro = get_macro(pi, pi->fi->scratch); // and so, we try to get the corresponding macro struct.
+	if (mnemonic == -1) {				/* if -1 this must be a macro name */
+		macro = get_macro(pi, pi->fi->scratch); /* and so, we try to get the corresponding macro struct. */
 		if (macro) {
-			return (expand_macro(pi, macro, operand1)); // we expand the macro
-		} else { 				// if we cant find a name, this is a unknown word.
+			return (expand_macro(pi, macro, operand1)); /* we expand the macro */
+		} else { 				/* if we cant find a name, this is a unknown word. */
 			print_msg(pi, MSGTYPE_ERROR, "Unknown mnemonic/macro: %s", pi->fi->scratch);
 			return (True);
 		}
@@ -373,7 +371,7 @@ parse_mnemonic(struct prog_info *pi)
 			if (operand1) {
 				print_msg(pi, MSGTYPE_WARNING, "Garbage after instruction %s: %s", instruction_list[mnemonic].mnemonic, operand1);
 			}
-			opcode = 0;			// No operand
+			opcode = 0;			/* No operand */
 		} else if (mnemonic <= MNEMONIC_ELPM) {
 			if (operand1) {
 				operand2 = get_next_token(operand1, TERM_COMMA);
@@ -385,12 +383,12 @@ parse_mnemonic(struct prog_info *pi)
 				i = get_register(pi, operand1);
 				opcode = i << 4;
 				i = get_indirect(pi, operand2);
-				if (i == 6) { // Means Z
+				if (i == 6) { /* Means Z */
 					if (mnemonic == MNEMONIC_LPM)
 						mnemonic = MNEMONIC_LPM_Z;
 					else if (mnemonic == MNEMONIC_ELPM)
 						mnemonic = MNEMONIC_ELPM_Z;
-				} else if (i == 7) { // Means Z+
+				} else if (i == 7) { /* Means Z+ */
 					if (mnemonic == MNEMONIC_LPM)
 						mnemonic = MNEMONIC_LPM_ZP;
 					else if (mnemonic == MNEMONIC_ELPM)
@@ -583,7 +581,6 @@ parse_mnemonic(struct prog_info *pi)
 					opcode |= ((i << 4) & 0x00f0);
 				else
 					opcode = i << 4;
-				//print_msg(pi, MSGTYPE_MESSAGE, "operand2 0x%04x opcode 0x%04x", i, opcode);
 			} else if (mnemonic == MNEMONIC_LD) {
 				i = get_register(pi, operand1);
 				opcode = i << 4;
@@ -659,7 +656,7 @@ parse_mnemonic(struct prog_info *pi)
 			pi->cseg->addr += 2; /* XXX advance */
 		else
 			pi->cseg->addr ++;
-	} else { // Pass 1
+	} else { /* Pass 1 */
 		if (pi->device->flag & DF_AVR8L)
 			mnemonic = MNEMONIC_LDS_AVR8L;
 		if ((mnemonic == MNEMONIC_JMP) || (mnemonic == MNEMONIC_CALL)
@@ -698,7 +695,7 @@ get_register(struct prog_info *pi, char *data)
 	int reg = 0;
 	struct def *def;
 
-	// Check for any occurence of r1:r0 pairs, and if so skip to second register
+	/* Check for any occurence of r1:r0 pairs, and if so skip to second register */
 	second_reg = strchr(data, ':');
 	if (second_reg != NULL)
 		data = second_reg + 1;
@@ -818,7 +815,7 @@ get_indirect(struct prog_info *pi, char *operand)
 }
 
 /* Return 1 if instruction name is supported by the current device,
-   0 if unsupported, -1 if it is invalid */
+ * 0 if unsupported, -1 if it is invalid */
 int
 is_supported(struct prog_info *pi, char *name)
 {

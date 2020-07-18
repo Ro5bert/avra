@@ -25,9 +25,6 @@
  *     www: https://github.com/Ro5bert/avra
  */
 
-// Modified at line 252 to print out DW value in list file by
-// davidrjburke@hotmail.com 11 Nov 2005
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,7 +63,7 @@ enum {
 	DIRECTIVE_IFNDEF,
 	DIRECTIVE_IF,
 	DIRECTIVE_ELSE,
-	DIRECTIVE_ELSEIF,			/* B.A. : The Atmel AVR Assembler version 1.71 and later use ELSEIF and not ELIF */
+	DIRECTIVE_ELSEIF,			/* The Atmel AVR Assembler version 1.71 and later use ELSEIF and not ELIF */
 	DIRECTIVE_ELIF,
 	DIRECTIVE_ENDIF,
 	DIRECTIVE_MESSAGE,
@@ -106,7 +103,7 @@ static const char *const directive_list[] = {
 	"IFNDEF",
 	"IF",
 	"ELSE",
-	"ELSEIF",		/* B.A. : The Atmel AVR Assembler version 1.71 and later use ELSEIF and not ELIF */
+	"ELSEIF",		/* The Atmel AVR Assembler version 1.71 and later use ELSEIF and not ELIF */
 	"ELIF",
 	"ENDIF",
 	"MESSAGE",
@@ -136,7 +133,7 @@ static const char *const overlap_value[] = {
 	NULL
 };
 
-// caller has to free result
+/* caller has to free result */
 static char *
 joinpaths(const char *dirname, const char *fname)
 {
@@ -211,7 +208,6 @@ parse_directive(struct prog_info *pi)
 			pi->list_line = NULL;
 		}
 		return (parse_db(pi, next));
-//			break;
 	/* Directive .def */
 	case DIRECTIVE_DEF:
 		if (!next) {
@@ -244,7 +240,7 @@ parse_directive(struct prog_info *pi)
 				return (True);
 			}
 		}
-		/* B.A.: Check, if symbol is already defined as a label or constant */
+		/* Check, if symbol is already defined as a label or constant */
 		if (pi->pass == PASS_2) {
 			if (get_label(pi,next,NULL))
 				print_msg(pi, MSGTYPE_WARNING, "Name '%s' is used for a register and a label", next);
@@ -278,17 +274,17 @@ parse_directive(struct prog_info *pi)
 			print_msg(pi, MSGTYPE_ERROR, ".DEVICE needs an operand");
 			return (True);
 		}
-		if (pi->device->name != NULL) { /* B.A.: Check for multiple device definitions */
+		if (pi->device->name != NULL) { /* Check for multiple device definitions */
 			print_msg(pi, MSGTYPE_ERROR, "More than one .DEVICE definition");
 		}
 		if (pi->cseg->count || pi->dseg->count || pi->eseg->count) {
-			/* B.A.: Check if something was already assembled */
+			/* Check if something was already assembled */
 			print_msg(pi, MSGTYPE_ERROR, ".DEVICE definition must be before any code lines");
 		} else {
 			if ((pi->cseg->addr != pi->cseg->lo_addr)
 			        || (pi->dseg->addr != pi->dseg->lo_addr)
 			        || (pi->eseg->addr != pi->eseg->lo_addr)) {
-				/* B.A.: Check if something was already assembled */
+				/* Check if something was already assembled */
 				print_msg(pi, MSGTYPE_ERROR, ".DEVICE definition must be before any .ORG directive");
 			}
 		}
@@ -297,7 +293,7 @@ parse_directive(struct prog_info *pi)
 		pi->device = get_device(pi,next);
 		if (!pi->device) {
 			print_msg(pi, MSGTYPE_ERROR, "Unknown device: %s", next);
-			pi->device = get_device(pi,NULL); /* B.A.: Fix segmentation fault if device is unknown */
+			pi->device = get_device(pi,NULL); /* Fix segmentation fault if device is unknown */
 		}
 
 		/* Now that we know the device type, we can
@@ -305,10 +301,6 @@ parse_directive(struct prog_info *pi)
 		 */
 		fix_orglist(pi->segment);
 
-		/* B.A. 07/2020: Bug in 1.4.1. Buggy code when SRAM start != 0x60.
-		 * Used not updated pi->dseg->lo_addr variable instead of
-		 * device->ram_start */
-		/* rewind_segments(pi);  */
 		init_segment_size(pi, pi->device); 	/* Resync. ...->lo_addr variables */
 		def_orglist(pi->segment);
 		break;
@@ -376,7 +368,7 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		if (test_variable(pi,next,"%s have already been defined as a .SET variable")!=NULL)
 			return (True);
-		/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
+		/* Forward references allowed. But check, if everything is ok ... */
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,next,"Can't redefine constant %s, use .SET instead")!=NULL)
 				return (True);
@@ -409,7 +401,6 @@ parse_directive(struct prog_info *pi)
 	case DIRECTIVE_EXIT:
 		pi->fi->exit_file = True;
 		break;
-	/*** .include ***/
 	case DIRECTIVE_INCLUDE:
 		if (!next) {
 			print_msg(pi, MSGTYPE_ERROR, "Nothing to include");
@@ -420,7 +411,7 @@ parse_directive(struct prog_info *pi)
 			fprintf(pi->list_file, "          %s\n", pi->list_line);
 			pi->list_line = NULL;
 		}
-		// Test if include is in local directory
+		/* Test if include is in local directory */
 		ok = test_include(next);
 		data = NULL;
 		if (!ok) {
@@ -449,7 +440,6 @@ parse_directive(struct prog_info *pi)
 		if (data)
 			free(data);
 		break;
-	/*** .includepath ***/
 	case DIRECTIVE_INCLUDEPATH:
 		if (!next) {
 			print_msg(pi, MSGTYPE_ERROR, ".INCLUDEPATH needs an operand");
@@ -492,7 +482,6 @@ parse_directive(struct prog_info *pi)
 		break;
 	case DIRECTIVE_MACRO:
 		return (read_macro(pi, next));
-//			break;
 	case DIRECTIVE_NOLIST:
 		if (pi->pass == PASS_2)
 			pi->list_on = False;
@@ -534,7 +523,6 @@ parse_directive(struct prog_info *pi)
 		if (test_constant(pi,next,"%s have already been defined as a .EQU constant")!=NULL)
 			return (True);
 		return (def_var(pi, next, i));
-//			break;
 	case DIRECTIVE_DEFINE:
 		if (!next) {
 			print_msg(pi, MSGTYPE_ERROR, ".DEFINE needs an operand");
@@ -551,7 +539,7 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		if (test_variable(pi,next,"%s have already been defined as a .SET variable")!=NULL)
 			return (True);
-		/* B.A. : New. Forward references allowed. But check, if everything is ok ... */
+		/* Forward references allowed. But check, if everything is ok ... */
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,next,"Can't redefine constant %s, use .SET instead")!=NULL)
 				return (True);
@@ -632,7 +620,7 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		}
 		break;
-	case DIRECTIVE_UNDEF: // TODO
+	case DIRECTIVE_UNDEF: /* TODO */
 		break;
 	case DIRECTIVE_IFDEF:
 		if (!next) {
@@ -640,14 +628,13 @@ parse_directive(struct prog_info *pi)
 			return True;
 		}
 		get_next_token(next, TERM_END);
-		/* B.A. : Forward reference is not allowed for ifdef and ifndef */
-		// Store location of ifdef (line number and file number) if the condition
-		// fails on pass 1 so that we do not reinterpret it as succeeding on pass 2.
+		/* Store location of ifdef (line number and file number) if the condition
+		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
 		if ((pi->pass==PASS_1 && get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
-				// Blacklist this ifdef.
+				/* Blacklist this ifdef. */
 				if (!ifdef_blacklist(pi)) {
 					return False;
 				}
@@ -663,14 +650,13 @@ parse_directive(struct prog_info *pi)
 			return True;
 		}
 		get_next_token(next, TERM_END);
-		/* B.A. : Forward reference is not allowed for ifdef and ifndef */
-		// Store location of ifndef (line number and file number) if the condition
-		// fails on pass 1 so that we do not reinterpret it as succeeding on pass 2.
+		/* Store location of ifndef (line number and file number) if the condition
+		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
 		if ((pi->pass==PASS_1 && !get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
-				// Blacklist this ifndef.
+				/* Blacklist this ifndef. */
 				if (!ifndef_blacklist(pi)) {
 					return False;
 				}
@@ -714,9 +700,8 @@ parse_directive(struct prog_info *pi)
 			print_msg(pi, MSGTYPE_ERROR, "No message parameter supplied");
 			return (True);
 		}
-		/* B.A : Extended .MESSAGE. Now a comma separated list like in .db is possible and not only a string */
-		print_msg(pi, MSGTYPE_MESSAGE_NO_LF, NULL); 	/* Prints Line Header (filename, linenumber) without trailing /n */
-		while (next) { 	/* Modified code from parse_db(). Thank you :-) */
+		print_msg(pi, MSGTYPE_MESSAGE_NO_LF, NULL); 	/* Prints Line Header (filename, linenumber) without trailing \n */
+		while (next) {
 			data = get_next_token(next, TERM_COMMA);
 			if (next[0] == '\"') { 	/* string parsing */
 				next = term_string(pi, next);
@@ -746,7 +731,7 @@ parse_directive(struct prog_info *pi)
 		print_msg(pi, MSGTYPE_WARNING, next);
 		break;
 	case DIRECTIVE_ERROR:
-		if (!next) { /* B.A : Fix segfault bug if .error without parameter was used */
+		if (!next) {
 			print_msg(pi, MSGTYPE_ERROR, "No error string supplied");
 			return (True);
 		}
@@ -826,9 +811,9 @@ parse_db(struct prog_info *pi, char *next)
 				count++;
 				write_db(pi, *next, &prev, count);
 				if (pi->pass == PASS_2 && pi->list_on)
-					fprintf(pi->list_file, "%02X", (unsigned char)*next);	// B.A.: Patch for chars with bit 7 = 1 (Example: °)
+					fprintf(pi->list_file, "%02X", (unsigned char)*next);
 				if ((unsigned char)*next > 127 && pi->pass == PASS_2)
-					print_msg(pi, MSGTYPE_WARNING, "Found .DB string with characters > code 127. Be careful !"); // B.A.: Print warning for codes > 127
+					print_msg(pi, MSGTYPE_WARNING, "Found .DB string with characters > code 127. Be careful !"); /* Print warning for codes > 127 */
 				next++;
 			}
 		} else {
@@ -946,7 +931,6 @@ check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int *do
 				return (True);
 			(*current_depth)--;
 		} else if (!only_endif && (*current_depth == 0)) {
-			/* B.A.  : Add ELSEIF  =  ELIF */
 			if ((!nocase_strncmp(&linebuff[i], "else", 4)) && (nocase_strncmp(&linebuff[i], "elseif", 6))) {
 				pi->conditional_depth++;
 				return (True);

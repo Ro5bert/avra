@@ -25,13 +25,6 @@
  *     www: https://github.com/Ro5bert/avra
  */
 
-/*
- * SourceForge.net: Detail:713798 Strings are not always correctly handled
- * Change made by JEG 5-01-03
- *
- * global keyword is now .global to match common sytnax. TW 10-11-05
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,20 +44,18 @@ fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 	int c;
 	char *ptr=s;
 	do {
-		if ((c=fgetc(stream))==EOF || IS_ENDLINE(c)) 	// Terminate at chr$ 10,12,13,0 and EOF
+		if ((c=fgetc(stream))==EOF || IS_ENDLINE(c)) 	/* Terminate at chr$ 10,12,13,0 and EOF */
 			break;
-		/*
-		** concatenate lines terminated with \ only...
-		*/
+		/* concatenate lines terminated with \ only... */
 		if (c == '\\') {
 			/* only newline and cr may follow... */
 			if ((c=fgetc(stream))==EOF)
 				break;
 
-			if (!IS_ENDLINE(c)) {           // Terminate at chr$ 10,12,13,0 and EOF
-				*ptr++ = '\\';              // no concatenation, insert it
+			if (!IS_ENDLINE(c)) {           /* Terminate at chr$ 10,12,13,0 and EOF */
+				*ptr++ = '\\';              /* no concatenation, insert it */
 			} else {
-				// mit be additional LF (DOS)
+				/* mit be additional LF (DOS) */
 				c=fgetc(stream);
 				if (IS_ENDLINE(c))
 					c=fgetc(stream);
@@ -76,16 +67,16 @@ fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 
 		*ptr++=c;
 	} while (--size);
-	if ((c==EOF) && (ptr==s))				// EOF and no chars read -> that's all folks
+	if ((c==EOF) && (ptr==s))				/* EOF and no chars read -> that's all folks */
 		return NULL;
 	if (!size) {
 		print_msg(pi, MSGTYPE_ERROR, "Line too long");
 		return NULL;
 	}
 	*ptr=0;
-	if (c==12)						// Check for Formfeed (Bug [1462886])
+	if (c==12)						/* Check for Formfeed */
 		print_msg(pi, MSGTYPE_WARNING, "Found Formfeed char. Please remove it.");
-	if (c==13) { 						// Check for CR LF sequence (DOS/ Windows line termination)
+	if (c==13) { 						/* Check for CR LF sequence (DOS/ Windows line termination) */
 		if ((c=fgetc(stream)) != 10) {
 			ungetc(c,stream);
 		}
@@ -94,10 +85,7 @@ fgets_new(struct prog_info *pi, char *s, int size, FILE *stream)
 }
 
 
-/*
- * Parses given assembler file
- */
-
+/* Parse given assembler file. */
 int
 parse_file(struct prog_info *pi, const char *filename)
 {
@@ -135,7 +123,7 @@ parse_file(struct prog_info *pi, const char *filename)
 			return (False);
 		}
 		strcpy(include_file->name, filename);
-	} else { // PASS 2
+	} else { /* PASS 2 */
 		for (include_file = pi->first_include_file; include_file; include_file = include_file->next) {
 			if (!strcmp(include_file->name, filename))
 				break;
@@ -189,16 +177,7 @@ parse_file(struct prog_info *pi, const char *filename)
 	return (ok);
 }
 
-
-/****************************************************************************
- *
- * function parse_line
- *
- * Parses one line
- *
- ****************************************************************************/
-
-
+/* Parse one line. */
 int
 parse_line(struct prog_info *pi, char *line)
 {
@@ -261,9 +240,6 @@ parse_line(struct prog_info *pi, char *line)
 		}
 	}
 
-//	if(pi->pass == PASS_2)		// TODO : Test
-//		strcpy(pi->list_line, line);
-
 	strcpy(pi->fi->scratch,line);
 
 	for (i = 0; IS_LABEL(pi->fi->scratch[i]) || (pi->fi->scratch[i] == ':'); i++)
@@ -315,7 +291,7 @@ parse_line(struct prog_info *pi, char *line)
 			i++;
 			while (IS_HOR_SPACE(pi->fi->scratch[i]) && !IS_END_OR_COMMENT(pi->fi->scratch[i])) i++;
 			if (IS_END_OR_COMMENT(pi->fi->scratch[i])) {
-				if ((pi->pass == PASS_2) && pi->list_on) { // Diff tilpassing
+				if ((pi->pass == PASS_2) && pi->list_on) { /* Diff tilpassing */
 					fprintf(pi->list_file, "          %s\n", pi->list_line);
 					pi->list_line = NULL;
 				}
@@ -332,7 +308,7 @@ parse_line(struct prog_info *pi, char *line)
 #endif
 		pi->fi->label = label;
 		flag = parse_directive(pi);
-		if ((pi->pass == PASS_2) && pi->list_on && pi->list_line) { // Diff tilpassing
+		if ((pi->pass == PASS_2) && pi->list_on && pi->list_line) { /* Diff tilpassing */
 			fprintf(pi->list_file, "          %s\n", pi->list_line);
 			pi->list_line = NULL;
 		}
@@ -343,11 +319,8 @@ parse_line(struct prog_info *pi, char *line)
 }
 
 
-/*
- * Get the next token, and terminate the last one.
- * Termination identifier is specified.
- */
-
+/* Get the next token, and terminate the last one.
+ * Termination identifier is specified. */
 char *
 get_next_token(char *data, int term)
 {
@@ -356,7 +329,7 @@ get_next_token(char *data, int term)
 	switch (term) {
 	case TERM_END:
 		/* Skip to next comma or EOL or start of comment, taking into account
-		the possibility for ',' or ';' to be inside quotes. */
+		 * the possibility for ',' or ';' to be inside quotes. */
 		while (((data[i] != ',') || anti_comma) && ((data[i] != ';') || anti_comma) && !IS_ENDLINE(data[i]))  {
 			if ((data[i] == '\'') || (data[i] == '"'))
 				anti_comma = anti_comma ? False : True;
@@ -381,7 +354,7 @@ get_next_token(char *data, int term)
 		break;
 	case TERM_COMMA:
 		/* Skip to next comma or EOL or start of comment, taking into account
-		the possibility for ',' or ';' to be inside quotes. */
+		 * the possibility for ',' or ';' to be inside quotes. */
 		while (((data[i] != ',') || anti_comma) && ((data[i] != ';') || anti_comma) && !IS_ENDLINE(data[i])) {
 			if ((data[i] == '\'') || (data[i] == '"'))
 				anti_comma = anti_comma ? False : True;
@@ -398,7 +371,7 @@ get_next_token(char *data, int term)
 		/* Null-out the EOL/start of comment. */
 		data[i--] = '\0';
 		/* Null-out everything until the first non-horizontal whitespace
-		character. */
+		 * character. */
 		while (IS_HOR_SPACE(data[i])) data[i--] = '\0';
 		return (0);
 	}
@@ -413,7 +386,7 @@ get_next_token(char *data, int term)
 	if (IS_END_OR_COMMENT(data[i]))
 		return (0);
 	/* i should now be the index of the first non-whitespace character after
-	the terminator. */
+	 * the terminator. */
 	return (&data[i]);
 }
 
