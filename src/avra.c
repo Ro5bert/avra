@@ -41,19 +41,7 @@
 #define VERSION "undefined"
 #endif
 
-const char *title =
-    "AVRA: advanced AVR macro assembler Version %s\n"
-    "Copyright (C) 1998-2020. Check out README file for more info\n"
-    "\n"
-    "   AVRA is an open source assembler for Atmel AVR microcontroller family\n"
-    "   It can be used as a replacement of 'AVRASM32.EXE' the original assembler\n"
-    "   shipped with AVR Studio. We do not guarantee full compatibility for AVRA.\n"
-    "\n"
-    "   AVRA comes with NO WARRANTY, to the extent permitted by law.\n"
-    "   You may redistribute copies of AVRA under the terms\n"
-    "   of the GNU General Public License.\n"
-    "   For more information about these matters, see the files named COPYING.\n"
-    "\n";
+const char *title = "AVRA: advanced AVR macro assembler (version %s)\n";
 
 const char *usage =
     "usage: avra [-f][O|M|I|G] output file type\n"
