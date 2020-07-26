@@ -1,39 +1,28 @@
-#********************************************************************
-# Makefile for mingw32-gcc
-#********************************************************************
-CC = i686-pc-mingw32-gcc
-LD = i686-pc-mingw32-gcc -static
-CFLAGS = -Wall -O3
-LDFLAGS = -s
+CC ?= i686-pc-mingw32-gcc
+CFLAGS ?= -Wall -O3
+CFLAGS += $(CDEFS)
+LDFLAGS ?= -s -static
 
-SOURCES = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c
+SOURCES = avra.c \
+	device.c \
+	parser.c \
+	expr.c \
+	mnemonic.c \
+	directiv.c \
+	macro.c \
+	file.c \
+	map.c \
+	coff.c \
+	args.c \
+	stdextra.c
 
 OBJECTS = $(SOURCES:.c=.o)
 
-OBJ_ALL = $(OBJECTS) args.o stdextra.o
-
-DISTFILES = *.c *.h README ChangeLog Makefile.* COPYING avra.1 avra.txt strip-headers TODO
-
-ARCHFILES = $(DISTFILES)
-
-BINFILES = avra README ChangeLog COPYING avra.1 avra.txt
-
-VERSION = 1.1.0
-
-#********************************************************************
-
-all: avra
-
-install: avra
-	cp avra /usr/local/bin
-	cp avra.1 /usr/local/man/man1
-	chmod +r /usr/local/man/man1/avra.1
+avra: $(OBJECTS)
+	$(CC) -o avra.exe $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -f avra.exe *.o *.p *~
-
-avra: $(OBJ_ALL)
-	$(LD) -o avra.exe $(OBJ_ALL) $(LDFLAGS)
 
 args.o: args.c misc.h args.h
 avra.o: avra.c misc.h args.h avra.h device.h
@@ -46,28 +35,3 @@ mnemonic.o: mnemonic.c misc.h avra.h device.h
 parser.o: parser.c misc.h avra.h
 stdextra.o: stdextra.c misc.h
 coff.o: coff.c coff.h
-
-avra.txt: avra.1
-	groff -man -Tascii avra.1 | ./strip-headers | col -bx > avra.txt
-
-#********************************************************************
-
-disk: archive
-	mcopy -ovm avra.tar.gz a:avra.tgz
-
-archive: avra.tar.gz
-
-avra.tar.gz: $(ARCHFILES)
-	tar cvf avra.tar $(ARCHFILES)
-	gzip -9 -f avra.tar
-
-dist: avra-$(VERSION).tar.gz
-
-avra-$(VERSION).tar.gz: $(DISTFILES)
-	mkdir avra-$(VERSION)
-	cp $(DISTFILES) avra-$(VERSION)/
-	tar cvf avra-$(VERSION).tar avra-$(VERSION)/*
-	gzip -9 -f avra-$(VERSION).tar
-	rm -r avra-$(VERSION)
-
-#********************************************************************
