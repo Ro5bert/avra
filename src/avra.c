@@ -37,10 +37,6 @@
 
 #define debug 0
 
-#ifndef VERSION
-#define VERSION "undefined"
-#endif
-
 const char *title = "AVRA: advanced AVR macro assembler (version %s)\n";
 
 const char *usage =

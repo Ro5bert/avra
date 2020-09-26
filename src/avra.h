@@ -37,6 +37,10 @@
 #define IS_ENDLINE(x)	((x == 10) || (x == 13) || (x == '\0') || (x == 12))
 #define IS_SEPARATOR(x)	((x == ' ') || (x == ',') || (x == '[') || (x == ']'))
 
+#ifndef VERSION
+#define VERSION "undefined"
+#endif
+
 #define LINEBUFFER_LENGTH 4096
 #define MAX_NESTED_MACROLOOPS 256
 
