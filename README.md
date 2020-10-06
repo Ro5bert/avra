@@ -52,8 +52,6 @@ used to generate customer specific serial numbers.
 
 It should be possible to compile AVRA on most system platforms.
 If you have problems compiling AVRA, please open an issue in the tracker.
-<br>To compile in Windows with MS Visual Studio 2019 you will need additional files, 
-<a href="https://gist.github.com/hack-tramp/b19b7675670bb5463bb763c602b5bc05">please see here </a>
 
 ## History
 
@@ -77,6 +75,10 @@ toolchain. If that doesn't work for you, look at the available platforms
 available in `src/makefiles` and override `OS` when you call `make`. Note that
 those platforms aren't all well tested. Please open an issue in the tracker if
 you notice a platform not working.
+
+To compile in Windows with MS Visual Studio 2019, you will need additional
+files. Please see
+[here](https://gist.github.com/hack-tramp/b19b7675670bb5463bb763c602b5bc05).
 
 ## Usage
 
