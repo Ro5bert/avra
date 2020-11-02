@@ -3,8 +3,40 @@ TODO
   - LDS and STS instructions don't address I/O
   - ATmega8 CALL instruction is bogus
   - recursion - sigsegv
-  - Conditional assembly with forward referenced label on .DW directive generates incorrect code
+  - Conditional assembly with forward referenced label on .DW directive
+    generates incorrect code
   - AVRA complains about "((str_start_%)<<1)" beeing invalid
   - if last line in include is a remark line, it is written twice in the listing
   - Printing of diagnostic messages with hexademical numbers is inconsistent
     (some are %x; others %X)
+  - Args handling is overcomplicated. Use something along the lines of
+    suckless.org args.h instead.
+  - mneumonic.c is a giant if-elseif-elseif-... mess. It would be cleaner to
+    have one function for each instruction/group of similar instructions and
+	store function pointers in the instruction table. (Same thing with
+	directives.)
+  - Rethink how device flags are handled? I.e., how we determine which devices
+    have which capabilities. Current solution is error prone (I've seen
+	multiple cases where devices have wrong flags) and messy. Maybe look to
+	gcc-avr for this, which seems to get most of the way by just classifying
+	devices into 16 sub-architechtures. Another idea that would yield the most
+	flexibility is to associate ~20 bytes with each device, where each bit
+	corresponds to whether a device has a particular instruction. We could then
+	predefine sets of instructions corresponding to each subarchitecture, while
+	still allowing individual instructions to be removed on a device-by-device
+	basis, without using much memory.
+  - Add a true C preprocessor, like AVRASM. Or, simpler, recommend the use of
+    an external preprocessor and give a warning whenever assembler directives
+	are used with the '#directive' syntax, since it confusingly makes it look
+	like a C preprocessor directive.
+  - My general impression of the lexical analysis code is that it is too
+    tightly integrated with everything else. It would be cleaner to have more
+	of a separation, but this is a little vague and requires investigation.
+  - Ifdef/ifndef storing file/line number is kinda hacky. Do something better.
+  - Some of the OS-specific makefiles look old and are probably broken.
+    Test and fix them.
+  - Establish code style and enforce it throughout (i.e., trivial things like
+    brace placement).
+  - Since we now use C99 instead of ANSI C, we can use stdbool.h instead of
+    custom bool type.
+
