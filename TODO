@@ -39,4 +39,7 @@ TODO
     brace placement).
   - Since we now use C99 instead of ANSI C, we can use stdbool.h instead of
     custom bool type.
+  - Don't always use unistd.h. It's only used for unlink, so it should be
+    fairly easy to just add some ifdefs to make it work on POSIX systems and
+    Windows.
 
