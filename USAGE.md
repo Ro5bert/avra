@@ -199,7 +199,7 @@ Now we can use macros to simplify subtraction with 16 bit values:
 	subs [a:b,c]
 
 Note that we have essentially overloaded the `subs` macro to accept arguments
-of different types, just like you could do in C, for example.
+of different types.
 Another example of macro overloading follows.
 
 	.macro load
