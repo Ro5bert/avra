@@ -293,6 +293,8 @@ parse_directive(struct prog_info *pi)
 		pi->device = get_device(pi,next);
 		if (!pi->device) {
 			print_msg(pi, MSGTYPE_ERROR, "Unknown device: %s", next);
+			/* TODO this is silly, should just abort here (with diagnostics
+			 * and cleanup) (it is an error, after all) */
 			pi->device = get_device(pi,NULL); /* Fix segmentation fault if device is unknown */
 		}
 

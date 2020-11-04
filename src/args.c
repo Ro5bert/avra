@@ -135,6 +135,7 @@ read_args(struct args *args, int argc, const char *argv[])
 		if (argv[i][0] == '-') {
 			last_data = &args->first_data;
 			if (argv[i][1] == 0) {
+				/* TODO this should read from stdin */
 				printf("Error: Unknown option: -\n");
 				ok = False;
 			} else if (argv[i][1] == '-') {

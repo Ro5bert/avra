@@ -74,6 +74,7 @@ const struct dataset overlap_choice[4] = {
 
 const int SEG_BSS_DATA = 0x01;
 
+/* TODO wtf? why are these global if we're passing around the pi */
 static struct prog_info PROG_INFO;
 static struct segment_info CODE_SEG;
 static struct segment_info DATA_SEG;
@@ -120,6 +121,9 @@ main(int argc, const char *argv[])
 
 		c = read_args(args, argc, argv);
 
+		/* TODO what's this code do? I can't tell it's off the right margin...
+		 * these error checks should be inverted, same goes for a lot of other
+		 * code */
 		if (c != 0) {
 			if (!GET_ARG_I(args, ARG_HELP) && (argc != 1))	{
 				if (!GET_ARG_I(args, ARG_VER)) {
@@ -145,6 +149,8 @@ main(int argc, const char *argv[])
 		printf("\n");
 	}
 	if (show_usage) {
+		/* TODO #define INCLUDE_PATH instead of using #ifdef ... #else ...
+		 * everytime we need it (currently only in 2 places) */
 #ifdef DEFAULT_INCLUDE_PATH
 		printf(usage, DEFAULT_INCLUDE_PATH);
 #else
@@ -226,6 +232,10 @@ assemble(struct prog_info *pi)
 				                   GET_ARG_P(pi->args, ARG_EEPFILE));
 				if (c != 0) {
 					printf("Pass 2...\n");
+					/* TODO we reparse the entire file? kinda ugly. having some
+					 * internal rep would be cleaner and probably help
+					 * eliminate all the ugly if (pass==1) ... else ...
+					 * checks. */
 					parse_file(pi, pi->args->first_data->data);
 					printf("done\n\n");
 					if (pi->list_file)
@@ -290,6 +300,7 @@ load_arg_defines(struct prog_info *pi)
 				fprintf(stderr,"Constant %s is missing in pass 2\n",buff);
 				return (False);
 			}
+			/* TODO how can a *constant* change value? */
 			if (i != j) {
 				fprintf(stderr,"Constant %s changed value from %d in pass1 to %d in pass 2\n",buff,j,i);
 				return (False);
@@ -329,15 +340,15 @@ init_prog_info(struct prog_info *pi, struct args *args)
 {
 	struct data_list *warnings;
 
-	memset(pi, 0, sizeof(struct prog_info));
+	memset(pi, 0, sizeof(struct prog_info)); /* TODO does nothing: pi is static */
 	pi->args = args;
 	pi->device = get_device(pi,NULL);
-	if (GET_ARG_P(args, ARG_LISTFILE) == NULL) {
+	if (GET_ARG_P(args, ARG_LISTFILE) == NULL) { /* TODO just set directly */
 		pi->list_on = False;
 	} else {
 		pi->list_on = True;
 	}
-	if (GET_ARG_P(args, ARG_MAPFILE) == NULL) {
+	if (GET_ARG_P(args, ARG_MAPFILE) == NULL) { /* TODO ditto */
 		pi->map_on = False;
 	} else {
 		pi->map_on = True;
@@ -350,7 +361,7 @@ init_prog_info(struct prog_info *pi, struct args *args)
 	pi->cseg = &CODE_SEG;
 	pi->dseg = &DATA_SEG;
 	pi->eseg = &EEPROM_SEG;
-	memset(pi->cseg, 0, sizeof(struct segment_info));
+	memset(pi->cseg, 0, sizeof(struct segment_info)); /* TODO again, pointless */
 	memset(pi->dseg, 0, sizeof(struct segment_info));
 	memset(pi->eseg, 0, sizeof(struct segment_info));
 
@@ -363,7 +374,7 @@ init_prog_info(struct prog_info *pi, struct args *args)
 
 	pi->dseg->flags = SEG_BSS_DATA;
 
-	pi->cseg->cellname = "word";
+	pi->cseg->cellname = "word"; /* TODO this is awkward... */
 	pi->dseg->cellname = "byte";
 	pi->eseg->cellname = "byte";
 	pi->cseg->cellnames = "words";
@@ -372,7 +383,7 @@ init_prog_info(struct prog_info *pi, struct args *args)
 
 	init_segment_size(pi, pi->device);
 
-	pi->cseg->pi = pi;
+	pi->cseg->pi = pi; /* TODO ugly recursive ptrs */
 	pi->dseg->pi = pi;
 	pi->eseg->pi = pi;
 
@@ -541,6 +552,7 @@ def_orglist(struct segment_info *si)
 }
 
 /* Fill length entry of last orglist */
+/* TODO why not just insert the org node AFTER we know its length? */
 int
 fix_orglist(struct segment_info *si)
 {
@@ -591,6 +603,9 @@ fprint_segments(FILE *file, struct prog_info *pi)
 }
 
 /* Test for overlapping segments and device space */
+/* TODO what a mess. How about we do a sorted insert when ever there's a new
+ * org node, and check immediately that no overlaps occur? Then this function
+ * isn't even needed. */
 int
 test_orglist(struct segment_info *si)
 {
@@ -703,6 +718,9 @@ struct label *search_symbol(struct prog_info *pi,struct label *first,char *name,
 	for (label = first; label; label = label->next)
 		if (!nocase_strcmp(label->name, name)) {
 			if (message) {
+				/* TODO why are we doing this here? diagnostics should all be
+				 * handled in one place, not scattered throughout internal
+				 * code. */
 				print_msg(pi, MSGTYPE_ERROR, message, name);
 			}
 			return (label);

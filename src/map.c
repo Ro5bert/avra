@@ -69,6 +69,7 @@ Space(char *n)
 	int i;
 
 	i = strlen(n);
+	/* TODO assuming tab size... bad, use printf field widths instead */
 	if (i < 1) return "\t\t\t";
 	if (i < 8) return "\t\t";
 	return "\t";

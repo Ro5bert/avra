@@ -50,6 +50,8 @@
  * consistent source of bugs when new devices are added. */
 struct device device_list[] = {
 	/* Default device */
+	/* TODO why not make the name DEF_DEV_NAME instead of NULL, and pass
+	 * DEF_DEV_NAME to get_device instead of NULL */
 	{NULL, 4194304, 0x60, 8388608, 65536, 0}, /* Total instructions: 137 */
 
 	/* ATtiny Series */
@@ -148,6 +150,7 @@ struct device device_list[] = {
 	{NULL, 0, 0, 0, 0}
 };
 
+/* TODO this is silly. this is only used to pass arg to def_dev */
 static int LastDevice=0;
 
 /* Define vars for device in LastDevice. */
@@ -199,6 +202,11 @@ predef_dev(struct prog_info *pi)
 				fprintf(stderr,"Error: Can't define symbol %s twice. Please don't use predefined symbols !\n", temp);
 				return (False);
 			}
+			/* TODO so we are defining devices to be their index in the device
+			 * list... what? this makes no sense. Shouldn't we define
+			 * __ATxxx__ only if that device is in use? Or is the intention
+			 * that we compare __DEVICE__ to __ATxxx__ to check current
+			 * device? */
 			if (def_const(pi, temp, i)==False)
 				return (False);
 		} else { /* Pass 2 */

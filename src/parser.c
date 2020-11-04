@@ -196,6 +196,7 @@ parse_line(struct prog_info *pi, char *line)
 	/* Filter out .stab debugging information */
 	/* .stabs sometimes contains colon : symbol - might be interpreted as label */
 	if (*line == '.') {					/* minimal slowdown of existing code */
+		/* TODO temp contains garbage!!! what is this check for??? */
 		if (strncmp(temp,".stabs ",7) == 0) {		/* compiler output is always lower case */
 			strcpy(temp,line);			/* TODO : Do we need this temp variable ? Please check */
 			return parse_stabs(pi, temp);
@@ -242,6 +243,9 @@ parse_line(struct prog_info *pi, char *line)
 
 	strcpy(pi->fi->scratch,line);
 
+	/* TODO otherwise known as strchr(x, ':') ... */
+	/* TODO idk wtf is going on here but I'm sure it can be simpler, or at
+	 * least it shouldn't be inlined in parse_line */
 	for (i = 0; IS_LABEL(pi->fi->scratch[i]) || (pi->fi->scratch[i] == ':'); i++)
 		if (pi->fi->scratch[i] == ':') {	/* it is a label */
 			pi->fi->scratch[i] = '\0';
@@ -254,6 +258,10 @@ parse_line(struct prog_info *pi, char *line)
 						}
 					}
 				}
+				/* TODO using these test_xxx functions with a linked list as
+				 * our data structure for labels/consts/vars makes inserting
+				 * n labels/consts/vars take n^2 time. We really ought to use 
+				 * a hash map instead. */
 				if (test_label(pi,&pi->fi->scratch[0],"Can't redefine label %s")!=NULL)
 					break;
 				if (test_variable(pi,&pi->fi->scratch[0],"%s have already been defined as a .SET variable")!=NULL)
@@ -301,6 +309,8 @@ parse_line(struct prog_info *pi, char *line)
 			break;
 		}
 
+	/* TODO we should emit a warning for #directives, because they are
+	 * (confusingly) NOT C preprocessor directives */
 	if ((pi->fi->scratch[0] == '.') || (pi->fi->scratch[0] == '#')) {
 		pi->fi->label = label;
 		flag = parse_directive(pi);

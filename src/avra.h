@@ -148,7 +148,7 @@ struct prog_info {
 	int list_on;
 	int map_on;
 	char *list_line;
-	char *root_path;
+	char *root_path; /* TODO What is this for? Seems only used for print_msg. */
 	FILE *obj_file;
 	struct segment_info *segment;
 	struct segment_info *cseg;

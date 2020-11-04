@@ -34,7 +34,9 @@ TODO
     of a separation, but this is a little vague and requires investigation.
   - Ifdef/ifndef storing file/line number is kinda hacky. Do something better.
   - Some of the OS-specific makefiles look old and are probably broken.
-    Test and fix them.
+    Test and fix them. Or we could just change the build system to use a single
+	portable Makefile. Most of the Makefiles do pretty much the same thing,
+	anyway, and having multiple Makefiles makes maintainence more difficult.
   - Establish code style and enforce it throughout (i.e., trivial things like
     brace placement).
   - Since we now use C99 instead of ANSI C, we can use stdbool.h instead of
@@ -42,4 +44,6 @@ TODO
   - Don't always use unistd.h. It's only used for unlink, so it should be
     fairly easy to just add some ifdefs to make it work on POSIX systems and
     Windows.
+  - Write man page. There is one from the old 1.3.0 debian package that could
+    probably be adapted.
 

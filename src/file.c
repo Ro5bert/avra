@@ -129,6 +129,8 @@ unlink_out_files(struct prog_info *pi, const char *filename)
 		length -= 4;
 		buff[length] = '\0';
 	}
+	/* TODO (this applies else where too) we shouldn't assume the extension.
+	 * let the file output file name be closen as cli opt */
 	strcpy(&buff[length], ".hex");
 	unlink(buff);
 	strcpy(&buff[length], ".obj");
