@@ -11,6 +11,7 @@
 #define mapsize(m) (1<<(m)->nbits)
 #define mapmask(m) (mapsize(m)-1)
 #define mapidx(m, k) (strhash((unsigned char*) (k)) & mapmask(m))
+#define keyeq(a, b) ((a)[0] == (b)[0] && !strcmp((a), (b)))
 #define emptymapv ((struct mapv){ .type=MAPV_EMPTY_TYPE })
 
 /* This is the djb2 hash function. */
@@ -45,7 +46,7 @@ mapb_put(struct mapb *b, char *k, struct mapv v, bool growing)
 					if (growing)
 						goto done;
 				}
-			} else if (!strcmp(k, b->k[i])) { /* k already in table? */
+			} else if (keyeq(k, b->k[i])) { /* k already in table? */
 				b->v[i] = v;
 				return false;
 			}
@@ -77,7 +78,7 @@ mapb_get(struct mapb *b, char *k)
 
 	for (; b; b = b->ovf) {
 		for (i = 0; i < MAP_BUCKET_SIZE; i++) {
-			if (b->k[i] != 0 && !strcmp(k, b->k[i]))
+			if (b->k[i] != 0 && keyeq(k, b->k[i]))
 				return b->v[i];
 		}
 	}
@@ -91,7 +92,7 @@ mapb_del(struct mapb *b, char *k)
 
 	for (; b; b = b->ovf) {
 		for (i = 0; i < MAP_BUCKET_SIZE; i++) {
-			if (b->k[i] != 0 && !strcmp(k, b->k[i])) {
+			if (b->k[i] != 0 && keyeq(k, b->k[i])) {
 				free(b->k[i]);
 				b->k[i] = 0;
 				return true;
