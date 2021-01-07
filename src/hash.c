@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h> /* TODO: temp */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -14,7 +14,7 @@
 #define keyeq(a, b) ((a)[0] == (b)[0] && !strcmp((a), (b)))
 #define emptymapv ((struct mapv){ .type=MAPV_EMPTY_TYPE })
 
-/* This is the djb2 hash function. */
+/* Return a hash for str. This is the djb2 hash function. */
 static unsigned long
 strhash(unsigned char *str)
 {
@@ -27,6 +27,8 @@ strhash(unsigned char *str)
     return hash;
 }
 
+/* Put (k,v) into b, or one of b's overflow buckets, or allocate a new
+ * overflow bucket, if needed. */
 static bool
 mapb_put(struct mapb *b, char *k, struct mapv v, bool growing)
 {
@@ -71,6 +73,7 @@ done:
 	return true;
 }
 
+/* Get the value corresponding to k in b, or emptymapv if k is not in b. */
 static struct mapv
 mapb_get(struct mapb *b, char *k)
 {
@@ -85,6 +88,7 @@ mapb_get(struct mapb *b, char *k)
 	return emptymapv;
 }
 
+/* Delete k from b. Return true if and only if k was in b. */
 static bool
 mapb_del(struct mapb *b, char *k)
 {
@@ -102,6 +106,7 @@ mapb_del(struct mapb *b, char *k)
 	return false;
 }
 
+/* Free b's contained keys and overflow buckets. */
 static void
 mapb_free(struct mapb *b)
 {
@@ -122,6 +127,7 @@ mapb_free(struct mapb *b)
 	}
 }
 
+/* Double the size of m. */
 static void
 map_grow(struct map *m)
 {
@@ -164,6 +170,8 @@ map_grow(struct map *m)
 	m->bs = newbs;
 }
 
+/* Allocate a new map with space for at least cnt_hint elements before the
+ * map has to grow. The allocated map should be freed with map_free. */
 struct map *
 map_new(size_t cnt_hint)
 {
@@ -180,6 +188,7 @@ map_new(size_t cnt_hint)
 	return m;
 }
 
+/* Free all resources associated with m. */
 void
 map_free(struct map *m)
 {
@@ -191,26 +200,23 @@ map_free(struct map *m)
 	free(m);
 }
 
+/* Put (k,v) into m. */
 void
 map_put(struct map *m, char *k, struct mapv v)
 {
-	if (m->iters > 0) {
-		/* TODO: temp */
-		printf("concurrent iteration and map_put\n");
-		exit(1);
-	}
+	assert(m->iters == 0);
 	if (m->cnt >= MAP_LOAD_FACTOR*mapsize(m))
 		map_grow(m);
 	if (mapb_put(&m->bs[mapidx(m, k)], k, v, false))
 		m->cnt++;
 }
 
+/* Get the value corresponding to k in m, or emptymapv if k is not in m. */
 struct mapv
 map_get(struct map *m, char *k)
-{
-	return mapb_get(&m->bs[mapidx(m, k)], k);
-}
+{ return mapb_get(&m->bs[mapidx(m, k)], k); }
 
+/* Delete k from m. Return true if and only if k was in m. */
 bool
 map_del(struct map *m, char *k)
 {
@@ -222,6 +228,9 @@ map_del(struct map *m, char *k)
 	return deleted;
 }
 
+/* Initialize iter to iterate over (k,v) pairs in m. See mapi_next. New
+ * elements must not be inserted into m until mapi_free(iter) has been
+ * called. */
 void
 mapi_init(struct mapi *iter, struct map *m)
 {
@@ -234,6 +243,8 @@ mapi_init(struct mapi *iter, struct map *m)
 	m->iters++;
 }
 
+/* Returns true if and only if there is another (k,v) to iterate over,
+ * and sets iter->k and iter->v appropriately in that case. */
 bool
 mapi_next(struct mapi *iter)
 {
@@ -254,8 +265,10 @@ mapi_next(struct mapi *iter)
 	return false;
 }
 
+/* Free the resources associated with iter. */
 void
 mapi_free(struct mapi *iter)
 {
 	iter->m->iters--;
+	iter->m = 0; /* Make sure mapi_next now fails. */
 }
