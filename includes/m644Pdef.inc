@@ -1,15 +1,15 @@
 ;***** THIS IS A MACHINE GENERATED FILE - DO NOT EDIT ********************
-;***** Created: 2011-02-09 12:03 ******* Source: ATmega644.xml ***********
+;***** Created: 2011-02-09 12:03 ******* Source: ATmega644P.xml **********
 ;*************************************************************************
 ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
 ;* 
 ;* Number            : AVR000
-;* File Name         : "m644def.inc"
-;* Title             : Register/Bit Definitions for the ATmega644
+;* File Name         : "m644Pdef.inc"
+;* Title             : Register/Bit Definitions for the ATmega644P
 ;* Date              : 2011-02-09
 ;* Version           : 2.35
 ;* Support E-mail    : avr@atmel.com
-;* Target MCU        : ATmega644
+;* Target MCU        : ATmega644P
 ;* 
 ;* DESCRIPTION
 ;* When including this file in the assembly program file, all I/O register 
@@ -37,18 +37,18 @@
 ;* ...                         ;otherwise do something else
 ;*************************************************************************
 
-#ifndef _M644DEF_INC_
-#define _M644DEF_INC_
+#ifndef _M644PDEF_INC_
+#define _M644PDEF_INC_
 
 
 #pragma partinc 0
 
 ; ***** SPECIFY DEVICE ***************************************************
-.device ATmega644
-#pragma AVRPART ADMIN PART_NAME ATmega644
+.device ATmega644P
+#pragma AVRPART ADMIN PART_NAME ATmega644P
 .equ	SIGNATURE_000	= 0x1e
 .equ	SIGNATURE_001	= 0x96
-.equ	SIGNATURE_002	= 0x09
+.equ	SIGNATURE_002	= 0x0a
 
 #pragma AVRPART CORE CORE_VERSION V2E
 
@@ -57,6 +57,12 @@
 ; NOTE:
 ; Definitions marked "MEMORY MAPPED"are extended I/O ports
 ; and cannot be used with IN/OUT instructions
+.equ	UDR1	= 0xce	; MEMORY MAPPED
+.equ	UBRR1L	= 0xcc	; MEMORY MAPPED
+.equ	UBRR1H	= 0xcd	; MEMORY MAPPED
+.equ	UCSR1C	= 0xca	; MEMORY MAPPED
+.equ	UCSR1B	= 0xc9	; MEMORY MAPPED
+.equ	UCSR1A	= 0xc8	; MEMORY MAPPED
 .equ	UDR0	= 0xc6	; MEMORY MAPPED
 .equ	UBRR0L	= 0xc4	; MEMORY MAPPED
 .equ	UBRR0H	= 0xc5	; MEMORY MAPPED
@@ -103,7 +109,7 @@
 .equ	EICRA	= 0x69	; MEMORY MAPPED
 .equ	PCICR	= 0x68	; MEMORY MAPPED
 .equ	OSCCAL	= 0x66	; MEMORY MAPPED
-.equ	PRR	= 0x64	; MEMORY MAPPED
+.equ	PRR0	= 0x64	; MEMORY MAPPED
 .equ	CLKPR	= 0x61	; MEMORY MAPPED
 .equ	WDTCSR	= 0x60	; MEMORY MAPPED
 .equ	SREG	= 0x3f
@@ -843,31 +849,64 @@
 .equ	TWA6	= 7	; TWI (Slave) Address register Bit 6
 
 
-; ***** SPI **************************
-; SPDR - SPI Data Register
-.equ	SPDR0	= 0	; SPI Data Register bit 0
-.equ	SPDR1	= 1	; SPI Data Register bit 1
-.equ	SPDR2	= 2	; SPI Data Register bit 2
-.equ	SPDR3	= 3	; SPI Data Register bit 3
-.equ	SPDR4	= 4	; SPI Data Register bit 4
-.equ	SPDR5	= 5	; SPI Data Register bit 5
-.equ	SPDR6	= 6	; SPI Data Register bit 6
-.equ	SPDR7	= 7	; SPI Data Register bit 7
+; ***** USART1 ***********************
+; UDR1 - USART I/O Data Register
+.equ	UDR1_0	= 0	; USART I/O Data Register bit 0
+.equ	UDR1_1	= 1	; USART I/O Data Register bit 1
+.equ	UDR1_2	= 2	; USART I/O Data Register bit 2
+.equ	UDR1_3	= 3	; USART I/O Data Register bit 3
+.equ	UDR1_4	= 4	; USART I/O Data Register bit 4
+.equ	UDR1_5	= 5	; USART I/O Data Register bit 5
+.equ	UDR1_6	= 6	; USART I/O Data Register bit 6
+.equ	UDR1_7	= 7	; USART I/O Data Register bit 7
 
-; SPSR - SPI Status Register
-.equ	SPI2X	= 0	; Double SPI Speed Bit
-.equ	WCOL	= 6	; Write Collision Flag
-.equ	SPIF	= 7	; SPI Interrupt Flag
+; UCSR1A - USART Control and Status Register A
+.equ	MPCM1	= 0	; Multi-processor Communication Mode
+.equ	U2X1	= 1	; Double the USART transmission speed
+.equ	UPE1	= 2	; Parity Error
+.equ	DOR1	= 3	; Data overRun
+.equ	FE1	= 4	; Framing Error
+.equ	UDRE1	= 5	; USART Data Register Empty
+.equ	TXC1	= 6	; USART Transmitt Complete
+.equ	RXC1	= 7	; USART Receive Complete
 
-; SPCR - SPI Control Register
-.equ	SPR0	= 0	; SPI Clock Rate Select 0
-.equ	SPR1	= 1	; SPI Clock Rate Select 1
-.equ	CPHA	= 2	; Clock Phase
-.equ	CPOL	= 3	; Clock polarity
-.equ	MSTR	= 4	; Master/Slave Select
-.equ	DORD	= 5	; Data Order
-.equ	SPE	= 6	; SPI Enable
-.equ	SPIE	= 7	; SPI Interrupt Enable
+; UCSR1B - USART Control and Status Register B
+.equ	TXB81	= 0	; Transmit Data Bit 8
+.equ	RXB81	= 1	; Receive Data Bit 8
+.equ	UCSZ12	= 2	; Character Size
+.equ	TXEN1	= 3	; Transmitter Enable
+.equ	RXEN1	= 4	; Receiver Enable
+.equ	UDRIE1	= 5	; USART Data register Empty Interrupt Enable
+.equ	TXCIE1	= 6	; TX Complete Interrupt Enable
+.equ	RXCIE1	= 7	; RX Complete Interrupt Enable
+
+; UCSR1C - USART Control and Status Register C
+.equ	UCPOL1	= 0	; Clock Polarity
+.equ	UCSZ10	= 1	; Character Size
+.equ	UCPHA1	= UCSZ10	; For compatibility
+.equ	UCSZ11	= 2	; Character Size
+.equ	UDORD1	= UCSZ11	; For compatibility
+.equ	USBS1	= 3	; Stop Bit Select
+.equ	UPM10	= 4	; Parity Mode Bit 0
+.equ	UPM11	= 5	; Parity Mode Bit 1
+.equ	UMSEL10	= 6	; USART Mode Select
+.equ	UMSEL11	= 7	; USART Mode Select
+
+; UBRR1H - USART Baud Rate Register High Byte
+.equ	UBRR_8	= 0	; USART Baud Rate Register bit 8
+.equ	UBRR_9	= 1	; USART Baud Rate Register bit 9
+.equ	UBRR_10	= 2	; USART Baud Rate Register bit 10
+.equ	UBRR_11	= 3	; USART Baud Rate Register bit 11
+
+; UBRR1L - USART Baud Rate Register Low Byte
+.equ	UBRR_0	= 0	; USART Baud Rate Register bit 0
+.equ	UBRR_1	= 1	; USART Baud Rate Register bit 1
+.equ	UBRR_2	= 2	; USART Baud Rate Register bit 2
+.equ	UBRR_3	= 3	; USART Baud Rate Register bit 3
+.equ	UBRR_4	= 4	; USART Baud Rate Register bit 4
+.equ	UBRR_5	= 5	; USART Baud Rate Register bit 5
+.equ	UBRR_6	= 6	; USART Baud Rate Register bit 6
+.equ	UBRR_7	= 7	; USART Baud Rate Register bit 7
 
 
 ; ***** CPU **************************
@@ -885,6 +924,8 @@
 .equ	IVCE	= 0	; Interrupt Vector Change Enable
 .equ	IVSEL	= 1	; Interrupt Vector Select
 .equ	PUD	= 4	; Pull-up disable
+.equ	BODSE	= 5	; BOD Power Down in Sleep Enable
+.equ	BODS	= 6	; BOD Power Down in Sleep
 ;.equ	JTD	= 7	; JTAG Interface Disable
 
 ; MCUSR - MCU Status Register
@@ -947,14 +988,42 @@
 .equ	GPIOR06	= 6	; General Purpose IO Register 0 bit 6
 .equ	GPIOR07	= 7	; General Purpose IO Register 0 bit 7
 
-; PRR - Power Reduction Register
+; PRR0 - Power Reduction Register0
 .equ	PRADC	= 0	; Power Reduction ADC
-.equ	PRUSART0	= 1	; Power Reduction USART
+.equ	PRUSART0	= 1	; Power Reduction USART 0
 .equ	PRSPI	= 2	; Power Reduction Serial Peripheral Interface
 .equ	PRTIM1	= 3	; Power Reduction Timer/Counter1
+.equ	PRUSART1	= 4	; Power Reduction USART 1
 .equ	PRTIM0	= 5	; Power Reduction Timer/Counter0
 .equ	PRTIM2	= 6	; Power Reduction Timer/Counter2
 .equ	PRTWI	= 7	; Power Reduction TWI
+
+
+; ***** SPI **************************
+; SPDR - SPI Data Register
+.equ	SPDR0	= 0	; SPI Data Register bit 0
+.equ	SPDR1	= 1	; SPI Data Register bit 1
+.equ	SPDR2	= 2	; SPI Data Register bit 2
+.equ	SPDR3	= 3	; SPI Data Register bit 3
+.equ	SPDR4	= 4	; SPI Data Register bit 4
+.equ	SPDR5	= 5	; SPI Data Register bit 5
+.equ	SPDR6	= 6	; SPI Data Register bit 6
+.equ	SPDR7	= 7	; SPI Data Register bit 7
+
+; SPSR - SPI Status Register
+.equ	SPI2X	= 0	; Double SPI Speed Bit
+.equ	WCOL	= 6	; Write Collision Flag
+.equ	SPIF	= 7	; SPI Interrupt Flag
+
+; SPCR - SPI Control Register
+.equ	SPR0	= 0	; SPI Clock Rate Select 0
+.equ	SPR1	= 1	; SPI Clock Rate Select 1
+.equ	CPHA	= 2	; Clock Phase
+.equ	CPOL	= 3	; Clock polarity
+.equ	MSTR	= 4	; Master/Slave Select
+.equ	DORD	= 5	; Data Order
+.equ	SPE	= 6	; SPI Enable
+.equ	SPIE	= 7	; SPI Interrupt Enable
 
 
 
@@ -1065,9 +1134,12 @@
 .equ	ERDYaddr	= 0x0032	; EEPROM Ready
 .equ	TWIaddr	= 0x0034	; 2-wire Serial Interface
 .equ	SPMRaddr	= 0x0036	; Store Program Memory Read
+.equ	URXC1addr	= 0x0038	; USART1 RX complete
+.equ	UDRE1addr	= 0x003a	; USART1 Data Register Empty
+.equ	UTXC1addr	= 0x003c	; USART1 TX complete
 
-.equ	INT_VECTORS_SIZE	= 56	; size in words
+.equ	INT_VECTORS_SIZE	= 62	; size in words
 
-#endif  /* _M644DEF_INC_ */
+#endif  /* _M644PDEF_INC_ */
 
 ; ***** END OF FILE ******************************************************

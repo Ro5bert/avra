@@ -1,15 +1,15 @@
 ;***** THIS IS A MACHINE GENERATED FILE - DO NOT EDIT ********************
-;***** Created: 2011-02-09 12:03 ******* Source: ATmega644.xml ***********
+;***** Created: 2011-02-09 12:03 ******* Source: ATmega1284P.xml *********
 ;*************************************************************************
 ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
 ;* 
 ;* Number            : AVR000
-;* File Name         : "m644def.inc"
-;* Title             : Register/Bit Definitions for the ATmega644
+;* File Name         : "m1284Pdef.inc"
+;* Title             : Register/Bit Definitions for the ATmega1284P
 ;* Date              : 2011-02-09
 ;* Version           : 2.35
 ;* Support E-mail    : avr@atmel.com
-;* Target MCU        : ATmega644
+;* Target MCU        : ATmega1284P
 ;* 
 ;* DESCRIPTION
 ;* When including this file in the assembly program file, all I/O register 
@@ -37,18 +37,18 @@
 ;* ...                         ;otherwise do something else
 ;*************************************************************************
 
-#ifndef _M644DEF_INC_
-#define _M644DEF_INC_
+#ifndef _M1284PDEF_INC_
+#define _M1284PDEF_INC_
 
 
 #pragma partinc 0
 
 ; ***** SPECIFY DEVICE ***************************************************
-.device ATmega644
-#pragma AVRPART ADMIN PART_NAME ATmega644
+.device ATmega1284P
+#pragma AVRPART ADMIN PART_NAME ATmega1284P
 .equ	SIGNATURE_000	= 0x1e
-.equ	SIGNATURE_001	= 0x96
-.equ	SIGNATURE_002	= 0x09
+.equ	SIGNATURE_001	= 0x97
+.equ	SIGNATURE_002	= 0x05
 
 #pragma AVRPART CORE CORE_VERSION V2E
 
@@ -57,6 +57,12 @@
 ; NOTE:
 ; Definitions marked "MEMORY MAPPED"are extended I/O ports
 ; and cannot be used with IN/OUT instructions
+.equ	UDR1	= 0xce	; MEMORY MAPPED
+.equ	UBRR1L	= 0xcc	; MEMORY MAPPED
+.equ	UBRR1H	= 0xcd	; MEMORY MAPPED
+.equ	UCSR1C	= 0xca	; MEMORY MAPPED
+.equ	UCSR1B	= 0xc9	; MEMORY MAPPED
+.equ	UCSR1A	= 0xc8	; MEMORY MAPPED
 .equ	UDR0	= 0xc6	; MEMORY MAPPED
 .equ	UBRR0L	= 0xc4	; MEMORY MAPPED
 .equ	UBRR0H	= 0xc5	; MEMORY MAPPED
@@ -75,6 +81,17 @@
 .equ	TCNT2	= 0xb2	; MEMORY MAPPED
 .equ	TCCR2B	= 0xb1	; MEMORY MAPPED
 .equ	TCCR2A	= 0xb0	; MEMORY MAPPED
+.equ	OCR3BL	= 0x9a	; MEMORY MAPPED
+.equ	OCR3BH	= 0x9b	; MEMORY MAPPED
+.equ	OCR3AL	= 0x98	; MEMORY MAPPED
+.equ	OCR3AH	= 0x99	; MEMORY MAPPED
+.equ	ICR3L	= 0x96	; MEMORY MAPPED
+.equ	ICR3H	= 0x97	; MEMORY MAPPED
+.equ	TCNT3L	= 0x94	; MEMORY MAPPED
+.equ	TCNT3H	= 0x95	; MEMORY MAPPED
+.equ	TCCR3C	= 0x92	; MEMORY MAPPED
+.equ	TCCR3B	= 0x91	; MEMORY MAPPED
+.equ	TCCR3A	= 0x90	; MEMORY MAPPED
 .equ	OCR1BL	= 0x8a	; MEMORY MAPPED
 .equ	OCR1BH	= 0x8b	; MEMORY MAPPED
 .equ	OCR1AL	= 0x88	; MEMORY MAPPED
@@ -94,6 +111,7 @@
 .equ	ADCH	= 0x79	; MEMORY MAPPED
 .equ	ADCL	= 0x78	; MEMORY MAPPED
 .equ	PCMSK3	= 0x73	; MEMORY MAPPED
+.equ	TIMSK3	= 0x71	; MEMORY MAPPED
 .equ	TIMSK2	= 0x70	; MEMORY MAPPED
 .equ	TIMSK1	= 0x6f	; MEMORY MAPPED
 .equ	TIMSK0	= 0x6e	; MEMORY MAPPED
@@ -103,12 +121,14 @@
 .equ	EICRA	= 0x69	; MEMORY MAPPED
 .equ	PCICR	= 0x68	; MEMORY MAPPED
 .equ	OSCCAL	= 0x66	; MEMORY MAPPED
-.equ	PRR	= 0x64	; MEMORY MAPPED
+.equ	PRR1	= 0x65	; MEMORY MAPPED
+.equ	PRR0	= 0x64	; MEMORY MAPPED
 .equ	CLKPR	= 0x61	; MEMORY MAPPED
 .equ	WDTCSR	= 0x60	; MEMORY MAPPED
 .equ	SREG	= 0x3f
 .equ	SPL	= 0x3d
 .equ	SPH	= 0x3e
+.equ	RAMPZ	= 0x3b
 .equ	SPMCSR	= 0x37
 .equ	MCUCR	= 0x35
 .equ	MCUSR	= 0x34
@@ -134,6 +154,7 @@
 .equ	EIMSK	= 0x1d
 .equ	EIFR	= 0x1c
 .equ	PCIFR	= 0x1b
+.equ	TIFR3	= 0x18
 .equ	TIFR2	= 0x17
 .equ	TIFR1	= 0x16
 .equ	TIFR0	= 0x15
@@ -457,6 +478,44 @@
 .equ	TSM	= 7	; Timer/Counter Synchronization Mode
 
 
+; ***** TIMER_COUNTER_1 **************
+; TIMSK1 - Timer/Counter1 Interrupt Mask Register
+.equ	TOIE1	= 0	; Timer/Counter1 Overflow Interrupt Enable
+.equ	OCIE1A	= 1	; Timer/Counter1 Output Compare A Match Interrupt Enable
+.equ	OCIE1B	= 2	; Timer/Counter1 Output Compare B Match Interrupt Enable
+.equ	ICIE1	= 5	; Timer/Counter1 Input Capture Interrupt Enable
+
+; TIFR1 - Timer/Counter Interrupt Flag register
+.equ	TOV1	= 0	; Timer/Counter1 Overflow Flag
+.equ	OCF1A	= 1	; Timer/Counter1 Output Compare A Match Flag
+.equ	OCF1B	= 2	; Timer/Counter1 Output Compare B Match Flag
+.equ	ICF1	= 5	; Timer/Counter1 Input Capture Flag
+
+; TCCR1A - Timer/Counter1 Control Register A
+.equ	WGM10	= 0	; Pulse Width Modulator Select Bit 0
+.equ	PWM10	= WGM10	; For compatibility
+.equ	WGM11	= 1	; Pulse Width Modulator Select Bit 1
+.equ	PWM11	= WGM11	; For compatibility
+.equ	COM1B0	= 4	; Comparet Ouput Mode 1B, bit 0
+.equ	COM1B1	= 5	; Compare Output Mode 1B, bit 1
+.equ	COM1A0	= 6	; Comparet Ouput Mode 1A, bit 0
+.equ	COM1A1	= 7	; Compare Output Mode 1A, bit 1
+
+; TCCR1B - Timer/Counter1 Control Register B
+.equ	CS10	= 0	; Clock Select bit 0
+.equ	CS11	= 1	; Clock Select 1 bit 1
+.equ	CS12	= 2	; Clock Select1 bit 2
+.equ	WGM12	= 3	; Waveform Generation Mode Bit 2
+.equ	CTC1	= WGM12	; For compatibility
+.equ	WGM13	= 4	; Waveform Generation Mode Bit 3
+.equ	ICES1	= 6	; Input Capture 1 Edge Select
+.equ	ICNC1	= 7	; Input Capture 1 Noise Canceler
+
+; TCCR1C - Timer/Counter1 Control Register C
+.equ	FOC1B	= 6	; Force Output Compare for Channel B
+.equ	FOC1A	= 7	; Force Output Compare for Channel A
+
+
 ; ***** TIMER_COUNTER_2 **************
 ; TIMSK2 - Timer/Counter Interrupt Mask register
 .equ	TOIE2	= 0	; Timer/Counter2 Overflow Interrupt Enable
@@ -530,35 +589,59 @@
 ;.equ	TSM	= 7	; Timer/Counter Synchronization Mode
 
 
-; ***** WATCHDOG *********************
-; WDTCSR - Watchdog Timer Control Register
-.equ	WDP0	= 0	; Watch Dog Timer Prescaler bit 0
-.equ	WDP1	= 1	; Watch Dog Timer Prescaler bit 1
-.equ	WDP2	= 2	; Watch Dog Timer Prescaler bit 2
-.equ	WDE	= 3	; Watch Dog Enable
-.equ	WDCE	= 4	; Watchdog Change Enable
-.equ	WDP3	= 5	; Watchdog Timer Prescaler Bit 3
-.equ	WDIE	= 6	; Watchdog Timeout Interrupt Enable
-.equ	WDIF	= 7	; Watchdog Timeout Interrupt Flag
+; ***** TIMER_COUNTER_3 **************
+; TIMSK3 - Timer/Counter3 Interrupt Mask Register
+.equ	TOIE3	= 0	; Timer/Counter3 Overflow Interrupt Enable
+.equ	OCIE3A	= 1	; Timer/Counter3 Output Compare A Match Interrupt Enable
+.equ	OCIE3B	= 2	; Timer/Counter3 Output Compare B Match Interrupt Enable
+.equ	ICIE3	= 5	; Timer/Counter3 Input Capture Interrupt Enable
 
+; TIFR3 - Timer/Counter Interrupt Flag register
+.equ	TOV3	= 0	; Timer/Counter3 Overflow Flag
+.equ	OCF3A	= 1	; Timer/Counter3 Output Compare A Match Flag
+.equ	OCF3B	= 2	; Timer/Counter3 Output Compare B Match Flag
+.equ	ICF3	= 5	; Timer/Counter3 Input Capture Flag
 
-; ***** JTAG *************************
-; OCDR - On-Chip Debug Related Register in I/O Memory
-.equ	OCDR0	= 0	; On-Chip Debug Register Bit 0
-.equ	OCDR1	= 1	; On-Chip Debug Register Bit 1
-.equ	OCDR2	= 2	; On-Chip Debug Register Bit 2
-.equ	OCDR3	= 3	; On-Chip Debug Register Bit 3
-.equ	OCDR4	= 4	; On-Chip Debug Register Bit 4
-.equ	OCDR5	= 5	; On-Chip Debug Register Bit 5
-.equ	OCDR6	= 6	; On-Chip Debug Register Bit 6
-.equ	OCDR7	= 7	; On-Chip Debug Register Bit 7
-.equ	IDRD	= OCDR7	; For compatibility
+; TCCR3A - Timer/Counter3 Control Register A
+.equ	WGM30	= 0	; Pulse Width Modulator Select Bit 0
+.equ	WGM31	= 1	; Pulse Width Modulator Select Bit 1
+.equ	COM3B0	= 4	; Comparet Ouput Mode 3B, bit 0
+.equ	COM3B1	= 5	; Compare Output Mode 3B, bit 1
+.equ	COM3A0	= 6	; Comparet Ouput Mode 3A, bit 0
+.equ	COM3A1	= 7	; Compare Output Mode 3A, bit 1
 
-; MCUCR - MCU Control Register
-.equ	JTD	= 7	; JTAG Interface Disable
+; TCCR3B - Timer/Counter3 Control Register B
+.equ	CS30	= 0	; Clock Select bit 0
+.equ	CS31	= 1	; Clock Select 3 bit 1
+.equ	CS32	= 2	; Clock Select3 bit 2
+.equ	WGM32	= 3	; Waveform Generation Mode Bit 2
+.equ	WGM33	= 4	; Waveform Generation Mode Bit 3
+.equ	ICES3	= 6	; Input Capture 3 Edge Select
+.equ	ICNC3	= 7	; Input Capture 3 Noise Canceler
 
-; MCUSR - MCU Status Register
-.equ	JTRF	= 4	; JTAG Reset Flag
+; TCCR3C - Timer/Counter3 Control Register C
+.equ	FOC3B	= 6	; Force Output Compare for Channel B
+.equ	FOC3A	= 7	; Force Output Compare for Channel A
+
+; OCR3BH - Timer/Counter3 Output Compare Register B High Byte
+.equ	OCR3AH0	= 0	; Timer/Counter3 Output Compare Register High Byte bit 0
+.equ	OCR3AH1	= 1	; Timer/Counter3 Output Compare Register High Byte bit 1
+.equ	OCR3AH2	= 2	; Timer/Counter3 Output Compare Register High Byte bit 2
+.equ	OCR3AH3	= 3	; Timer/Counter3 Output Compare Register High Byte bit 3
+.equ	OCR3AH4	= 4	; Timer/Counter3 Output Compare Register High Byte bit 4
+.equ	OCR3AH5	= 5	; Timer/Counter3 Output Compare Register High Byte bit 5
+.equ	OCR3AH6	= 6	; Timer/Counter3 Output Compare Register High Byte bit 6
+.equ	OCR3AH7	= 7	; Timer/Counter3 Output Compare Register High Byte bit 7
+
+; OCR3BL - Timer/Counter3 Output Compare Register B Low Byte
+.equ	OCR3AL0	= 0	; Timer/Counter3 Output Compare Register Low Byte Bit 0
+.equ	OCR3AL1	= 1	; Timer/Counter3 Output Compare Register Low Byte Bit 1
+.equ	OCR3AL2	= 2	; Timer/Counter3 Output Compare Register Low Byte Bit 2
+.equ	OCR3AL3	= 3	; Timer/Counter3 Output Compare Register Low Byte Bit 3
+.equ	OCR3AL4	= 4	; Timer/Counter3 Output Compare Register Low Byte Bit 4
+.equ	OCR3AL5	= 5	; Timer/Counter3 Output Compare Register Low Byte Bit 5
+.equ	OCR3AL6	= 6	; Timer/Counter3 Output Compare Register Low Byte Bit 6
+.equ	OCR3AL7	= 7	; Timer/Counter3 Output Compare Register Low Byte Bit 7
 
 
 ; ***** BOOT_LOAD ********************
@@ -703,42 +786,23 @@
 .equ	ADC7D	= 7	; 
 
 
-; ***** TIMER_COUNTER_1 **************
-; TIMSK1 - Timer/Counter1 Interrupt Mask Register
-.equ	TOIE1	= 0	; Timer/Counter1 Overflow Interrupt Enable
-.equ	OCIE1A	= 1	; Timer/Counter1 Output Compare A Match Interrupt Enable
-.equ	OCIE1B	= 2	; Timer/Counter1 Output Compare B Match Interrupt Enable
-.equ	ICIE1	= 5	; Timer/Counter1 Input Capture Interrupt Enable
+; ***** JTAG *************************
+; OCDR - On-Chip Debug Related Register in I/O Memory
+.equ	OCDR0	= 0	; On-Chip Debug Register Bit 0
+.equ	OCDR1	= 1	; On-Chip Debug Register Bit 1
+.equ	OCDR2	= 2	; On-Chip Debug Register Bit 2
+.equ	OCDR3	= 3	; On-Chip Debug Register Bit 3
+.equ	OCDR4	= 4	; On-Chip Debug Register Bit 4
+.equ	OCDR5	= 5	; On-Chip Debug Register Bit 5
+.equ	OCDR6	= 6	; On-Chip Debug Register Bit 6
+.equ	OCDR7	= 7	; On-Chip Debug Register Bit 7
+.equ	IDRD	= OCDR7	; For compatibility
 
-; TIFR1 - Timer/Counter Interrupt Flag register
-.equ	TOV1	= 0	; Timer/Counter1 Overflow Flag
-.equ	OCF1A	= 1	; Timer/Counter1 Output Compare A Match Flag
-.equ	OCF1B	= 2	; Timer/Counter1 Output Compare B Match Flag
-.equ	ICF1	= 5	; Timer/Counter1 Input Capture Flag
+; MCUCR - MCU Control Register
+.equ	JTD	= 7	; JTAG Interface Disable
 
-; TCCR1A - Timer/Counter1 Control Register A
-.equ	WGM10	= 0	; Pulse Width Modulator Select Bit 0
-.equ	PWM10	= WGM10	; For compatibility
-.equ	WGM11	= 1	; Pulse Width Modulator Select Bit 1
-.equ	PWM11	= WGM11	; For compatibility
-.equ	COM1B0	= 4	; Comparet Ouput Mode 1B, bit 0
-.equ	COM1B1	= 5	; Compare Output Mode 1B, bit 1
-.equ	COM1A0	= 6	; Comparet Ouput Mode 1A, bit 0
-.equ	COM1A1	= 7	; Compare Output Mode 1A, bit 1
-
-; TCCR1B - Timer/Counter1 Control Register B
-.equ	CS10	= 0	; Clock Select bit 0
-.equ	CS11	= 1	; Clock Select 1 bit 1
-.equ	CS12	= 2	; Clock Select1 bit 2
-.equ	WGM12	= 3	; Waveform Generation Mode Bit 2
-.equ	CTC1	= WGM12	; For compatibility
-.equ	WGM13	= 4	; Waveform Generation Mode Bit 3
-.equ	ICES1	= 6	; Input Capture 1 Edge Select
-.equ	ICNC1	= 7	; Input Capture 1 Noise Canceler
-
-; TCCR1C - Timer/Counter1 Control Register C
-.equ	FOC1B	= 6	; Force Output Compare for Channel B
-.equ	FOC1A	= 7	; Force Output Compare for Channel A
+; MCUSR - MCU Status Register
+.equ	JTRF	= 4	; JTAG Reset Flag
 
 
 ; ***** EEPROM ***********************
@@ -843,6 +907,66 @@
 .equ	TWA6	= 7	; TWI (Slave) Address register Bit 6
 
 
+; ***** USART1 ***********************
+; UDR1 - USART I/O Data Register
+.equ	UDR1_0	= 0	; USART I/O Data Register bit 0
+.equ	UDR1_1	= 1	; USART I/O Data Register bit 1
+.equ	UDR1_2	= 2	; USART I/O Data Register bit 2
+.equ	UDR1_3	= 3	; USART I/O Data Register bit 3
+.equ	UDR1_4	= 4	; USART I/O Data Register bit 4
+.equ	UDR1_5	= 5	; USART I/O Data Register bit 5
+.equ	UDR1_6	= 6	; USART I/O Data Register bit 6
+.equ	UDR1_7	= 7	; USART I/O Data Register bit 7
+
+; UCSR1A - USART Control and Status Register A
+.equ	MPCM1	= 0	; Multi-processor Communication Mode
+.equ	U2X1	= 1	; Double the USART transmission speed
+.equ	UPE1	= 2	; Parity Error
+.equ	DOR1	= 3	; Data overRun
+.equ	FE1	= 4	; Framing Error
+.equ	UDRE1	= 5	; USART Data Register Empty
+.equ	TXC1	= 6	; USART Transmitt Complete
+.equ	RXC1	= 7	; USART Receive Complete
+
+; UCSR1B - USART Control and Status Register B
+.equ	TXB81	= 0	; Transmit Data Bit 8
+.equ	RXB81	= 1	; Receive Data Bit 8
+.equ	UCSZ12	= 2	; Character Size
+.equ	TXEN1	= 3	; Transmitter Enable
+.equ	RXEN1	= 4	; Receiver Enable
+.equ	UDRIE1	= 5	; USART Data register Empty Interrupt Enable
+.equ	TXCIE1	= 6	; TX Complete Interrupt Enable
+.equ	RXCIE1	= 7	; RX Complete Interrupt Enable
+
+; UCSR1C - USART Control and Status Register C
+.equ	UCPOL1	= 0	; Clock Polarity
+.equ	UCSZ10	= 1	; Character Size
+.equ	UCPHA1	= UCSZ10	; For compatibility
+.equ	UCSZ11	= 2	; Character Size
+.equ	UDORD1	= UCSZ11	; For compatibility
+.equ	USBS1	= 3	; Stop Bit Select
+.equ	UPM10	= 4	; Parity Mode Bit 0
+.equ	UPM11	= 5	; Parity Mode Bit 1
+.equ	UMSEL10	= 6	; USART Mode Select
+.equ	UMSEL11	= 7	; USART Mode Select
+
+; UBRR1H - USART Baud Rate Register High Byte
+.equ	UBRR_8	= 0	; USART Baud Rate Register bit 8
+.equ	UBRR_9	= 1	; USART Baud Rate Register bit 9
+.equ	UBRR_10	= 2	; USART Baud Rate Register bit 10
+.equ	UBRR_11	= 3	; USART Baud Rate Register bit 11
+
+; UBRR1L - USART Baud Rate Register Low Byte
+.equ	UBRR_0	= 0	; USART Baud Rate Register bit 0
+.equ	UBRR_1	= 1	; USART Baud Rate Register bit 1
+.equ	UBRR_2	= 2	; USART Baud Rate Register bit 2
+.equ	UBRR_3	= 3	; USART Baud Rate Register bit 3
+.equ	UBRR_4	= 4	; USART Baud Rate Register bit 4
+.equ	UBRR_5	= 5	; USART Baud Rate Register bit 5
+.equ	UBRR_6	= 6	; USART Baud Rate Register bit 6
+.equ	UBRR_7	= 7	; USART Baud Rate Register bit 7
+
+
 ; ***** SPI **************************
 ; SPDR - SPI Data Register
 .equ	SPDR0	= 0	; SPI Data Register bit 0
@@ -870,6 +994,18 @@
 .equ	SPIE	= 7	; SPI Interrupt Enable
 
 
+; ***** WATCHDOG *********************
+; WDTCSR - Watchdog Timer Control Register
+.equ	WDP0	= 0	; Watch Dog Timer Prescaler bit 0
+.equ	WDP1	= 1	; Watch Dog Timer Prescaler bit 1
+.equ	WDP2	= 2	; Watch Dog Timer Prescaler bit 2
+.equ	WDE	= 3	; Watch Dog Enable
+.equ	WDCE	= 4	; Watchdog Change Enable
+.equ	WDP3	= 5	; Watchdog Timer Prescaler Bit 3
+.equ	WDIE	= 6	; Watchdog Timeout Interrupt Enable
+.equ	WDIF	= 7	; Watchdog Timeout Interrupt Flag
+
+
 ; ***** CPU **************************
 ; SREG - Status Register
 .equ	SREG_C	= 0	; Carry Flag
@@ -885,6 +1021,8 @@
 .equ	IVCE	= 0	; Interrupt Vector Change Enable
 .equ	IVSEL	= 1	; Interrupt Vector Select
 .equ	PUD	= 4	; Pull-up disable
+.equ	BODSE	= 5	; BOD Power Down in Sleep Enable
+.equ	BODS	= 6	; BOD Power Down in Sleep
 ;.equ	JTD	= 7	; JTAG Interface Disable
 
 ; MCUSR - MCU Status Register
@@ -917,6 +1055,9 @@
 .equ	SM1	= 2	; Sleep Mode Select bit 1
 .equ	SM2	= 3	; Sleep Mode Select bit 2
 
+; RAMPZ - RAM Page Z Select Register
+.equ	RAMPZ0	= 0	; RAM Page Z Select Register Bit 0
+
 ; GPIOR2 - General Purpose IO Register 2
 .equ	GPIOR20	= 0	; General Purpose IO Register 2 bit 0
 .equ	GPIOR21	= 1	; General Purpose IO Register 2 bit 1
@@ -947,14 +1088,18 @@
 .equ	GPIOR06	= 6	; General Purpose IO Register 0 bit 6
 .equ	GPIOR07	= 7	; General Purpose IO Register 0 bit 7
 
-; PRR - Power Reduction Register
+; PRR0 - Power Reduction Register0
 .equ	PRADC	= 0	; Power Reduction ADC
-.equ	PRUSART0	= 1	; Power Reduction USART
+.equ	PRUSART0	= 1	; Power Reduction USART 0
 .equ	PRSPI	= 2	; Power Reduction Serial Peripheral Interface
 .equ	PRTIM1	= 3	; Power Reduction Timer/Counter1
+.equ	PRUSART1	= 4	; Power Reduction USART 1
 .equ	PRTIM0	= 5	; Power Reduction Timer/Counter0
 .equ	PRTIM2	= 6	; Power Reduction Timer/Counter2
 .equ	PRTWI	= 7	; Power Reduction TWI
+
+; PRR1 - Power Reduction Register1
+.equ	PRTIM3	= 0	; Power Reduction Timer/Counter3
 
 
 
@@ -1006,32 +1151,32 @@
 
 
 ; ***** DATA MEMORY DECLARATIONS *****************************************
-.equ	FLASHEND	= 0x7fff	; Note: Word address
+.equ	FLASHEND	= 0xffff	; Note: Word address
 .equ	IOEND	= 0x00ff
 .equ	SRAM_START	= 0x0100
-.equ	SRAM_SIZE	= 4096
-.equ	RAMEND	= 0x10ff
+.equ	SRAM_SIZE	= 16384
+.equ	RAMEND	= 0x40ff
 .equ	XRAMEND	= 0x0000
-.equ	E2END	= 0x07ff
-.equ	EEPROMEND	= 0x07ff
-.equ	EEADRBITS	= 11
-#pragma AVRPART MEMORY PROG_FLASH 65536
-#pragma AVRPART MEMORY EEPROM 2048
-#pragma AVRPART MEMORY INT_SRAM SIZE 4096
+.equ	E2END	= 0x0fff
+.equ	EEPROMEND	= 0x0fff
+.equ	EEADRBITS	= 12
+#pragma AVRPART MEMORY PROG_FLASH 131072
+#pragma AVRPART MEMORY EEPROM 4096
+#pragma AVRPART MEMORY INT_SRAM SIZE 16384
 #pragma AVRPART MEMORY INT_SRAM START_ADDR 0x100
 
 
 
 ; ***** BOOTLOADER DECLARATIONS ******************************************
-.equ	NRWW_START_ADDR	= 0x7000
-.equ	NRWW_STOP_ADDR	= 0x7fff
+.equ	NRWW_START_ADDR	= 0xf000
+.equ	NRWW_STOP_ADDR	= 0xffff
 .equ	RWW_START_ADDR	= 0x0
-.equ	RWW_STOP_ADDR	= 0x6fff
+.equ	RWW_STOP_ADDR	= 0xefff
 .equ	PAGESIZE	= 128
-.equ	FIRSTBOOTSTART	= 0x7e00
-.equ	SECONDBOOTSTART	= 0x7c00
-.equ	THIRDBOOTSTART	= 0x7800
-.equ	FOURTHBOOTSTART	= 0x7000
+.equ	FIRSTBOOTSTART	= 0xfe00
+.equ	SECONDBOOTSTART	= 0xfc00
+.equ	THIRDBOOTSTART	= 0xf800
+.equ	FOURTHBOOTSTART	= 0xf000
 .equ	SMALLBOOTSTART	= FIRSTBOOTSTART
 .equ	LARGEBOOTSTART	= FOURTHBOOTSTART
 
@@ -1065,9 +1210,16 @@
 .equ	ERDYaddr	= 0x0032	; EEPROM Ready
 .equ	TWIaddr	= 0x0034	; 2-wire Serial Interface
 .equ	SPMRaddr	= 0x0036	; Store Program Memory Read
+.equ	URXC1addr	= 0x0038	; USART1 RX complete
+.equ	UDRE1addr	= 0x003a	; USART1 Data Register Empty
+.equ	UTXC1addr	= 0x003c	; USART1 TX complete
+.equ	ICP3addr	= 0x003e	; Timer/Counter3 Capture Event
+.equ	OC3Aaddr	= 0x0040	; Timer/Counter3 Compare Match A
+.equ	OC3Baddr	= 0x0042	; Timer/Counter3 Compare Match B
+.equ	OVF3addr	= 0x0044	; Timer/Counter3 Overflow
 
-.equ	INT_VECTORS_SIZE	= 56	; size in words
+.equ	INT_VECTORS_SIZE	= 70	; size in words
 
-#endif  /* _M644DEF_INC_ */
+#endif  /* _M1284PDEF_INC_ */
 
 ; ***** END OF FILE ******************************************************
