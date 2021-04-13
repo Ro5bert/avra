@@ -455,21 +455,31 @@ parse_directive(struct prog_info *pi)
 		next = term_string(pi, next);
 		/* get arg list start pointer */
 		incpath = GET_ARG_LIST(pi->args, ARG_INCLUDEPATH);
-		/* search for last element */
-		if (incpath == NULL) {
-			dl = malloc(sizeof(struct data_list));
-			data = malloc(strlen(next)+1);
-			if (dl && data) {
-				dl->next = NULL;
-				strcpy(data, next);
-				dl->data = data;
-				SET_ARG_LIST(pi->args, ARG_INCLUDEPATH, dl);
+
+		data = malloc(strlen(next)+1);
+
+		if (data) {
+			strcpy(data, next);
+
+			/* search for last element */
+			if (incpath == NULL) {
+				dl = malloc(sizeof(struct data_list));
+				
+				if (dl) {
+					dl->next = NULL;
+					dl->data = data;
+					SET_ARG_LIST(pi->args, ARG_INCLUDEPATH, dl);
+				} else {
+					printf("Error: Unable to allocate memory\n");
+					return (False);
+				}
 			} else {
-				printf("Error: Unable to allocate memory\n");
-				return (False);
+				add_arg(&incpath, data);
 			}
-		} else
-			add_arg(&incpath, next);
+		} else {
+			printf("Error: Unable to allocate memory\n");
+			return (False);
+		}
 		break;
 	case DIRECTIVE_LIST:
 		if (pi->pass == PASS_2)
