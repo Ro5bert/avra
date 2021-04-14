@@ -100,7 +100,7 @@ main(int argc, const char *argv[])
 	args = alloc_args(ARG_COUNT);
 	if (args) {
 		define_arg(args, ARG_DEFINE,      ARGTYPE_STRING_MULTISINGLE,  'D', "define",      NULL, NULL);
-		define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includepath", NULL, NULL);
+		define_arg(args, ARG_INCLUDEPATH, ARGTYPE_STRING_MULTISINGLE,  'I', "includedir",  NULL, NULL);
 		define_arg(args, ARG_LISTMAC,     ARGTYPE_BOOLEAN,              0,  "listmac",     "1",  NULL);
 		define_arg_int(args, ARG_MAX_ERRORS,  ARGTYPE_NUMERIC,               0,  "max_errors",  10, NULL);
 		define_arg(args, ARG_COFF,        ARGTYPE_BOOLEAN,              0,  "coff",        NULL, NULL);
