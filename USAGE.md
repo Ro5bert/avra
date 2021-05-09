@@ -49,7 +49,7 @@ The three lines in the last example set the default value of `network`.
 Now we could use the `.if` and `.else` directives test whether, e.g., network
 support is to be included into the assembly process:
 
-    .if network = 1
+    .if network == 1
     .include "include\tcpip.asm"
     .else
     .include "include\dummynet.asm"
