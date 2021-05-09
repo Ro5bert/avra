@@ -140,9 +140,13 @@ get_operator(char *op)
 	case '=':
 		if (op[1] == '=')
 			return (OPERATOR_EQUAL);
+		else
+			return (OPERATOR_ERROR);
 	case '!':
 		if (op[1] == '=')
 			return (OPERATOR_NOT_EQUAL);
+		else
+			return (OPERATOR_ERROR);
 	case '&':
 		if (op[1] == '&')
 			return (OPERATOR_LOGICAL_AND);
@@ -517,7 +521,7 @@ get_expr(struct prog_info *pi, char *data, int *value)
 			}
 			/* now the expression has been evaluated */
 			i += length - 1;
-			switch (unary) { /* TODO: Få den til å takle flere unary på rad. */
+			switch (unary) { /* TODO: FÃ¥ den til Ã¥ takle flere unary pÃ¥ rad. */
 			case '-':
 				element->data = -element->data;
 				break;
