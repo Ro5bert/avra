@@ -45,6 +45,14 @@
 #define DF_AVR8L     0x8000 /* Also known as AVRrc (reduced core)?
                              * ATtiny4,5,9,10,20,40,102,104: No ADIW, SBIW;
                              * one word LDS/STS */
+
+/* Describe support level in AVRA for a device. */
+enum support_level {
+	EXPERIMENTAL = 0,
+	STABLE = 1,
+};
+char *support_names[2];
+
 /* If more flags are added, the size of the flag field in struct device must
  * be increased! C ints are only guaranteed to be at least 16 bits, and we're
  * currently using all of them. */
@@ -56,6 +64,7 @@ struct device {
 	long ram_size;
 	long eeprom_size;
 	int flag;
+	enum support_level support_level;
 };
 
 /* device.c */
