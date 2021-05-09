@@ -521,7 +521,7 @@ get_expr(struct prog_info *pi, char *data, int *value)
 			}
 			/* now the expression has been evaluated */
 			i += length - 1;
-			switch (unary) { /* TODO: F� den til � takle flere unary p� rad. */
+			switch (unary) { /* TODO: Få den til å takle flere unary på rad. */
 			case '-':
 				element->data = -element->data;
 				break;
