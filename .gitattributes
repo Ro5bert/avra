@@ -1,2 +1,2 @@
 *.inc linguist-language=asm
-inc/* linguist-generated
+includes/* linguist-generated
