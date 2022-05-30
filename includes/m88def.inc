@@ -1,13 +1,13 @@
 ;***** THIS IS A MACHINE GENERATED FILE - DO NOT EDIT ********************
-;***** Created: 2005-01-11 10:31 ******* Source: ATmega88.xml ************
+;***** Created: 2011-02-09 12:03 ******* Source: ATmega88.xml ************
 ;*************************************************************************
 ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
 ;* 
 ;* Number            : AVR000
 ;* File Name         : "m88def.inc"
 ;* Title             : Register/Bit Definitions for the ATmega88
-;* Date              : 2005-01-11
-;* Version           : 2.14
+;* Date              : 2011-02-09
+;* Version           : 2.35
 ;* Support E-mail    : avr@atmel.com
 ;* Target MCU        : ATmega88
 ;* 
@@ -58,8 +58,8 @@
 ; Definitions marked "MEMORY MAPPED"are extended I/O ports
 ; and cannot be used with IN/OUT instructions
 .equ	UDR0	= 0xc6	; MEMORY MAPPED
-.equ	UBRR0H	= 0xc5	; MEMORY MAPPED
 .equ	UBRR0L	= 0xc4	; MEMORY MAPPED
+.equ	UBRR0H	= 0xc5	; MEMORY MAPPED
 .equ	UCSR0C	= 0xc2	; MEMORY MAPPED
 .equ	UCSR0B	= 0xc1	; MEMORY MAPPED
 .equ	UCSR0A	= 0xc0	; MEMORY MAPPED
@@ -75,14 +75,14 @@
 .equ	TCNT2	= 0xb2	; MEMORY MAPPED
 .equ	TCCR2B	= 0xb1	; MEMORY MAPPED
 .equ	TCCR2A	= 0xb0	; MEMORY MAPPED
-.equ	OCR1BH	= 0x8b	; MEMORY MAPPED
 .equ	OCR1BL	= 0x8a	; MEMORY MAPPED
-.equ	OCR1AH	= 0x89	; MEMORY MAPPED
+.equ	OCR1BH	= 0x8b	; MEMORY MAPPED
 .equ	OCR1AL	= 0x88	; MEMORY MAPPED
-.equ	ICR1H	= 0x87	; MEMORY MAPPED
+.equ	OCR1AH	= 0x89	; MEMORY MAPPED
 .equ	ICR1L	= 0x86	; MEMORY MAPPED
-.equ	TCNT1H	= 0x85	; MEMORY MAPPED
+.equ	ICR1H	= 0x87	; MEMORY MAPPED
 .equ	TCNT1L	= 0x84	; MEMORY MAPPED
+.equ	TCNT1H	= 0x85	; MEMORY MAPPED
 .equ	TCCR1C	= 0x82	; MEMORY MAPPED
 .equ	TCCR1B	= 0x81	; MEMORY MAPPED
 .equ	TCCR1A	= 0x80	; MEMORY MAPPED
@@ -96,8 +96,8 @@
 .equ	TIMSK2	= 0x70	; MEMORY MAPPED
 .equ	TIMSK1	= 0x6f	; MEMORY MAPPED
 .equ	TIMSK0	= 0x6e	; MEMORY MAPPED
-.equ	PCMSK2	= 0x6d	; MEMORY MAPPED
 .equ	PCMSK1	= 0x6c	; MEMORY MAPPED
+.equ	PCMSK2	= 0x6d	; MEMORY MAPPED
 .equ	PCMSK0	= 0x6b	; MEMORY MAPPED
 .equ	EICRA	= 0x69	; MEMORY MAPPED
 .equ	PCICR	= 0x68	; MEMORY MAPPED
@@ -106,8 +106,8 @@
 .equ	CLKPR	= 0x61	; MEMORY MAPPED
 .equ	WDTCSR	= 0x60	; MEMORY MAPPED
 .equ	SREG	= 0x3f
-.equ	SPH	= 0x3e
 .equ	SPL	= 0x3d
+.equ	SPH	= 0x3e
 .equ	SPMCSR	= 0x37
 .equ	MCUCR	= 0x35
 .equ	MCUSR	= 0x34
@@ -192,6 +192,22 @@
 .equ	UMSEL0	= UMSEL00	; For compatibility
 .equ	UMSEL01	= 7	; USART Mode Select
 .equ	UMSEL1	= UMSEL01	; For compatibility
+
+; UBRR0H - USART Baud Rate Register High Byte
+.equ	UBRR8	= 0	; USART Baud Rate Register bit 8
+.equ	UBRR9	= 1	; USART Baud Rate Register bit 9
+.equ	UBRR10	= 2	; USART Baud Rate Register bit 10
+.equ	UBRR11	= 3	; USART Baud Rate Register bit 11
+
+; UBRR0L - USART Baud Rate Register Low Byte
+.equ	_UBRR0	= 0	; USART Baud Rate Register bit 0
+.equ	_UBRR1	= 1	; USART Baud Rate Register bit 1
+.equ	UBRR2	= 2	; USART Baud Rate Register bit 2
+.equ	UBRR3	= 3	; USART Baud Rate Register bit 3
+.equ	UBRR4	= 4	; USART Baud Rate Register bit 4
+.equ	UBRR5	= 5	; USART Baud Rate Register bit 5
+.equ	UBRR6	= 6	; USART Baud Rate Register bit 6
+.equ	UBRR7	= 7	; USART Baud Rate Register bit 7
 
 
 ; ***** TWI **************************
@@ -338,24 +354,24 @@
 .equ	TCNT2_7	= 7	; Timer/Counter 2 bit 7
 
 ; OCR2A - Timer/Counter2 Output Compare Register A
-.equ	OCR2_0	= 0	; Timer/Counter2 Output Compare Register Bit 0
-.equ	OCR2_1	= 1	; Timer/Counter2 Output Compare Register Bit 1
-.equ	OCR2_2	= 2	; Timer/Counter2 Output Compare Register Bit 2
-.equ	OCR2_3	= 3	; Timer/Counter2 Output Compare Register Bit 3
-.equ	OCR2_4	= 4	; Timer/Counter2 Output Compare Register Bit 4
-.equ	OCR2_5	= 5	; Timer/Counter2 Output Compare Register Bit 5
-.equ	OCR2_6	= 6	; Timer/Counter2 Output Compare Register Bit 6
-.equ	OCR2_7	= 7	; Timer/Counter2 Output Compare Register Bit 7
+.equ	OCR2A_0	= 0	; Timer/Counter2 Output Compare Register Bit 0
+.equ	OCR2A_1	= 1	; Timer/Counter2 Output Compare Register Bit 1
+.equ	OCR2A_2	= 2	; Timer/Counter2 Output Compare Register Bit 2
+.equ	OCR2A_3	= 3	; Timer/Counter2 Output Compare Register Bit 3
+.equ	OCR2A_4	= 4	; Timer/Counter2 Output Compare Register Bit 4
+.equ	OCR2A_5	= 5	; Timer/Counter2 Output Compare Register Bit 5
+.equ	OCR2A_6	= 6	; Timer/Counter2 Output Compare Register Bit 6
+.equ	OCR2A_7	= 7	; Timer/Counter2 Output Compare Register Bit 7
 
 ; OCR2B - Timer/Counter2 Output Compare Register B
-;.equ	OCR2_0	= 0	; Timer/Counter2 Output Compare Register Bit 0
-;.equ	OCR2_1	= 1	; Timer/Counter2 Output Compare Register Bit 1
-;.equ	OCR2_2	= 2	; Timer/Counter2 Output Compare Register Bit 2
-;.equ	OCR2_3	= 3	; Timer/Counter2 Output Compare Register Bit 3
-;.equ	OCR2_4	= 4	; Timer/Counter2 Output Compare Register Bit 4
-;.equ	OCR2_5	= 5	; Timer/Counter2 Output Compare Register Bit 5
-;.equ	OCR2_6	= 6	; Timer/Counter2 Output Compare Register Bit 6
-;.equ	OCR2_7	= 7	; Timer/Counter2 Output Compare Register Bit 7
+.equ	OCR2B_0	= 0	; Timer/Counter2 Output Compare Register Bit 0
+.equ	OCR2B_1	= 1	; Timer/Counter2 Output Compare Register Bit 1
+.equ	OCR2B_2	= 2	; Timer/Counter2 Output Compare Register Bit 2
+.equ	OCR2B_3	= 3	; Timer/Counter2 Output Compare Register Bit 3
+.equ	OCR2B_4	= 4	; Timer/Counter2 Output Compare Register Bit 4
+.equ	OCR2B_5	= 5	; Timer/Counter2 Output Compare Register Bit 5
+.equ	OCR2B_6	= 6	; Timer/Counter2 Output Compare Register Bit 6
+.equ	OCR2B_7	= 7	; Timer/Counter2 Output Compare Register Bit 7
 
 ; ASSR - Asynchronous Status Register
 .equ	TCR2BUB	= 0	; Timer/Counter Control Register2 Update Busy
@@ -431,7 +447,7 @@
 ; ACSR - Analog Comparator Control And Status Register
 .equ	ACIS0	= 0	; Analog Comparator Interrupt Mode Select bit 0
 .equ	ACIS1	= 1	; Analog Comparator Interrupt Mode Select bit 1
-.equ	ACIC	= 2	; 
+.equ	ACIC	= 2	; Analog Comparator Input Capture Enable
 .equ	ACIE	= 3	; Analog Comparator Interrupt Enable
 .equ	ACI	= 4	; Analog Comparator Interrupt Flag
 .equ	ACO	= 5	; Analog Compare Output
@@ -597,14 +613,14 @@
 .equ	TCNT0_7	= 7	; 
 
 ; OCR0A - Timer/Counter0 Output Compare Register
-.equ	OCROA_0	= 0	; 
-.equ	OCROA_1	= 1	; 
-.equ	OCROA_2	= 2	; 
-.equ	OCROA_3	= 3	; 
-.equ	OCROA_4	= 4	; 
-.equ	OCROA_5	= 5	; 
-.equ	OCROA_6	= 6	; 
-.equ	OCROA_7	= 7	; 
+.equ	OCR0A_0	= 0	; 
+.equ	OCR0A_1	= 1	; 
+.equ	OCR0A_2	= 2	; 
+.equ	OCR0A_3	= 3	; 
+.equ	OCR0A_4	= 4	; 
+.equ	OCR0A_5	= 5	; 
+.equ	OCR0A_6	= 6	; 
+.equ	OCR0A_7	= 7	; 
 
 ; OCR0B - Timer/Counter0 Output Compare Register
 .equ	OCR0B_0	= 0	; 
@@ -636,6 +652,11 @@
 ; EIFR - External Interrupt Flag Register
 .equ	INTF0	= 0	; External Interrupt Flag 0
 .equ	INTF1	= 1	; External Interrupt Flag 1
+
+; PCICR - Pin Change Interrupt Control Register
+.equ	PCIE0	= 0	; Pin Change Interrupt Enable 0
+.equ	PCIE1	= 1	; Pin Change Interrupt Enable 1
+.equ	PCIE2	= 2	; Pin Change Interrupt Enable 2
 
 ; PCMSK2 - Pin Change Mask Register 2
 .equ	PCINT16	= 0	; Pin Change Enable Mask 16
@@ -727,7 +748,7 @@
 .equ	CLKPS3	= 3	; Clock Prescaler Select Bit 3
 .equ	CLKPCE	= 7	; Clock Prescaler Change Enable
 
-; SPMCSR - Store Program Memory Control Register
+; SPMCSR - Store Program Memory Control and Status Register
 .equ	SELFPRGEN	= 0	; Self Programming Enable
 .equ	PGERS	= 1	; Page Erase
 .equ	PGWRT	= 2	; Page Write
@@ -792,11 +813,6 @@
 .equ	PRTIM0	= 5	; Power Reduction Timer/Counter0
 .equ	PRTIM2	= 6	; Power Reduction Timer/Counter2
 .equ	PRTWI	= 7	; Power Reduction TWI
-
-; PCICR - 
-.equ	PCIE0	= 0	; 
-.equ	PCIE1	= 1	; 
-.equ	PCIE2	= 2	; 
 
 
 ; ***** WATCHDOG *********************
@@ -939,7 +955,7 @@
 .equ	OC1Baddr	= 0x000c	; Timer/Counter1 Compare Match B
 .equ	OVF1addr	= 0x000d	; Timer/Counter1 Overflow
 .equ	OC0Aaddr	= 0x000e	; TimerCounter0 Compare Match A
-.equ	OC0Baddr	= 0x001f	; TimerCounter0 Compare Match B
+.equ	OC0Baddr	= 0x000f	; TimerCounter0 Compare Match B
 .equ	OVF0addr	= 0x0010	; Timer/Couner0 Overflow
 .equ	SPIaddr	= 0x0011	; SPI Serial Transfer Complete
 .equ	URXCaddr	= 0x0012	; USART Rx Complete
