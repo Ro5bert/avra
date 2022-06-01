@@ -887,7 +887,7 @@ stab_add_filename(char *pName, char *pLabel)
 	if (n <= FILNMLEN) {
 		/* inline filename */
 		memset(pAux->x_file.x_fname, 0, FILNMLEN);
-		strncpy(pAux->x_file.x_fname, pName, n);   /* might not be zero terminated */
+		memcpy(pAux->x_file.x_fname, pName, n);   /* might not be zero terminated */
 	} else {
 		pAux->x_file.x_n.x_zeroes = 0;  /* symbol name is in string table */
 		pAux->x_file.x_n.x_offset = ci->ListOfStrings.TotalBytes;

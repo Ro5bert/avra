@@ -1,6 +1,6 @@
 CC ?= gcc
 CFLAGS ?= -Wall -O3
-CFLAGS += $(CDEFS)
+override CFLAGS += $(CDEFS)
 LDFLAGS ?= -s
 
 SOURCES = avra.c \
