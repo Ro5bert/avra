@@ -370,8 +370,8 @@ void write_map_file(struct prog_info *pi);
 char *Space(char *n);
 
 /* stdextra.c */
-char *nocase_strcmp(const char *s, const char *t);
-char *nocase_strncmp(char *s, char *t, int n);
+int nocase_strcmp(const char *s, const char *t);
+int nocase_strncmp(char *s, char *t, int n);
 char *nocase_strstr(char *s, char *t);
 int atox(char *s);
 int atoi_n(char *s, int n);
