@@ -196,11 +196,11 @@ parse_line(struct prog_info *pi, char *line)
 	/* Filter out .stab debugging information */
 	/* .stabs sometimes contains colon : symbol - might be interpreted as label */
 	if (*line == '.') {					/* minimal slowdown of existing code */
-		if (strncmp(temp,".stabs ",7) == 0) {		/* compiler output is always lower case */
+		if (strncmp(line,".stabs ",7) == 0) {		/* compiler output is always lower case */
 			strcpy(temp,line);			/* TODO : Do we need this temp variable ? Please check */
 			return parse_stabs(pi, temp);
 		}
-		if (strncmp(temp,".stabn ",7) == 0) {
+		if (strncmp(line,".stabn ",7) == 0) {
 			strcpy(temp,line);
 			return parse_stabn(pi, temp);
 		}
