@@ -123,8 +123,8 @@ struct external_scnhdr {
 
 struct lineno {
 	union {
-		long  l_symndx;  /* symtbl index of func name */
-		long  l_paddr;   /* paddr of line number */
+		int64_t  l_symndx;  /* symtbl index of func name */
+		int64_t  l_paddr;   /* paddr of line number */
 	} l_addr;
 	unsigned short  l_lnno;    /* line number */
 };
