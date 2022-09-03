@@ -164,7 +164,7 @@ parse_directive(struct prog_info *pi)
 	struct def *def;
 	struct data_list *incpath, *dl;
 
-	next = get_next_token(pi->fi->scratch, TERM_SPACE);
+	next = get_next_token(pi->fi->scratch + 1, TERM_WORD);
 
 	my_strupr(pi->fi->scratch);
 	directive = lookup_keyword(directive_list, pi->fi->scratch + 1, True);

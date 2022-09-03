@@ -336,6 +336,15 @@ get_next_token(char *data, int term)
 		/* Skip to next horizontal space or EOL or start of comment. */
 		while (!IS_HOR_SPACE(data[i]) && !IS_END_OR_COMMENT(data[i])) i++;
 		break;
+	case TERM_WORD:
+		/* Skip to end of word. */
+		while (IS_LABEL(data[i]) || data[i] == '.') i++;
+		if (!isblank(data[i])) {
+			int k = strlen(data);
+			for (; k != i-1; k--) data[k+1] = data[k];
+			data[i] = ' ';
+		}
+		break;
 	case TERM_DASH:
 		/* Skip to next dash or EOL or start of comment. */
 		while ((data[i] != '-') && !IS_END_OR_COMMENT(data[i])) i++;

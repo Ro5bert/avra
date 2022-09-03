@@ -106,6 +106,7 @@ enum {
 enum {
 	TERM_END = 0,
 	TERM_SPACE,
+	TERM_WORD,
 	TERM_COMMA,
 	TERM_EQUAL,
 	TERM_DASH,

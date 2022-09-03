@@ -355,7 +355,7 @@ parse_mnemonic(struct prog_info *pi)
 	struct macro *macro;
 	char temp[MAX_MNEMONIC_LEN + 1];
 
-	operand1 = get_next_token(pi->fi->scratch, TERM_SPACE);  /* we get the first word on line */
+	operand1 = get_next_token(pi->fi->scratch, TERM_WORD);  /* we get the first word on line */
 	mnemonic = get_mnemonic_type(pi);
 	if (mnemonic == -1) {				/* if -1 this must be a macro name */
 		macro = get_macro(pi, pi->fi->scratch); /* and so, we try to get the corresponding macro struct. */
