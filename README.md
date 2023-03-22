@@ -1,6 +1,6 @@
 # AVRA
 
-*Assember for the Atmel AVR microcontroller family*
+*Assembler for the Atmel AVR microcontroller family*
 
 AVRA is an assembler for Atmel AVR microcontrollers, and it is almost
 compatible with Atmel's own assembler, AVRASM32. AVRA is written in C99.
@@ -9,7 +9,7 @@ compatible with Atmel's own assembler, AVRASM32. AVRA is written in C99.
 
 There are some differences between the original Atmel assembler AVRASM32 and
 AVRA. Basically, AVRA is designed to replace AVRASM32 without special changes
-in your current Atmel AVR Studio enviroment. Command line options have been
+in your current Atmel AVR Studio environment. Command line options have been
 adapted as far as possible. Jumping to fault-containing lines directly by
 double-clicking on the error message in the output window does work as with
 AVRASM32.
@@ -39,7 +39,7 @@ increase the ability to reuse code, e.g., build your own library.
 
 #### Debugging support
 
-AVRA creates a coff file everytime assembly is sucessful. This
+AVRA creates a coff file every time assembly is successful. This
 file allows AVR Studio or any coff compatible debugger to simulate
 or emulate the program.
 
