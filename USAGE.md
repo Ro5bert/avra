@@ -5,10 +5,10 @@ compiled version of the file in Intel HEX format at `mysource.S.hex`. You can
 control the output filename with `-o`. See `--help` for more options (not all
 options work).
 
-## Warning Supression
+## Warning Suppression
 
-There is a possibility to supress certain warnings. 
-Currently only register reassignment warnings can be supressed:
+There is a possibility to suppress certain warnings.
+Currently only register reassignment warnings can be suppressed:
 
 	avra -W NoRegDef
 
@@ -34,7 +34,7 @@ Now `network` is set to the value 1. You can also define names without values:
 Both versions are equivalent, as AVRA will implicitly define `network` to be 1
 in the second case. (Although, if you really want `network` to be 1, you
 should use the first version.) You may want to assemble a specific part of your
-code depeding on a define or switch setting. You can test your defined word on
+code depending on a define or switch setting. You can test your defined word on
 existence (`.ifdef` and `.ifndef`) as well as on the value it represents. The
 following code shows a way to prevent error messages due to testing undefined
 constants:
@@ -69,7 +69,7 @@ particular value has not been previously set:
 
 ### Directives `.nolist` and `.list`
 
-The ouput to the list file can be paused and resumed by the `.nolist` and
+The output to the list file can be paused and resumed by the `.nolist` and
 `.list` directives.  After AVRA discovers a `.nolist` while assembling, it
 stops output to the list file. After a `.list` directive is detected, AVRA
 continues the normal list file output.
@@ -131,7 +131,7 @@ macro parameters. See the following examples.
 
 ### Automatic Type Conversion For Macros
 
-Values representing more than 8 bits are usualy kept in a set of byte wide
+Values representing more than 8 bits are usually kept in a set of byte wide
 registers. To simplify 16 bit operations, words can be written as `r16:r17`. In
 this example, `r16` contains the most significant byte and register `r17`
 contains the least significant byte. In the same way, a 24 bit value stored
@@ -168,7 +168,7 @@ To simplify the examples below, we redefine some registers:
 	.def w = r20  ; working registers
 	.def v = r21
 
-If we substract the 16 bit value `c:d` from `a:b`, we usually have to use the
+If we subtract the 16 bit value `c:d` from `a:b`, we usually have to use the
 following command sequence:
 
 	sub b,d
@@ -278,7 +278,7 @@ Another example of macro overloading follows.
 
 
        ; This writes 9999 into the memory at 'counter' using only the working
-	   ; register for transfering the values.
+	   ; register for transferring the values.
 
        poke [counter,w:w,9999]
 
@@ -379,5 +379,5 @@ or `.dw` for data in the code or eeprom segments.
 
 If you get an "internal assembler error" please contact the project maintainer
 via the [GitHub issue tracker](https://github.com/Ro5bert/avra/issues). Be sure
-to include a code example and a description of your working enviroment.
+to include a code example and a description of your working environment.
 
