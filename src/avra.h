@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <inttypes.h>
 
 #define IS_HOR_SPACE(x)	((x == ' ') || (x == 9))
 #define IS_LABEL(x)	(isalnum(x) || (x == '%') || (x == '_'))
@@ -221,7 +222,7 @@ struct def {
 struct label {
 	struct label *next;
 	char *name;
-	int value;
+	int64_t value;
 };
 
 struct macro {
@@ -286,17 +287,17 @@ void init_segment_size(struct prog_info *pi, struct device *device);
 void rewind_segments(struct prog_info *pi);
 void advance_ip(struct segment_info *si, int offset);
 
-int def_const(struct prog_info *pi, const char *name, int value);
-int def_var(struct prog_info *pi, char *name, int value);
+int def_const(struct prog_info *pi, const char *name, int64_t value);
+int def_var(struct prog_info *pi, char *name, int64_t value);
 int def_orglist(struct segment_info *si);
 int fix_orglist(struct segment_info *si);
 void fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist);
 void fprint_sef_orglist(FILE *file, struct segment_info *si);
 void fprint_segments(FILE *file, struct prog_info *pi);
 int test_orglist(struct segment_info *si);
-int get_label(struct prog_info *pi,char *name,int *value);
-int get_constant(struct prog_info *pi,char *name,int *value);
-int get_variable(struct prog_info *pi,char *name,int *value);
+int get_label(struct prog_info *pi,char *name,int64_t *value);
+int get_constant(struct prog_info *pi,char *name,int64_t *value);
+int get_variable(struct prog_info *pi,char *name,int64_t *value);
 struct label *test_label(struct prog_info *pi,char *name,char *message);
 struct label *test_constant(struct prog_info *pi,char *name,char *message);
 struct label *test_variable(struct prog_info *pi,char *name,char *message);
@@ -321,8 +322,8 @@ char *get_next_token(char *scratch, int term);
 char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream);
 
 /* expr.c */
-int get_expr(struct prog_info *pi, char *data, int *value);
-int get_symbol(struct prog_info *pi, char *label_name, int *data);
+int get_expr(struct prog_info *pi, char *data, int64_t *value);
+int get_symbol(struct prog_info *pi, char *label_name, int64_t *data);
 int par_length(char *data);
 
 /* mnemonic.c */
@@ -374,8 +375,8 @@ char *nocase_strcmp(const char *s, const char *t);
 char *nocase_strncmp(char *s, char *t, int n);
 char *nocase_strstr(char *s, char *t);
 int atox(char *s);
-int atoi_n(char *s, int n);
-int atox_n(char *s, int n);
+int64_t atoi_n(char *s, int n);
+int64_t atox_n(char *s, int n);
 char *my_strlwr(char *in);
 char *my_strupr(char *in);
 char *snprint_list(char *buf, size_t limit, const char *const list[]);

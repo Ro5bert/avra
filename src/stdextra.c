@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "misc.h"
 
@@ -98,10 +99,11 @@ atox(char *s)
 }
 
 /* n ascii chars to int. */
-int
+int64_t
 atoi_n(char *s, int n)
 {
-	int i = 0, ret = 0;
+	int i = 0;
+	int64_t ret = 0;
 
 	while ((s[i] != '\0') && n) {
 		ret = 10 * ret + (s[i] - '0');
@@ -112,10 +114,11 @@ atoi_n(char *s, int n)
 }
 
 /* n ascii chars to hex, where 0 < n <= 8. Ignores "0x". */
-int
+int64_t
 atox_n(char *s, int n)
 {
-	int i = 0, ret = 0;
+	int i = 0;
+	int64_t ret = 0;
 
 	while ((s[i] != '\0') && n) {
 		ret <<= 4;

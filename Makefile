@@ -1,5 +1,5 @@
 OS = linux
-VERSION = 1.4.2
+VERSION = 1.4.2b
 
 DISTFILES = src \
 	includes \

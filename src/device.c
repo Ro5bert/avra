@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "misc.h"
 #include "avra.h"
@@ -206,11 +207,13 @@ predef_dev(struct prog_info *pi)
 			if (def_const(pi, temp, i)==False)
 				return (False);
 		} else { /* Pass 2 */
+			int64_t expr_val;
 			int j;
-			if (get_constant(pi, temp, &j)==False) {  /* Defined in Pass 1 and now missing ? */
+			if (get_constant(pi, temp, &expr_val)==False) {  /* Defined in Pass 1 and now missing ? */
 				fprintf(stderr,"Constant %s is missing in pass 2\n",temp);
 				return (False);
 			}
+			j = (int)expr_val;
 			if (i != j) {
 				fprintf(stderr,"Constant %s changed value from %d in pass1 to %d in pass 2\n",temp,j,i);
 				return (False);

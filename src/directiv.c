@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "misc.h"
 #include "args.h"
@@ -157,6 +158,7 @@ parse_directive(struct prog_info *pi)
 {
 	int directive, pragma;
 	int ok = True;
+	int64_t expr_val;
 	int i;
 	char *next, *data, buf[140];
 	struct file_info *fi_bak;
@@ -183,8 +185,9 @@ parse_directive(struct prog_info *pi)
 			return False;
 		}
 		get_next_token(next, TERM_END);
-		if (!get_expr(pi, next, &i))
+		if (!get_expr(pi, next, &expr_val))
 			return (False);
+		i = (int)expr_val;
 		if (i < 0) {
 			print_msg(pi, MSGTYPE_ERROR, ".BYTE directive must have nonnegative operand");
 			return False;
@@ -320,8 +323,9 @@ parse_directive(struct prog_info *pi)
 		while (next) {
 			data = get_next_token(next, TERM_COMMA);
 			if (pi->pass == PASS_2) {
-				if (!get_expr(pi, next, &i))
+				if (!get_expr(pi, next, &expr_val))
 					return (False);
+				i = (int)expr_val;
 				if ((i < -32768) || (i > 65535))
 					print_msg(pi, MSGTYPE_WARNING, "Value %d is out of range (-32768 <= k <= 65535). Will be masked", i);
 			}
@@ -362,7 +366,7 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		}
 		get_next_token(data, TERM_END);
-		if (!get_expr(pi, data, &i))
+		if (!get_expr(pi, data, &expr_val))
 			return (False);
 		if (test_label(pi,next,"%s have already been defined as a label")!=NULL)
 			return (True);
@@ -372,16 +376,16 @@ parse_directive(struct prog_info *pi)
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,next,"Can't redefine constant %s, use .SET instead")!=NULL)
 				return (True);
-			if (def_const(pi, next, i)==False)
+			if (def_const(pi, next, expr_val)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int j;
-			if (get_constant(pi, next, &j)==False) {  /* Defined in Pass 1 and now missing ? */
+			int64_t expr_val2;
+			if (get_constant(pi, next, &expr_val2)==False) {  /* Defined in Pass 1 and now missing ? */
 				print_msg(pi, MSGTYPE_ERROR, "Constant %s is missing in pass 2", next);
 				return (False);
 			}
-			if (i != j) {
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %d in pass1 to %d in pass 2", next,j,i);
+			if (expr_val != expr_val2) {
+				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2", next,expr_val2,expr_val);
 				return (False);
 			}
 			/* OK. Definition is unchanged */
@@ -449,7 +453,7 @@ parse_directive(struct prog_info *pi)
 		if (data) {
 			print_msg(pi, MSGTYPE_ERROR, ".INCLUDEPATH needs an operand!!!");
 			get_next_token(data, TERM_END);
-			if (!get_expr(pi, data, &i))
+			if (!get_expr(pi, data, &expr_val))
 				return (False);
 		}
 		next = term_string(pi, next);
@@ -502,8 +506,9 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		}
 		get_next_token(next, TERM_END);
-		if (!get_expr(pi, next, &i))
+		if (!get_expr(pi, next, &expr_val))
 			return (False);
+		i = (int)expr_val;
 		fix_orglist(pi->segment);
 		pi->segment->addr = i; /* XXX advance */
 		def_orglist(pi->segment);
@@ -525,14 +530,14 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		}
 		get_next_token(data, TERM_END);
-		if (!get_expr(pi, data, &i))
+		if (!get_expr(pi, data, &expr_val))
 			return (False);
 
 		if (test_label(pi,next,"%s have already been defined as a label")!=NULL)
 			return (True);
 		if (test_constant(pi,next,"%s have already been defined as a .EQU constant")!=NULL)
 			return (True);
-		return (def_var(pi, next, i));
+		return (def_var(pi, next, expr_val));
 	case DIRECTIVE_DEFINE:
 		if (!next) {
 			print_msg(pi, MSGTYPE_ERROR, ".DEFINE needs an operand");
@@ -541,10 +546,10 @@ parse_directive(struct prog_info *pi)
 		data = get_next_token(next, TERM_SPACE);
 		if (data) {
 			get_next_token(data, TERM_END);
-			if (!get_expr(pi, data, &i))
+			if (!get_expr(pi, data, &expr_val))
 				return (False);
 		} else
-			i = 1;
+			expr_val = 1;
 		if (test_label(pi,next,"%s have already been defined as a label")!=NULL)
 			return (True);
 		if (test_variable(pi,next,"%s have already been defined as a .SET variable")!=NULL)
@@ -553,16 +558,16 @@ parse_directive(struct prog_info *pi)
 		if (pi->pass==PASS_1) { /* Pass 1 */
 			if (test_constant(pi,next,"Can't redefine constant %s, use .SET instead")!=NULL)
 				return (True);
-			if (def_const(pi, next, i)==False)
+			if (def_const(pi, next, expr_val)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int j;
-			if (get_constant(pi, next, &j)==False) {  /* Defined in Pass 1 and now missing ? */
+			int64_t expr_val2;
+			if (get_constant(pi, next, &expr_val2)==False) {  /* Defined in Pass 1 and now missing ? */
 				print_msg(pi, MSGTYPE_ERROR, "Constant %s is missing in pass 2", next);
 				return (False);
 			}
-			if (i != j) {
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %d in pass1 to %d in pass 2", next,j,i);
+			if (expr_val != expr_val2) {
+				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2", next,expr_val2,expr_val);
 				return (False);
 			}
 			/* OK. Definition is unchanged */
@@ -682,9 +687,9 @@ parse_directive(struct prog_info *pi)
 			return (True);
 		}
 		get_next_token(next, TERM_END);
-		if (!get_expr(pi, next, &i))
+		if (!get_expr(pi, next, &expr_val))
 			return (False);
-		if (i)
+		if (expr_val)
 			pi->conditional_depth++;
 		else {
 			if (!spool_conditional(pi, False))
@@ -720,11 +725,11 @@ parse_directive(struct prog_info *pi)
 					next++;
 				}
 			} else {
-				if (!get_expr(pi, next, &i)) {
+				if (!get_expr(pi, next, &expr_val)) {
 					print_msg(pi, MSGTYPE_APPEND,"\n"); /* Add newline */
 					return (False);
 				}
-				print_msg(pi, MSGTYPE_APPEND,"0x%02X",i);
+				print_msg(pi, MSGTYPE_APPEND,"0x%02" PRIX64,expr_val);
 			}
 			next = data;
 		}
@@ -796,6 +801,7 @@ term_string(struct prog_info *pi, char *string)
 int
 parse_db(struct prog_info *pi, char *next)
 {
+	int64_t expr_val;
 	int i;
 	int count;
 	char *data;
@@ -828,11 +834,12 @@ parse_db(struct prog_info *pi, char *next)
 			}
 		} else {
 			if (pi->pass == PASS_2) {
-				if (!get_expr(pi, next, &i))
+				if (!get_expr(pi, next, &expr_val))
 					return (False);
+				i = (int)expr_val;
 				if ((i < -128) || (i > 255))
 					print_msg(pi, MSGTYPE_WARNING, "Value %d is out of range (-128 <= k <= 255). Will be masked", i);
-				if (pi->list_on) fprintf(pi->list_file, "%02X", i);
+				if (pi->list_on) fprintf(pi->list_file, "%02d", i);
 			}
 			count++;
 			write_db(pi, (char)i, &prev, count);
@@ -920,6 +927,7 @@ spool_conditional(struct prog_info *pi, int only_endif)
 int
 check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int *do_next, int only_endif)
 {
+	int64_t expr_val;
 	int i = 0;
 	char *next;
 	char linebuff[LINEBUFFER_LENGTH];
@@ -947,9 +955,9 @@ check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int *do
 					return (True);
 				}
 				get_next_token(next, TERM_END);
-				if (!get_expr(pi, next, &i))
+				if (!get_expr(pi, next, &expr_val))
 					return (False);
-				if (i)
+				if (expr_val)
 					pi->conditional_depth++;
 				else {
 					if (!spool_conditional(pi, False))
