@@ -80,10 +80,11 @@ nocase_strstr(char *s, char *t)
 }
 
 /* Convert ascii to hex. Ignores "0x". */
-int
+int64_t
 atox(char *s)
 {
-	int i = 0, ret = 0;
+	int i = 0;
+	int64_t ret = 0;
 
 	while (s[i] != '\0') {
 		ret <<= 4;

@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #include "misc.h"
 #include "avra.h"

@@ -574,7 +574,7 @@ parse_stabs(struct prog_info *pi, char *p)
 
 
 	if (*p2 == '0')
-		TypeCode = atox(p2);    /* presume to be hex 0x */
+		TypeCode = (int)atox(p2);    /* presume to be hex 0x */
 	else
 		TypeCode = atoi(p2);
 

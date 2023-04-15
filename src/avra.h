@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 #include <time.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #define IS_HOR_SPACE(x)	((x == ' ') || (x == 9))
 #define IS_LABEL(x)	(isalnum(x) || (x == '%') || (x == '_'))
@@ -374,7 +374,7 @@ char *Space(char *n);
 char *nocase_strcmp(const char *s, const char *t);
 char *nocase_strncmp(char *s, char *t, int n);
 char *nocase_strstr(char *s, char *t);
-int atox(char *s);
+int64_t atox(char *s);
 int64_t atoi_n(char *s, int n);
 int64_t atox_n(char *s, int n);
 char *my_strlwr(char *in);
