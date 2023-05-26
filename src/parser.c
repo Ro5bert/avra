@@ -346,14 +346,18 @@ preprocess_line(struct prog_info *pi, char *line)
 						}
 						free_item_list(args);
 #if debug == 1
-						printf("preprocess_line line (before replace) \"%s\"\n", line);
+						printf("preprocess_line line (before inplace_replace) \"%s\"\n", line);
 #endif
 						if (!inplace_replace(line, macro_begin, macro_end, temp, LINEBUFFER_LENGTH)) {
 							print_msg(pi, MSGTYPE_ERROR, "Expanded macro %s with value %s too big", macro->name, temp);
 							return (PREPROCESS_NEXT_LINE);
 						}
 #if debug == 1
-						printf("preprocess_line line (after replace) \"%s\"\n", line);
+						printf("preprocess_line line (after inplace_replace) \"%s\"\n", line);
+#endif
+						apply_preproc_macro_opers(line);
+#if debug == 1
+						printf("preprocess_line line (after apply_preproc_macro_opers) \"%s\"\n", line);
 #endif
 						macro_expanded = True;
 					}
@@ -730,6 +734,20 @@ inplace_replace(char *line, char *begin, char *end, char *value, int buff_len)
 		memmove(begin + value_len, end + 1, rest_len + 1);
 	memmove(begin, value, value_len);
 	return (True);
+}
+
+/* Apply the preprocessor macro operators. */
+void
+apply_preproc_macro_opers(char *line)
+{
+	char *begin, *end;
+
+	while ((begin = strstr(line, "##"))) {	/* Apply Concatenation (##) operator */
+		end = begin + 2;
+		while (begin - 1 > line && IS_HOR_SPACE(*(begin - 1))) begin--;
+		while (IS_HOR_SPACE(*end)) end++;
+		memmove(begin, end, strlen(end) + 1);
+	}
 }
 
 /* end of parser.c */
