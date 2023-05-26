@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 
 #include "misc.h"
 
@@ -155,6 +157,22 @@ my_strupr(char *in)
 		in[i] = toupper(in[i]);
 
 	return (in);
+}
+
+/* Create a dynamically allocated duplicate of the section pointed by begin and end.
+ * Returns the pointer the duplicate or NULL when no memory. 
+ * Begin and end must be pointers to a section within the same string. */
+char *
+strdup_section(char *begin, char *end)
+{
+	char *dup;
+	size_t len = end - begin +1;
+	dup = malloc(len +1);
+	if (!dup)
+		return (NULL);
+	strncpy(dup, begin, len);
+	dup[len] = '\0';
+	return (dup);
 }
 
 static int

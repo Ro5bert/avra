@@ -470,7 +470,7 @@ get_expr(struct prog_info *pi, char *data, int *value)
 					break;
 				}
 				data[i + length++] = '\0';
-				if (get_symbol(pi, &data[i], NULL))
+				if (get_preproc_macro(pi, &data[i], NULL))
 					element->data = 1;
 				else
 					element->data = 0;

@@ -28,14 +28,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <string.h>
 
 #include "misc.h"
 #include "args.h"
 #include "avra.h"
 #include "device.h"
-
-#define debug 0
 
 const char *title = "AVRA: advanced AVR macro assembler (version %s)\n";
 
@@ -90,7 +89,7 @@ main(int argc, const char *argv[])
 #if debug == 1
 	int i;
 	for (i = 0; i < argc; i++) {
-		printf(argv[i]);
+		printf("%s", argv[i]);
 		printf("\n");
 	}
 #endif
@@ -259,42 +258,27 @@ assemble(struct prog_info *pi)
 int
 load_arg_defines(struct prog_info *pi)
 {
-	int i;
-	char *expr;
-	char buff[256];
 	struct data_list *define;
+	char *value;
+	char buff[256];
 
 	for (define = GET_ARG_LIST(pi->args, ARG_DEFINE); define; define = define->next) {
+#if debug == 1
+		printf("load_arg_defines opt \"%s\"\n", define->data);
+#endif
 		strcpy(buff, define->data);
-		expr = get_next_token(buff, TERM_EQUAL);
-		if (expr) {
-			/* we reach this, when there is actually a value passed.. */
-			if (!get_expr(pi, expr, &i)) {
+		value = get_next_token(buff, TERM_EQUAL);
+		if (!value)
+			value = "1";
+		if (pi->pass == PASS_1) {
+			if (test_preproc_macro(pi,buff,NULL)!=NULL) {
+				fprintf(stderr,"Error: Can't define preprocessor macro %s twice\n", buff);
 				return (False);
 			}
+			if (def_preproc_macro(pi, buff, PREPROC_MACRO_OBJECT_LIKE, NULL, value)==False)
+				return (False);
 		} else {
-			/* if user didnt specify a value, we default to 1 */
-			i = 1;
-		}
-		/* Forward references allowed. But check, if everything is ok... */
-		if (pi->pass==PASS_1) { /* Pass 1 */
-			if (test_constant(pi,buff,NULL)!=NULL) {
-				fprintf(stderr,"Error: Can't define symbol %s twice\n", buff);
-				return (False);
-			}
-			if (def_const(pi, buff, i)==False)
-				return (False);
-		} else { /* Pass 2 */
-			int j;
-			if (get_constant(pi, buff, &j)==False) {  /* Defined in Pass 1 and now missing ? */
-				fprintf(stderr,"Constant %s is missing in pass 2\n",buff);
-				return (False);
-			}
-			if (i != j) {
-				fprintf(stderr,"Constant %s changed value from %d in pass1 to %d in pass 2\n",buff,j,i);
-				return (False);
-			}
-			/* OK. Definition is unchanged */
+			/* Pass 2 */
 		}
 	}
 	return (True);
@@ -396,6 +380,7 @@ free_pi(struct prog_info *pi)
 	free_ifdef_blacklist(pi);
 	free_ifndef_blacklist(pi);
 	free_orglist(pi);
+	free_preproc_macros(pi);
 }
 
 void
@@ -871,6 +856,120 @@ free_orglist(struct prog_info *pi)
 	pi->last_orglist = NULL;
 }
 
+int
+get_preproc_macro(struct prog_info *pi,char *name,struct preproc_macro **pm)
+{
+	struct preproc_macro *macro;
+	macro = search_preproc_macro(pi, pi->first_preproc_macro, name, NULL);
+	if (macro == NULL) return False;
+	if (pm != NULL)	*pm = macro;
+	return True;
+}
+
+struct preproc_macro *
+test_preproc_macro(struct prog_info *pi,char *name,char *message)
+{
+	return search_preproc_macro(pi, pi->first_preproc_macro, name, message);
+}
+
+struct preproc_macro *
+search_preproc_macro(struct prog_info *pi,struct preproc_macro *first,char *name,char *message)
+{
+	struct preproc_macro *macro;
+	for (macro = first; macro; macro = macro->next)
+		if (!nocase_strcmp(macro->name, name)) {
+			if (message) {
+				print_msg(pi, MSGTYPE_ERROR, message, name);
+			}
+			return (macro);
+		}
+	return (NULL);
+}
+
+int
+def_preproc_macro(struct prog_info *pi, char *name, int type, struct item_list *params, char *value) {
+	struct preproc_macro *macro;
+	macro = malloc(sizeof(struct preproc_macro));
+	if (!macro) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return (False);
+	}
+	memset(macro, 0, sizeof(struct preproc_macro));
+	macro->name = malloc(strlen(name)+1);
+	if (!macro->name) {
+		free(macro);
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return (False);
+	}
+	strcpy(macro->name, name);
+	macro->type = type;
+	macro->params = params;
+	macro->value = malloc(strlen(value)+1);
+	if (!macro->value) {
+		free(macro->name);
+		free(macro);
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return (False);
+	}
+	strcpy(macro->value, value);
+
+	if (pi->last_preproc_macro)
+		pi->last_preproc_macro->next = macro;
+	else
+		pi->first_preproc_macro = macro;
+	pi->last_preproc_macro = macro;
+	return (True);
+}
+
+void
+free_preproc_macros(struct prog_info *pi)
+{
+	struct preproc_macro *macro, *temp_macro;
+	struct item_list *param, *temp_param;
+
+	for (macro = pi->first_preproc_macro; macro;) {
+		temp_macro = macro;
+		macro = macro->next;
+
+		free(temp_macro->value);
+		if (temp_macro->type == PREPROC_MACRO_FUNCTION_LIKE)
+			for (param = temp_macro->params; param;) {
+				temp_param = param;
+				param = param->next;
+				free(temp_param->value);
+				free(temp_param);
+			}
+		free(temp_macro->name);
+		free(temp_macro);
+	}
+
+	pi->first_preproc_macro = NULL;
+	pi->last_preproc_macro = NULL;
+}
+
+/* Determine the length of an item list. */
+int
+item_list_length(struct item_list *lst)
+{
+	int len;
+	if (!lst)
+		return (0);
+	for (len = 0; lst->next; lst = lst->next, len++);
+	return (len);
+}
+
+/* Free up an item list. */
+void
+free_item_list(struct item_list *lst)
+{
+	struct item_list *temp_lst;
+	while (lst) {
+		temp_lst = lst;
+		lst = lst->next;
+		free(temp_lst->value);
+		free(temp_lst);
+	}
+}
 
 /* avra.c */
 

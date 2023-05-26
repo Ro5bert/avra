@@ -533,45 +533,6 @@ parse_directive(struct prog_info *pi)
 		if (test_constant(pi,next,"%s have already been defined as a .EQU constant")!=NULL)
 			return (True);
 		return (def_var(pi, next, i));
-	case DIRECTIVE_DEFINE:
-		if (!next) {
-			print_msg(pi, MSGTYPE_ERROR, ".DEFINE needs an operand");
-			return (True);
-		}
-		data = get_next_token(next, TERM_SPACE);
-		if (data) {
-			get_next_token(data, TERM_END);
-			if (!get_expr(pi, data, &i))
-				return (False);
-		} else
-			i = 1;
-		if (test_label(pi,next,"%s have already been defined as a label")!=NULL)
-			return (True);
-		if (test_variable(pi,next,"%s have already been defined as a .SET variable")!=NULL)
-			return (True);
-		/* Forward references allowed. But check, if everything is ok ... */
-		if (pi->pass==PASS_1) { /* Pass 1 */
-			if (test_constant(pi,next,"Can't redefine constant %s, use .SET instead")!=NULL)
-				return (True);
-			if (def_const(pi, next, i)==False)
-				return (False);
-		} else { /* Pass 2 */
-			int j;
-			if (get_constant(pi, next, &j)==False) {  /* Defined in Pass 1 and now missing ? */
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s is missing in pass 2", next);
-				return (False);
-			}
-			if (i != j) {
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %d in pass1 to %d in pass 2", next,j,i);
-				return (False);
-			}
-			/* OK. Definition is unchanged */
-		}
-		if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
-			fprintf(pi->list_file, "          %s\n", pi->list_line);
-			pi->list_line = NULL;
-		}
-		break;
 	case DIRECTIVE_NOOVERLAP:
 		if (pi->pass == PASS_1) {
 			fix_orglist(pi->segment);
@@ -640,7 +601,7 @@ parse_directive(struct prog_info *pi)
 		get_next_token(next, TERM_END);
 		/* Store location of ifdef (line number and file number) if the condition
 		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
-		if ((pi->pass==PASS_1 && get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
+		if ((pi->pass==PASS_1 && get_preproc_macro(pi, next, NULL)) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
@@ -662,7 +623,7 @@ parse_directive(struct prog_info *pi)
 		get_next_token(next, TERM_END);
 		/* Store location of ifndef (line number and file number) if the condition
 		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
-		if ((pi->pass==PASS_1 && !get_symbol(pi, next, NULL)) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
+		if ((pi->pass==PASS_1 && !get_preproc_macro(pi, next, NULL)) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
