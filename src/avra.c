@@ -261,7 +261,7 @@ assemble(struct prog_info *pi)
 int
 load_arg_defines(struct prog_info *pi)
 {
-	int64_t expr_val;
+	int64_t i;
 	char *expr;
 	char buff[256];
 	struct data_list *define;
@@ -271,12 +271,12 @@ load_arg_defines(struct prog_info *pi)
 		expr = get_next_token(buff, TERM_EQUAL);
 		if (expr) {
 			/* we reach this, when there is actually a value passed.. */
-			if (!get_expr(pi, expr, &expr_val)) {
+			if (!get_expr(pi, expr, &i)) {
 				return (False);
 			}
 		} else {
 			/* if user didnt specify a value, we default to 1 */
-			expr_val = 1;
+			i = 1;
 		}
 		/* Forward references allowed. But check, if everything is ok... */
 		if (pi->pass==PASS_1) { /* Pass 1 */
@@ -284,16 +284,16 @@ load_arg_defines(struct prog_info *pi)
 				fprintf(stderr,"Error: Can't define symbol %s twice\n", buff);
 				return (False);
 			}
-			if (def_const(pi, buff, expr_val)==False)
+			if (def_const(pi, buff, i)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int64_t expr_val2;
-			if (get_constant(pi, buff, &expr_val2)==False) {  /* Defined in Pass 1 and now missing ? */
+			int64_t j;
+			if (get_constant(pi, buff, &j)==False) {  /* Defined in Pass 1 and now missing ? */
 				fprintf(stderr,"Constant %s is missing in pass 2\n",buff);
 				return (False);
 			}
-			if (expr_val != expr_val2) {
-				fprintf(stderr,"Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2\n",buff,expr_val2,expr_val);
+			if (i != j) {
+				fprintf(stderr,"Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2\n",buff,j,i);
 				return (False);
 			}
 			/* OK. Definition is unchanged */

@@ -330,7 +330,7 @@ int par_length(char *data);
 int parse_mnemonic(struct prog_info *pi);
 int get_mnemonic_type(struct prog_info *pi);
 int get_register(struct prog_info *pi, char *data);
-int get_bitnum(struct prog_info *pi, char *data, int *ret);
+int get_bitnum(struct prog_info *pi, char *data, int64_t *ret);
 int get_indirect(struct prog_info *pi, char *operand);
 int is_supported(struct prog_info *pi, char *name);
 int count_supported_instructions(int flags);

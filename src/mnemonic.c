@@ -347,8 +347,7 @@ int
 parse_mnemonic(struct prog_info *pi)
 {
 	int mnemonic;
-	int64_t expr_val;
-	int i;
+	int64_t i;
 	int opcode = 0;
 	int opcode2 = 0;
 	int instruction_long = False;
@@ -428,9 +427,8 @@ parse_mnemonic(struct prog_info *pi)
 				if (mnemonic >= MNEMONIC_TST)
 					opcode |= ((i & 0x10) << 5) | (i & 0x0f);
 			} else if (mnemonic <= MNEMONIC_RCALL) {
-				if (!get_expr(pi, operand1, &expr_val))
+				if (!get_expr(pi, operand1, &i))
 					return (False);
-				i = (int)expr_val;
 				i -= pi->cseg->addr + 1;
 				if (mnemonic <= MNEMONIC_BRID) {
 					if ((i < -64) || (i > 63))
@@ -442,9 +440,8 @@ parse_mnemonic(struct prog_info *pi)
 					opcode = i & 0x0fff;
 				}
 			} else if (mnemonic <= MNEMONIC_CALL) {
-				if (!get_expr(pi, operand1, &expr_val))
+				if (!get_expr(pi, operand1, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 4194303))
 					print_msg(pi, MSGTYPE_ERROR, "Address out of range (0 <= k <= 4194303)");
 				opcode = ((i & 0x3e0000) >> 13) | ((i & 0x010000) >> 16);
@@ -454,9 +451,8 @@ parse_mnemonic(struct prog_info *pi)
 				if (!get_bitnum(pi, operand1, &i))
 					return (False);
 				opcode = i;
-				if (!get_expr(pi, operand2, &expr_val))
+				if (!get_expr(pi, operand2, &i))
 					return (False);
-				i = (int)expr_val;
 				i -= pi->cseg->addr + 1;
 				if ((i < -64) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "Branch out of range (-64 <= k <= 63)");
@@ -498,9 +494,8 @@ parse_mnemonic(struct prog_info *pi)
 				if (!((i == 24) || (i == 26) || (i == 28) || (i == 30)))
 					print_msg(pi, MSGTYPE_ERROR, "%s can only use registers R24, R26, R28 or R30", instruction_list[mnemonic].mnemonic);
 				opcode = ((i - 24) / 2) << 4;
-				if (!get_expr(pi, operand2, &expr_val))
+				if (!get_expr(pi, operand2, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "Constant out of range (0 <= k <= 63)");
 				opcode |= ((i & 0x30) << 2) | (i & 0x0f);
@@ -509,9 +504,8 @@ parse_mnemonic(struct prog_info *pi)
 				if (i < 16)
 					print_msg(pi, MSGTYPE_ERROR, "%s can only use a high register (r16 - r31)", instruction_list[mnemonic].mnemonic);
 				opcode = (i & 0x0f) << 4;
-				if (!get_expr(pi, operand2, &expr_val))
+				if (!get_expr(pi, operand2, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < -128) || (i > 255))
 					print_msg(pi, MSGTYPE_WARNING, "Constant out of range (-128 <= k <= 255). Will be masked");
 				if (mnemonic == MNEMONIC_CBR)
@@ -526,25 +520,22 @@ parse_mnemonic(struct prog_info *pi)
 			} else if (mnemonic == MNEMONIC_IN) {
 				i = get_register(pi, operand1);
 				opcode = i << 4;
-				if (!get_expr(pi, operand2, &expr_val))
+				if (!get_expr(pi, operand2, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
 				opcode |= ((i & 0x30) << 5) | (i & 0x0f);
 			} else if (mnemonic == MNEMONIC_OUT) {
-				if (!get_expr(pi, operand1, &expr_val))
+				if (!get_expr(pi, operand1, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 63)");
 				opcode = ((i & 0x30) << 5) | (i & 0x0f);
 				i = get_register(pi, operand2);
 				opcode |= i << 4;
 			} else if (mnemonic <= MNEMONIC_CBI) {
-				if (!get_expr(pi, operand1, &expr_val))
+				if (!get_expr(pi, operand1, &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 31))
 					print_msg(pi, MSGTYPE_ERROR, "I/O out of range (0 <= P <= 31)");
 				opcode = i << 3;
@@ -559,9 +550,8 @@ parse_mnemonic(struct prog_info *pi)
 					mnemonic = MNEMONIC_LDS_AVR8L;
 					opcode &= 0x00f0;
 				}
-				if (!get_expr(pi, operand2, &expr_val))
+				if (!get_expr(pi, operand2, &i))
 					return (False);
-				i = (int)expr_val;
 				if (pi->device->flag & DF_AVR8L) {
 					if ((i < 0x40) || (i > 0xbf))
 						print_msg(pi, MSGTYPE_ERROR, "SRAM out of range (0x40 <= k <= 0xbf)");
@@ -573,9 +563,8 @@ parse_mnemonic(struct prog_info *pi)
 					instruction_long = True;
 				}
 			} else if (mnemonic == MNEMONIC_STS) {
-				if (!get_expr(pi, operand1, &expr_val))
+				if (!get_expr(pi, operand1, &i))
 					return (False);
-				i = (int)expr_val;
 				/* AVR8L has one word STS. High nibble of k in funny order */
 				if (pi->device->flag & DF_AVR8L) {
 					mnemonic = MNEMONIC_STS_AVR8L;
@@ -616,9 +605,8 @@ parse_mnemonic(struct prog_info *pi)
 					print_msg(pi, MSGTYPE_ERROR, "Garbage in second operand (%s)", operand2);
 					return (False);
 				}
-				if (!get_expr(pi, &operand2[i + 1], &expr_val))
+				if (!get_expr(pi, &operand2[i + 1], &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
 				opcode |= ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
@@ -635,9 +623,8 @@ parse_mnemonic(struct prog_info *pi)
 					print_msg(pi, MSGTYPE_ERROR, "Garbage in first operand (%s)", operand1);
 					return (False);
 				}
-				if (!get_expr(pi, &operand1[i + 1], &expr_val))
+				if (!get_expr(pi, &operand1[i + 1], &i))
 					return (False);
-				i = (int)expr_val;
 				if ((i < 0) || (i > 63))
 					print_msg(pi, MSGTYPE_ERROR, "Displacement out of range (0 <= q <= 63)");
 				opcode = ((i & 0x20) << 8) | ((i & 0x18) << 7) | (i & 0x07);
@@ -748,12 +735,12 @@ get_register(struct prog_info *pi, char *data)
 }
 
 int
-get_bitnum(struct prog_info *pi, char *data, int *ret)
+get_bitnum(struct prog_info *pi, char *data, int64_t *ret)
 {
-	int64_t expr_val;
-	if (!get_expr(pi, data, &expr_val))
+	int64_t i;
+	if (!get_expr(pi, data, &i))
 		return (False);
-	*ret = (int)expr_val;
+	*ret = i;
 	if ((*ret < 0) || (*ret > 7)) {
 		print_msg(pi, MSGTYPE_ERROR, "Operand out of range (0 <= s <= 7)");
 		return (False);
