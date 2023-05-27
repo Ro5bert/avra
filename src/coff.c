@@ -32,6 +32,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -574,7 +575,7 @@ parse_stabs(struct prog_info *pi, char *p)
 
 
 	if (*p2 == '0')
-		TypeCode = atox(p2);    /* presume to be hex 0x */
+		TypeCode = (int)atox(p2);    /* presume to be hex 0x */
 	else
 		TypeCode = atoi(p2);
 
@@ -706,7 +707,7 @@ int
 stab_add_lineno(struct prog_info *pi, int LineNumber, char *pLabel, char *pFunction)
 {
 
-	int Address;
+	int64_t Address;
 	struct lineno *pln;
 	struct syment *pEntry;
 	union auxent *pAux;
@@ -754,7 +755,7 @@ int
 stab_add_lbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction)
 {
 
-	int Address;
+	int64_t Address;
 	struct syment *pEntry;
 	union auxent *pAux;
 
@@ -790,7 +791,7 @@ int
 stab_add_rbracket(struct prog_info *pi, int Level, char *pLabel, char *pFunction)
 {
 
-	int Address;
+	int64_t Address;
 	struct syment *pEntry;
 	union auxent *pAux;
 
@@ -907,7 +908,8 @@ int
 stab_add_function(struct prog_info *pi, char *pName, char *pLabel)
 {
 
-	int n, Address;
+	int n;
+	int64_t Address;
 	unsigned short CoffType, Type;
 	struct syment *pEntry;
 	char *pType;
@@ -991,7 +993,8 @@ int
 stab_add_global(struct prog_info *pi, char *pName, char *pType)
 {
 
-	int n, Address, IsArray, SymbolIndex;
+	int n, IsArray, SymbolIndex;
+	int64_t Address;
 	unsigned short CoffType, Type;
 	struct syment *pEntry;
 	char *p;
@@ -1129,7 +1132,8 @@ int
 stab_add_static_symbol(struct prog_info *pi, char *pName, char *pType, char *pLabel)
 {
 
-	int n, Address;
+	int n;
+	int64_t Address;
 	unsigned short CoffType, Type;
 	struct syment *pEntry;
 
