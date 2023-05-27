@@ -834,7 +834,7 @@ parse_db(struct prog_info *pi, char *next)
 					return (False);
 				if ((i < -128) || (i > 255))
 					print_msg(pi, MSGTYPE_WARNING, "Value %" PRId64 " is out of range (-128 <= k <= 255). Will be masked", i);
-				if (pi->list_on) fprintf(pi->list_file, "%02"  PRId64, i);
+				if (pi->list_on) fprintf(pi->list_file, "%02"  PRIX64, i);
 			}
 			count++;
 			write_db(pi, (char)i, &prev, count);
