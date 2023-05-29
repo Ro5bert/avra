@@ -601,7 +601,7 @@ parse_directive(struct prog_info *pi)
 		get_next_token(next, TERM_END);
 		/* Store location of ifdef (line number and file number) if the condition
 		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
-		if ((pi->pass==PASS_1 && get_preproc_macro(pi, next, NULL)) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
+		if ((pi->pass==PASS_1 && (get_preproc_macro(pi, next, NULL) || get_symbol(pi, next, NULL))) || (pi->pass==PASS_2 && !ifdef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
@@ -623,7 +623,7 @@ parse_directive(struct prog_info *pi)
 		get_next_token(next, TERM_END);
 		/* Store location of ifndef (line number and file number) if the condition
 		 * fails on pass 1 so that we do not reinterpret it as succeeding on pass 2. */
-		if ((pi->pass==PASS_1 && !get_preproc_macro(pi, next, NULL)) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
+		if ((pi->pass==PASS_1 && (!get_preproc_macro(pi, next, NULL) && !get_symbol(pi, next, NULL))) || (pi->pass==PASS_2 && !ifndef_is_blacklisted(pi))) {
 			pi->conditional_depth++;
 		} else {
 			if (pi->pass==PASS_1) {
