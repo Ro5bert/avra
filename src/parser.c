@@ -186,7 +186,7 @@ preprocess_line(struct prog_info *pi, char *line)
 	struct item_list *params, *last_param, *args, *last_arg, *args_ptr;
 	struct preproc_macro *macro;
 	char *macro_begin, *macro_end, *par_begin, *par_end;
-	char *arg, *next_arg;
+	char *arg_mem, *arg, *next_arg;
 	char temp[LINEBUFFER_LENGTH];
 
 	do {
@@ -296,14 +296,15 @@ preprocess_line(struct prog_info *pi, char *line)
 				} else {
 					/* Function like macro */
 					while ((macro_begin = locate_funcall_expr(line, macro->name, &macro_end))) {
-						arg = strdup_section(macro_begin + strlen(macro->name) +1, macro_end);
-						if (!arg) {
+						arg_mem = arg = strdup_section(macro_begin + strlen(macro->name) +1, macro_end);
+						if (!arg_mem) {
 							print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
 							return (PREPROCESS_FATAL_ERROR);
 						}
 						/* Collect args */
 						while ((next_arg = get_next_token(arg, TERM_COMMA))) {
 							if (!is_label(arg)) {
+								free(arg_mem);
 								print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid argument %s", macro->name, arg);
 								return (PREPROCESS_NEXT_LINE);
 							}
@@ -313,15 +314,18 @@ preprocess_line(struct prog_info *pi, char *line)
 						}
 						get_next_token(arg, TERM_CLOSING_PAREN);
 						if (!*arg) {
+							free(arg_mem);
 							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s misses an argument", macro->name);
 							return (PREPROCESS_NEXT_LINE);
 						}
 						if (!is_label(arg)) {
+							free(arg_mem);
 							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid argument %s", macro->name, arg);
 							return (PREPROCESS_NEXT_LINE);
 						}
 						if (!collect_paramarg(pi, arg, &args, &last_arg))
 							return (PREPROCESS_FATAL_ERROR);
+						free(arg_mem);
 						/* Parameter vs. argument list length check */
 						params_cnt = item_list_length(macro->params);
 						args_cnt = item_list_length(args);
