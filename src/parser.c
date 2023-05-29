@@ -182,7 +182,7 @@ int
 preprocess_line(struct prog_info *pi, char *line)
 {
 	char *ptr, *next, *data, *param, *next_param;
-	int macro_type, len, params_cnt, args_cnt, macro_expanded;
+	int macro_type, params_cnt, args_cnt, macro_expanded;
 	struct item_list *params, *last_param, *args, *last_arg, *args_ptr;
 	struct preproc_macro *macro;
 	char *macro_begin, *macro_end, *par_begin, *par_end;
