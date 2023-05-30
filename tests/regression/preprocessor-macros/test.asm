@@ -13,5 +13,4 @@ ldi r16, SQR(4)
 IMMED(ld) r16, 1
 SUBI(FOO, BAR) r16, 1
 
-#define REGN(N) r##N
-ldi REGN(16), SQR(4)
+IMMED(ld) r16, SQR(SQR(1+1))
