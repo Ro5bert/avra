@@ -951,10 +951,11 @@ free_preproc_macros(struct prog_info *pi)
 int
 item_list_length(struct item_list *lst)
 {
-	int len;
-	if (!lst)
-		return (0);
-	for (len = 0; lst->next; lst = lst->next, len++);
+	int len = 0;
+	while (lst) {
+		len++;
+		lst = lst->next;
+	}
 	return (len);
 }
 

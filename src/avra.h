@@ -363,7 +363,7 @@ char *funcall_token(char *token);
 char *locate_macro_call(char *line, char *name, char **end);
 char *locate_funcall_expr(char *line, char *name, char **end);
 int is_label(char *word);
-int collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **paramsargs, struct item_list **last_paramarg);
+int collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **first_paramarg, struct item_list **last_paramarg);
 int inplace_replace(char *line, char *begin, char *end, char *value, int buff_len);
 void apply_preproc_macro_opers(char *line);
 

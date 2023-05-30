@@ -183,7 +183,7 @@ preprocess_line(struct prog_info *pi, char *line)
 {
 	char *ptr, *next, *data, *param, *next_param;
 	int macro_type, params_cnt, args_cnt, macro_expanded;
-	struct item_list *params, *last_param, *args, *last_arg, *args_ptr;
+	struct item_list *params, *first_param, *last_param, *first_arg, *last_arg, *args_ptr;
 	struct preproc_macro *macro;
 	char *macro_begin, *macro_end, *par_begin, *par_end;
 	char *arg_mem, *arg, *next_arg;
@@ -191,7 +191,6 @@ preprocess_line(struct prog_info *pi, char *line)
 
 	do {
 		macro_expanded = False;
-		params = NULL, args = NULL;
 		ptr = line;
 
 		while (IS_HOR_SPACE(*ptr)) ptr++;
@@ -230,6 +229,7 @@ preprocess_line(struct prog_info *pi, char *line)
 #endif
 					macro_type = PREPROC_MACRO_FUNCTION_LIKE;
 					/* Collect params */
+					first_param = last_param = NULL;
 					while ((next_param = get_next_token(param, TERM_COMMA))) {
 #if debug == 1
 						printf("preprocess_line fun param \"%s\"\n", param);
@@ -238,7 +238,7 @@ preprocess_line(struct prog_info *pi, char *line)
 							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid parameter %s", next, param);
 							return (PREPROCESS_NEXT_LINE);
 						}
-						if (!collect_paramarg(pi, param, &params, &last_param))
+						if (!collect_paramarg(pi, param, &first_param, &last_param))
 							return (PREPROCESS_FATAL_ERROR);
 						param = next_param;
 					}
@@ -260,13 +260,13 @@ preprocess_line(struct prog_info *pi, char *line)
 						print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid parameter %s", next, param);
 						return (PREPROCESS_NEXT_LINE);
 					}
-					if (!collect_paramarg(pi, param, &params, &last_param))
+					if (!collect_paramarg(pi, param, &first_param, &last_param))
 						return (PREPROCESS_FATAL_ERROR);
 				}
 				if (pi->pass == PASS_1) {
 					if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
 						return (PREPROCESS_NEXT_LINE);
-					if (def_preproc_macro(pi, next, macro_type, params, data) == False)
+					if (def_preproc_macro(pi, next, macro_type, first_param, data) == False)
 						return (PREPROCESS_FATAL_ERROR);
 				} else {
 					/* Pass 2 */
@@ -286,6 +286,7 @@ preprocess_line(struct prog_info *pi, char *line)
 			/* Expand preprocessor macros */
 			for (macro = pi->first_preproc_macro; macro;) {
 				if (macro->type == PREPROC_MACRO_OBJECT_LIKE) {
+					/* Object-like macro */
 					while ((macro_begin = locate_macro_call(line, macro->name, &macro_end))) {
 						if (!inplace_replace(line, macro_begin, macro_end, macro->value, LINEBUFFER_LENGTH)) {
 							print_msg(pi, MSGTYPE_ERROR, "Expanded macro %s with value %s too big", macro->name, macro->value);
@@ -294,41 +295,46 @@ preprocess_line(struct prog_info *pi, char *line)
 						macro_expanded = True;
 					}
 				} else {
-					/* Function like macro */
+					/* Function-like macro */
 					while ((macro_begin = locate_funcall_expr(line, macro->name, &macro_end))) {
-						arg_mem = arg = strdup_section(macro_begin + strlen(macro->name) +1, macro_end);
+						if (pi->pass == PASS_2 && pi->list_line && pi->list_on) {
+							fprintf(pi->list_file, "%c:%06lx   +  %s\n",
+									pi->cseg->ident, pi->cseg->addr, pi->list_line);
+							// pi->list_line = NULL;
+						}
+						arg_mem = arg = strdup_section(macro_begin + strlen(macro->name) +1, macro_end-1);
 						if (!arg_mem) {
 							print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
 							return (PREPROCESS_FATAL_ERROR);
 						}
+#if debug == 1
+						printf("preprocess_line arg \"%s\"\n", arg);
+#endif
 						/* Collect args */
+						first_arg = last_arg = NULL;
 						while ((next_arg = get_next_token(arg, TERM_COMMA))) {
+#if debug == 1
+						printf("preprocess_line arg 1+ \"%s\"\n", arg);
+#endif
 							if (!is_label(arg)) {
-								free(arg_mem);
 								print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid argument %s", macro->name, arg);
+								free(arg_mem);
 								return (PREPROCESS_NEXT_LINE);
 							}
-							if (!collect_paramarg(pi, arg, &args, &last_arg))
+							if (!collect_paramarg(pi, arg, &first_arg, &last_arg))
 								return (PREPROCESS_FATAL_ERROR);
 							arg = next_arg;
 						}
-						get_next_token(arg, TERM_CLOSING_PAREN);
-						if (!*arg) {
-							free(arg_mem);
-							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s misses an argument", macro->name);
-							return (PREPROCESS_NEXT_LINE);
-						}
-						if (!is_label(arg)) {
-							free(arg_mem);
-							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid argument %s", macro->name, arg);
-							return (PREPROCESS_NEXT_LINE);
-						}
-						if (!collect_paramarg(pi, arg, &args, &last_arg))
+						get_next_token(arg, TERM_END);
+#if debug == 1
+						printf("preprocess_line arg 1  \"%s\"\n", arg);
+#endif
+						if (!collect_paramarg(pi, arg, &first_arg, &last_arg))
 							return (PREPROCESS_FATAL_ERROR);
 						free(arg_mem);
 						/* Parameter vs. argument list length check */
 						params_cnt = item_list_length(macro->params);
-						args_cnt = item_list_length(args);
+						args_cnt = item_list_length(first_arg);
 						if (params_cnt != args_cnt) {
 							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s called with %d arguments, however is defined with %d parameters", macro->name, args_cnt, params_cnt);
 							return (PREPROCESS_NEXT_LINE);
@@ -337,7 +343,7 @@ preprocess_line(struct prog_info *pi, char *line)
 #if debug == 1
 						printf("preprocess_line temp \"%s\"\n", temp);
 #endif
-						for (params = macro->params, args_ptr = args; params; params = params->next, args_ptr = args_ptr->next) {
+						for (params = macro->params, args_ptr = first_arg; params; params = params->next, args_ptr = args_ptr->next) {
 							while ((par_begin = locate_macro_call(temp, params->value, &par_end))) {
 								if (!inplace_replace(temp, par_begin, par_end, args_ptr->value, LINEBUFFER_LENGTH)) {
 									print_msg(pi, MSGTYPE_ERROR, "Expanded macro parameter %s with value %s too big", params->value, args_ptr->value);
@@ -348,7 +354,7 @@ preprocess_line(struct prog_info *pi, char *line)
 #endif
 							}
 						}
-						free_item_list(args);
+						free_item_list(first_arg);
 #if debug == 1
 						printf("preprocess_line line (before inplace_replace) \"%s\"\n", line);
 #endif
@@ -697,7 +703,7 @@ is_label(char *word)
 /* Collect parameters or arguments into the supplied list.
  * Signals error and returns False in case of memory full. */
 int
-collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **paramsargs, struct item_list **last_paramarg)
+collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **first_paramarg, struct item_list **last_paramarg)
 {
 	struct item_list *new_paramarg;
 	new_paramarg = malloc(sizeof(struct item_list));
@@ -713,13 +719,11 @@ collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **params
 	}
 	strcpy(new_paramarg->value, paramarg);
 
-	if (!*paramsargs) {
-		*paramsargs = new_paramarg;
-		*last_paramarg = new_paramarg;
-	} else {
+	if (*last_paramarg)
 		(*last_paramarg)->next = new_paramarg;
-		*last_paramarg = new_paramarg;
-	}
+	else
+		*first_paramarg = new_paramarg;
+	*last_paramarg = new_paramarg;
 	return (True);
 }
 
