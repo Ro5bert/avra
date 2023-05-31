@@ -925,7 +925,6 @@ void
 free_preproc_macros(struct prog_info *pi)
 {
 	struct preproc_macro *macro, *temp_macro;
-	struct item_list *param, *temp_param;
 
 	for (macro = pi->first_preproc_macro; macro;) {
 		temp_macro = macro;
@@ -933,12 +932,7 @@ free_preproc_macros(struct prog_info *pi)
 
 		free(temp_macro->value);
 		if (temp_macro->type == PREPROC_MACRO_FUNCTION_LIKE)
-			for (param = temp_macro->params; param;) {
-				temp_param = param;
-				param = param->next;
-				free(temp_param->value);
-				free(temp_param);
-			}
+			free_item_list(temp_macro->params);
 		free(temp_macro->name);
 		free(temp_macro);
 	}

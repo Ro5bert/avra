@@ -182,7 +182,7 @@ int
 preprocess_line(struct prog_info *pi, char *line)
 {
 	char *ptr, *next, *data, *param, *next_param;
-	int macro_type, params_cnt, args_cnt, macro_expanded;
+	int params_cnt, args_cnt, macro_expanded;
 	struct item_list *params, *first_param, *last_param, *first_arg, *last_arg, *args_ptr;
 	struct preproc_macro *macro;
 	char *macro_begin, *macro_end, *par_begin, *par_end;
@@ -213,7 +213,6 @@ preprocess_line(struct prog_info *pi, char *line)
 				param = funcall_token(next);
 				if (!param) {
 					/* Object-like macro definition */
-					macro_type = PREPROC_MACRO_OBJECT_LIKE;
 					data = get_next_token(next, TERM_SPACE);
 					if (!data)
 						data = "1";	/* No value part provided, defaults to 1 */
@@ -222,12 +221,19 @@ preprocess_line(struct prog_info *pi, char *line)
 #if debug == 1
 					printf("preprocess_line obj next \"%s\" data \"%s\"\n", next, data);
 #endif
+					if (pi->pass == PASS_1) {
+						if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
+							return (PREPROCESS_NEXT_LINE);
+						if (def_preproc_macro(pi, next, PREPROC_MACRO_OBJECT_LIKE, NULL, data) == False)
+							return (PREPROCESS_FATAL_ERROR);
+					} else {
+						/* Pass 2 */
+					}
 				} else {
 					/* Function-like macro definition */
 #if debug == 1
 					printf("preprocess_line fun next \"%s\"\n", next);
 #endif
-					macro_type = PREPROC_MACRO_FUNCTION_LIKE;
 					/* Collect params */
 					first_param = last_param = NULL;
 					while ((next_param = get_next_token(param, TERM_COMMA))) {
@@ -262,20 +268,20 @@ preprocess_line(struct prog_info *pi, char *line)
 					}
 					if (!collect_paramarg(pi, param, &first_param, &last_param))
 						return (PREPROCESS_FATAL_ERROR);
-				}
-				if (pi->pass == PASS_1) {
-					if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
-						return (PREPROCESS_NEXT_LINE);
-					if (def_preproc_macro(pi, next, macro_type, first_param, data) == False)
-						return (PREPROCESS_FATAL_ERROR);
-				} else {
-					/* Pass 2 */
+					if (pi->pass == PASS_1) {
+						if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
+							return (PREPROCESS_NEXT_LINE);
+						if (def_preproc_macro(pi, next, PREPROC_MACRO_FUNCTION_LIKE, first_param, data) == False)
+							return (PREPROCESS_FATAL_ERROR);
+					} else {
+						/* Pass 2 */
+					}
 				}
 				if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
 					fprintf(pi->list_file, "          %s\n", pi->list_line);
 					pi->list_line = NULL;
 				}
-				return (PREPROCESS_NEXT_LINE);
+				return (PREPROCESS_NEXT_LINE);	/* #define successfully parsed, continue with next line */
 			} else if (!nocase_strcmp(temp+1, "undef")) {	/* #undef */
 				print_msg(pi, MSGTYPE_ERROR, "#undef is not supported at the moment");
 				return (PREPROCESS_NEXT_LINE);
