@@ -110,7 +110,24 @@ enum {
 	TERM_EQUAL,
 	TERM_DASH,
 	TERM_DOUBLEQUOTE,
-	TERM_COLON
+	TERM_COLON,
+	TERM_CLOSING_PAREN
+};
+
+enum {
+	PREPROCESS_FATAL_ERROR = 0,
+	PREPROCESS_NEXT_LINE,
+	PREPROCESS_PARSE_LINE
+};
+
+enum {
+	PREPROC_MACRO_OBJECT_LIKE = 0,
+	PREPROC_MACRO_FUNCTION_LIKE
+};
+
+enum {
+	PREPROC_LINE_PART_WHITE = 0,
+	PREPROC_LINE_PART_GREY
 };
 
 /* Structures */
@@ -157,6 +174,8 @@ struct prog_info {
 	int error_count;
 	int max_errors;
 	int warning_count;
+	struct preproc_macro *first_preproc_macro;
+	struct preproc_macro *last_preproc_macro;
 	struct include_file *last_include_file;
 	struct include_file *first_include_file;
 	struct def *first_def;
@@ -273,6 +292,19 @@ struct location {
 	int file_num;
 };
 
+struct item_list {
+	struct item_list *next;
+	char *value;
+};
+
+struct preproc_macro {
+	struct preproc_macro *next;
+	char *name;
+	int type;
+	struct item_list* params;
+	char *value;
+};
+
 /* Prototypes */
 /* avra.c */
 int assemble(struct prog_info *pi);
@@ -313,12 +345,27 @@ void free_ifdef_blacklist(struct prog_info *pi);
 void free_ifndef_blacklist(struct prog_info *pi);
 void free_variables(struct prog_info *pi);
 void free_orglist(struct prog_info *pi);
+int get_preproc_macro(struct prog_info *pi,char *name,struct preproc_macro **pm);
+struct preproc_macro *test_preproc_macro(struct prog_info *pi,char *name,char *message);
+struct preproc_macro *search_preproc_macro(struct prog_info *pi,struct preproc_macro *first,char *name,char *message);
+int def_preproc_macro(struct prog_info *pi, char *name, int type, struct item_list *params, char *value);
+void free_preproc_macros(struct prog_info *pi);
+int item_list_length(struct item_list *lst);
+void free_item_list(struct item_list *lst);
 
 /* parser.c */
 int parse_file(struct prog_info *pi, const char *filename);
+int preprocess_line(struct prog_info *pi, char *line);
 int parse_line(struct prog_info *pi, char *line);
 char *get_next_token(char *scratch, int term);
 char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream);
+char *funcall_token(char *token);
+char *locate_macro_call(char *line, char *name, char **end);
+char *locate_funcall_expr(char *line, char *name, char **end);
+int is_label(char *word);
+int collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **first_paramarg, struct item_list **last_paramarg);
+int inplace_replace(char *line, char *begin, char *end, char *value, int buff_len);
+void apply_preproc_macro_opers(char *line);
 
 /* expr.c */
 int get_expr(struct prog_info *pi, char *data, int *value);
@@ -378,6 +425,7 @@ int atoi_n(char *s, int n);
 int atox_n(char *s, int n);
 char *my_strlwr(char *in);
 char *my_strupr(char *in);
+char *strdup_section(char *begin, char *end);
 char *snprint_list(char *buf, size_t limit, const char *const list[]);
 
 /* coff.c */
