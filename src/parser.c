@@ -151,9 +151,9 @@ parse_file(struct prog_info *pi, const char *filename)
 			fi->line_number++;
 			pi->list_line = fi->buff;
 			ok = parse_line(pi, fi->buff);
-// #if debug == 1
-// 			printf("parse_line was %i\n", ok);
-// #endif
+/*#if debug == 1
+			printf("parse_line was %i\n", ok);
+#endif*/
 			if (ok) {
 				if ((pi->pass == PASS_2) && pi->list_line && pi->list_on)
 					fprintf(pi->list_file, "         %s\n", pi->list_line);
