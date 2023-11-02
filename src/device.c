@@ -90,16 +90,16 @@ struct device device_list[] = {
   /* Field Order:
   * name, flash size (words), RAM start, RAM size (bytes), EEPROM size
   * (bytes), flags */
-  {"ATtiny202"   ,   1024, 0x3f80,  128,  64, 0}  //UNTESTED
-  {"ATtiny204"   ,   1024, 0x3f80,  128,  64, 0}  //UNTESTED
-  {"ATtiny402"   ,   2048, 0x3f00,  256,  128, 0} //UNTESTED
-  {"ATtiny404"   ,   2048, 0x3f00,  256,  128, 0}
-  {"ATtiny406"   ,   2048, 0x3f00,  256,  128, 0} //UNTESTED
-  {"ATtiny212"   ,   1024, 0x3f80,  128,  64, 0}  //UNTESTED
-  {"ATtiny214"   ,   1024, 0x3f80,  128,  64, 0}  //UNTESTED
-  {"ATtiny412"   ,   2048, 0x3f00,  256,  128, 0} //UNTESTED
-  {"ATtiny414"   ,   2048, 0x3f00,  256,  128, 0}
-  {"ATtiny416"   ,   2048, 0x3f00,  256,  128, 0} //UNTESTED
+  {"ATtiny202"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny204"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny402"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny404"   ,   2048, 0x3f00,  256,  128, 0},
+  {"ATtiny406"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny212"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny214"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny412"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny414"   ,   2048, 0x3f00,  256,  128, 0},
+  {"ATtiny416"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
 
 	/* AT90 series */
 	{"AT90S1200"   ,    512, 0x000,     0,   64, DF_NO_MUL|DF_NO_JMP|DF_TINY1X|DF_NO_XREG|DF_NO_YREG|DF_NO_LPM|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
