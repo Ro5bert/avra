@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include "avra.h"
 #include "args.h"
 
@@ -50,13 +51,13 @@ write_map_file(struct prog_info *pi)
 		return;
 	}
 	for (label = pi->first_constant; label; label = label->next)
-		fprintf(fp,"%s%sC\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
+		fprintf(fp,"%s%sC\t%04"PRIx64"\t%"PRId64"\n",label->name,Space(label->name),label->value,label->value);
 
 	for (label = pi->first_variable; label; label = label->next)
-		fprintf(fp,"%s%sV\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
+		fprintf(fp,"%s%sV\t%04"PRIx64"\t%"PRId64"\n",label->name,Space(label->name),label->value,label->value);
 
 	for (label = pi->first_label; label; label = label->next)
-		fprintf(fp,"%s%sL\t%04x\t%d\n",label->name,Space(label->name),label->value,label->value);
+		fprintf(fp,"%s%sL\t%04"PRIx64"\t%"PRId64"\n",label->name,Space(label->name),label->value,label->value);
 
 	fprintf(fp,"\n");
 	fclose(fp);

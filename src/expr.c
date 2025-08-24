@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -77,7 +78,7 @@ enum {
 
 struct element {
 	struct element *next;
-	int data;
+	int64_t data;
 };
 
 char *function_list[] = {
@@ -96,16 +97,16 @@ char *function_list[] = {
 	"log2"
 };
 
-int
-log_2(int value)
+int64_t
+log_2(int64_t value)
 {
-	int i = 0;
+	int64_t i = 0;
 	while (value >>= 1)
 		i++;
 	return (i);
 }
 
-int
+int64_t
 get_operator(char *op)
 {
 	switch (op[0]) {
@@ -197,8 +198,8 @@ test_operator_at_precedence(int operator, int precedence)
 }
 
 
-int
-calc(struct prog_info *pi, int left, int operator, int right) /* TODO: Sjekk litt resultater */
+int64_t
+calc(struct prog_info *pi, int64_t left, int64_t operator, int64_t right) /* TODO: Sjekk litt resultater */
 {
 	switch (operator) {
 	case OPERATOR_MUL:
@@ -250,7 +251,7 @@ calc(struct prog_info *pi, int left, int operator, int right) /* TODO: Sjekk lit
 }
 
 /* If found, return the ID of the internal function */
-int
+int64_t
 get_function(char *function)
 {
 	int i;
@@ -271,8 +272,8 @@ get_function(char *function)
 	return (-1);
 }
 
-unsigned int
-do_function(int function, int value)
+uint64_t
+do_function(int function, int64_t value)
 {
 	switch (function) {
 	case FUNCTION_LOW:
@@ -302,7 +303,7 @@ do_function(int function, int value)
 
 
 int
-get_symbol(struct prog_info *pi, char *label_name, int *data)
+get_symbol(struct prog_info *pi, char *label_name, int64_t *data)
 {
 	struct label *label;
 	struct macro_call *macro_call;
@@ -343,7 +344,7 @@ par_length(char *data)
 }
 
 int
-get_expr(struct prog_info *pi, char *data, int *value)
+get_expr(struct prog_info *pi, char *data, int64_t *value)
 {
 	/* Definition */
 	int ok, end, i, count, first_flag, length, function;

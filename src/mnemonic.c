@@ -346,7 +346,7 @@ int
 parse_mnemonic(struct prog_info *pi)
 {
 	int mnemonic;
-	int i;
+	int64_t i;
 	int opcode = 0;
 	int opcode2 = 0;
 	int instruction_long = False;
@@ -734,7 +734,7 @@ get_register(struct prog_info *pi, char *data)
 }
 
 int
-get_bitnum(struct prog_info *pi, char *data, int *ret)
+get_bitnum(struct prog_info *pi, char *data, int64_t *ret)
 {
 	if (!get_expr(pi, data, ret))
 		return (False);

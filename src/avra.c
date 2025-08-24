@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #include <string.h>
 
 #include "misc.h"
@@ -259,7 +260,7 @@ assemble(struct prog_info *pi)
 int
 load_arg_defines(struct prog_info *pi)
 {
-	int i;
+	int64_t i;
 	char *expr;
 	char buff[256];
 	struct data_list *define;
@@ -285,13 +286,13 @@ load_arg_defines(struct prog_info *pi)
 			if (def_const(pi, buff, i)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int j;
+			int64_t j;
 			if (get_constant(pi, buff, &j)==False) {  /* Defined in Pass 1 and now missing ? */
 				fprintf(stderr,"Constant %s is missing in pass 2\n",buff);
 				return (False);
 			}
 			if (i != j) {
-				fprintf(stderr,"Constant %s changed value from %d in pass1 to %d in pass 2\n",buff,j,i);
+				fprintf(stderr,"Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2\n",buff,j,i);
 				return (False);
 			}
 			/* OK. Definition is unchanged */
@@ -458,7 +459,7 @@ print_msg(struct prog_info *pi, int type, char *fmt, ...)
 
 
 int
-def_const(struct prog_info *pi, const char *name, int value)
+def_const(struct prog_info *pi, const char *name, int64_t value)
 {
 	struct label *label;
 	label = malloc(sizeof(struct label));
@@ -651,7 +652,7 @@ test_orglist(struct segment_info *si)
 
 /* Get the value of a label. Return FALSE if label was not found */
 int
-get_label(struct prog_info *pi,char *name,int *value)
+get_label(struct prog_info *pi,char *name,int64_t *value)
 {
 	struct label *label=search_symbol(pi,pi->first_label,name,NULL);
 	if (label==NULL) return False;
@@ -660,7 +661,7 @@ get_label(struct prog_info *pi,char *name,int *value)
 }
 
 int
-get_constant(struct prog_info *pi,char *name,int *value)
+get_constant(struct prog_info *pi,char *name,int64_t *value)
 {
 	struct label *label=search_symbol(pi,pi->first_constant,name,NULL);
 	if (label==NULL) return False;
@@ -669,7 +670,7 @@ get_constant(struct prog_info *pi,char *name,int *value)
 }
 
 int
-get_variable(struct prog_info *pi,char *name,int *value)
+get_variable(struct prog_info *pi,char *name,int64_t *value)
 {
 	struct label *label=search_symbol(pi,pi->first_variable,name,NULL);
 	if (label==NULL) return False;
