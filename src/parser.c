@@ -151,9 +151,9 @@ parse_file(struct prog_info *pi, const char *filename)
 			fi->line_number++;
 			pi->list_line = fi->buff;
 			ok = parse_line(pi, fi->buff);
-#if debug == 1
+/*#if debug == 1
 			printf("parse_line was %i\n", ok);
-#endif
+#endif*/
 			if (ok) {
 				if ((pi->pass == PASS_2) && pi->list_line && pi->list_on)
 					fprintf(pi->list_file, "         %s\n", pi->list_line);
@@ -177,6 +177,215 @@ parse_file(struct prog_info *pi, const char *filename)
 	return (ok);
 }
 
+/* Preprocess one line. */
+int
+preprocess_line(struct prog_info *pi, char *line)
+{
+	char *ptr, *next, *data, *param, *next_param;
+	int params_cnt, args_cnt, macro_expanded;
+	struct item_list *params, *first_param, *last_param, *first_arg, *last_arg, *args_ptr;
+	struct preproc_macro *macro;
+	char *macro_begin, *macro_end, *par_begin, *par_end;
+	char *arg_mem, *arg, *next_arg;
+	char temp[LINEBUFFER_LENGTH];
+
+	do {
+		macro_expanded = False;
+		ptr = line;
+
+		while (IS_HOR_SPACE(*ptr)) ptr++;
+		if (IS_END_OR_COMMENT(*ptr))
+			return (PREPROCESS_NEXT_LINE);
+		if (ptr != line)
+			memmove(line, ptr, line+LINEBUFFER_LENGTH-1-ptr);
+		strcpy(temp, line);
+
+		if (*temp == '#') {
+			next = get_next_token(temp, TERM_SPACE);
+			if (!nocase_strcmp(temp+1, "define")) {	/* #define */
+				/* #define name [value] */
+				/* #define name(arg, ...) [value] */
+				if (!next) {
+					print_msg(pi, MSGTYPE_ERROR, "#define needs an operand");
+					return (PREPROCESS_NEXT_LINE);
+				}
+				/* Is it an object-like or a function-like macro? */
+				param = funcall_token(next);
+				if (!param) {
+					/* Object-like macro definition */
+					data = get_next_token(next, TERM_SPACE);
+					if (!data)
+						data = "1";	/* No value part provided, defaults to 1 */
+					else
+						get_next_token(data, TERM_END);
+#if debug == 1
+					printf("preprocess_line obj next \"%s\" data \"%s\"\n", next, data);
+#endif
+					if (pi->pass == PASS_1) {
+						if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
+							return (PREPROCESS_NEXT_LINE);
+						if (def_preproc_macro(pi, next, PREPROC_MACRO_OBJECT_LIKE, NULL, data) == False)
+							return (PREPROCESS_FATAL_ERROR);
+					} else {
+						/* Pass 2 */
+					}
+				} else {
+					/* Function-like macro definition */
+#if debug == 1
+					printf("preprocess_line fun next \"%s\"\n", next);
+#endif
+					/* Collect params */
+					first_param = last_param = NULL;
+					while ((next_param = get_next_token(param, TERM_COMMA))) {
+#if debug == 1
+						printf("preprocess_line fun param \"%s\"\n", param);
+#endif
+						if (!is_label(param)) {
+							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid parameter %s", next, param);
+							return (PREPROCESS_NEXT_LINE);
+						}
+						if (!collect_paramarg(pi, param, &first_param, &last_param))
+							return (PREPROCESS_FATAL_ERROR);
+						param = next_param;
+					}
+					data = get_next_token(param, TERM_CLOSING_PAREN);
+					if (!data) {
+						print_msg(pi, MSGTYPE_ERROR, "Fuction-like macro %s misses value", next);
+						return (PREPROCESS_NEXT_LINE);
+					} else
+						get_next_token(data, TERM_END);
+					if (!*param) {
+						print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s misses a parameter", next);
+						return (PREPROCESS_NEXT_LINE);
+					}
+#if debug == 1
+					printf("preprocess_line fun param \"%s\"\n", param);
+					printf("preprocess_line fun data \"%s\"\n", data);
+#endif
+					if (!is_label(param)) {
+						print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid parameter %s", next, param);
+						return (PREPROCESS_NEXT_LINE);
+					}
+					if (!collect_paramarg(pi, param, &first_param, &last_param))
+						return (PREPROCESS_FATAL_ERROR);
+					if (pi->pass == PASS_1) {
+						if (test_preproc_macro(pi, next, "Preprocessor macro %s has already been defined") != NULL)
+							return (PREPROCESS_NEXT_LINE);
+						if (def_preproc_macro(pi, next, PREPROC_MACRO_FUNCTION_LIKE, first_param, data) == False)
+							return (PREPROCESS_FATAL_ERROR);
+					} else {
+						/* Pass 2 */
+					}
+				}
+				if ((pi->pass == PASS_2) && pi->list_line && pi->list_on) {
+					fprintf(pi->list_file, "          %s\n", pi->list_line);
+					pi->list_line = NULL;
+				}
+				return (PREPROCESS_NEXT_LINE);	/* #define successfully parsed, continue with next line */
+			} else if (!nocase_strcmp(temp+1, "undef")) {	/* #undef */
+				print_msg(pi, MSGTYPE_ERROR, "#undef is not supported at the moment");
+				return (PREPROCESS_NEXT_LINE);
+			} else {
+				/* Rest of the preprocessor macros to be handled by the original code */
+			}
+		} else {
+			/* Expand preprocessor macros */
+			for (macro = pi->first_preproc_macro; macro;) {
+				if (macro->type == PREPROC_MACRO_OBJECT_LIKE) {
+					/* Object-like macro */
+					while ((macro_begin = locate_macro_call(line, macro->name, &macro_end))) {
+						if (!inplace_replace(line, macro_begin, macro_end, macro->value, LINEBUFFER_LENGTH)) {
+							print_msg(pi, MSGTYPE_ERROR, "Expanded macro %s with value %s too big", macro->name, macro->value);
+							return (PREPROCESS_NEXT_LINE);
+						}
+						macro_expanded = True;
+					}
+				} else {
+					/* Function-like macro */
+					while ((macro_begin = locate_funcall_expr(line, macro->name, &macro_end))) {
+						if (pi->pass == PASS_2 && pi->list_line && pi->list_on) {
+							fprintf(pi->list_file, "%c:%06lx   +  %s\n",
+									pi->cseg->ident, pi->cseg->addr, pi->list_line);
+							// pi->list_line = NULL;
+						}
+						arg_mem = arg = strdup_section(macro_begin + strlen(macro->name) +1, macro_end-1);
+						if (!arg_mem) {
+							print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+							return (PREPROCESS_FATAL_ERROR);
+						}
+#if debug == 1
+						printf("preprocess_line arg \"%s\"\n", arg);
+#endif
+						/* Collect args */
+						first_arg = last_arg = NULL;
+						while ((next_arg = get_next_token(arg, TERM_COMMA))) {
+#if debug == 1
+						printf("preprocess_line arg 1+ \"%s\"\n", arg);
+#endif
+							if (!is_label(arg)) {
+								print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s with invalid argument %s", macro->name, arg);
+								free(arg_mem);
+								return (PREPROCESS_NEXT_LINE);
+							}
+							if (!collect_paramarg(pi, arg, &first_arg, &last_arg))
+								return (PREPROCESS_FATAL_ERROR);
+							arg = next_arg;
+						}
+						get_next_token(arg, TERM_END);
+#if debug == 1
+						printf("preprocess_line arg 1  \"%s\"\n", arg);
+#endif
+						if (!collect_paramarg(pi, arg, &first_arg, &last_arg))
+							return (PREPROCESS_FATAL_ERROR);
+						free(arg_mem);
+						/* Parameter vs. argument list length check */
+						params_cnt = item_list_length(macro->params);
+						args_cnt = item_list_length(first_arg);
+						if (params_cnt != args_cnt) {
+							print_msg(pi, MSGTYPE_ERROR, "Function-like macro %s called with %d arguments, however is defined with %d parameters", macro->name, args_cnt, params_cnt);
+							return (PREPROCESS_NEXT_LINE);
+						}
+						strcpy(temp, macro->value);
+#if debug == 1
+						printf("preprocess_line temp \"%s\"\n", temp);
+#endif
+						for (params = macro->params, args_ptr = first_arg; params; params = params->next, args_ptr = args_ptr->next) {
+							while ((par_begin = locate_macro_call(temp, params->value, &par_end))) {
+								if (!inplace_replace(temp, par_begin, par_end, args_ptr->value, LINEBUFFER_LENGTH)) {
+									print_msg(pi, MSGTYPE_ERROR, "Expanded macro parameter %s with value %s too big", params->value, args_ptr->value);
+									return (PREPROCESS_NEXT_LINE);
+								}
+#if debug == 1
+								printf("preprocess_line temp \"%s\"\n", temp);
+#endif
+							}
+						}
+						free_item_list(first_arg);
+#if debug == 1
+						printf("preprocess_line line (before inplace_replace) \"%s\"\n", line);
+#endif
+						if (!inplace_replace(line, macro_begin, macro_end, temp, LINEBUFFER_LENGTH)) {
+							print_msg(pi, MSGTYPE_ERROR, "Expanded macro %s with value %s too big", macro->name, temp);
+							return (PREPROCESS_NEXT_LINE);
+						}
+#if debug == 1
+						printf("preprocess_line line (after inplace_replace) \"%s\"\n", line);
+#endif
+						apply_preproc_macro_opers(line);
+#if debug == 1
+						printf("preprocess_line line (after apply_preproc_macro_opers) \"%s\"\n", line);
+#endif
+						macro_expanded = True;
+					}
+				}
+				macro = macro->next;
+			}
+		}
+
+	} while (macro_expanded);
+	return (PREPROCESS_PARSE_LINE);
+}
+
 /* Parse one line. */
 int
 parse_line(struct prog_info *pi, char *line)
@@ -190,9 +399,17 @@ parse_line(struct prog_info *pi, char *line)
 	struct macro_call *macro_call;
 	int len;
 
-	while (IS_HOR_SPACE(*line)) line++;			/* At first remove leading spaces / tabs */
-	if (IS_END_OR_COMMENT(*line))				/* Skip comment line or empty line */
-		return (True);
+	/* Preprocess the line. */
+	switch (preprocess_line(pi, line)) {
+		case PREPROCESS_PARSE_LINE:
+			break;
+		case PREPROCESS_NEXT_LINE:
+			return (True);
+		default:
+		case PREPROCESS_FATAL_ERROR:
+			return (False);
+	}
+
 	/* Filter out .stab debugging information */
 	/* .stabs sometimes contains colon : symbol - might be interpreted as label */
 	if (*line == '.') {					/* minimal slowdown of existing code */
@@ -361,6 +578,10 @@ get_next_token(char *data, int term)
 		/* Skip to next equals or EOL or start of comment. */
 		while ((data[i] != '=') && !IS_END_OR_COMMENT(data[i])) i++;
 		break;
+	case TERM_CLOSING_PAREN:
+		/* Skip to next ) or EOL or start of comment. */
+		while ((data[i] != ')') && !IS_END_OR_COMMENT(data[i])) i++;
+		break;
 	}
 	/* If we hit EOL or a comment, return null. */
 	if (IS_END_OR_COMMENT(data[i])) {
@@ -384,6 +605,163 @@ get_next_token(char *data, int term)
 	/* i should now be the index of the first non-whitespace character after
 	 * the terminator. */
 	return (&data[i]);
+}
+
+/* Check whether the pointed token is a function call.
+ * If so, terminate the name and return a pointer to the next token or end. */
+char *
+funcall_token(char *token) {
+	if (*token != '%' && *token != '_' && !isalpha(*token))	return NULL;
+	while (IS_LABEL(*token))	token++;
+	if (*token == '(') {
+		*token++ = '\0';	/* Null-out paren, so we get the name */
+		while (IS_HOR_SPACE(*token)) token++;	/* Skip whitespace after paren */
+		return (token);		/* Return a pointer to the next token or end */
+	}
+	return (NULL);
+}
+
+/* Locate the first occurence of a macro call in a line.
+ * Intended to be called repetitively to exhaust all possibilities.
+ * Returns NULL in case there is no occurence. 
+ * Otherwise returns the pointer to the beginning of the macro call and sets the end ptr.*/
+char *
+locate_macro_call(char *line, char *name, char **end)
+{
+	char *macro_call, *macro_call_end, *comment, *ptr;
+	char *funcall_begin, *funcall_end;
+	int name_len, inside_defined;
+	comment = strchr(line, ';');
+	name_len = strlen(name);
+	while (1) {
+		macro_call = nocase_strstr(line, name);
+		if (!macro_call)
+			return (NULL);
+		if (comment && comment < macro_call)
+			return (NULL);
+		macro_call_end = macro_call + name_len - 1;
+		if (macro_call == line || IS_END_OR_COMMENT(*(macro_call_end + 1)))
+			break;
+		if (IS_LABEL(*(macro_call - 1)) || IS_LABEL(*(macro_call_end + 1))) {
+			while (IS_LABEL(*macro_call_end)) macro_call_end++;
+			line = macro_call_end;
+			continue;
+		}
+		ptr = line;
+		inside_defined = False;
+		while (!inside_defined && 
+				(funcall_begin = locate_funcall_expr(ptr, "defined", &funcall_end))) {
+			if (funcall_begin < macro_call && macro_call_end < funcall_end)
+				inside_defined = True;
+			ptr = funcall_end + 1;
+		}
+		if (!inside_defined)
+			break;
+		line = funcall_end + 1;
+	}
+	if (end) *end = macro_call_end;
+	return (macro_call);
+}
+
+/* Locate the first occurence of the function call expression in a line.
+ * Intended to be called repetitively to exhaust all possibilities.
+ * Returns NULL in case there is no occurence. 
+ * Otherwise returns the pointer to the beginning of the expr. and sets the end ptr.*/
+char *
+locate_funcall_expr(char *line, char *name, char **end)
+{
+	char *expr, *expr_end, *comment, *ptr;
+	int len;
+	expr = nocase_strstr(line, name);
+	if (expr) {
+		ptr = expr + strlen(name);
+		if (*ptr == '(') {
+			len = par_length(ptr + 1);
+			if (len >= 0) {
+				expr_end = ptr + 1 + len;
+				comment = strchr(line, ';');
+				if (!comment || expr_end < comment) {
+					if (expr == line || !IS_LABEL(*(expr - 1))) {
+						if (end) *end = expr_end;
+						return (expr);
+					}
+				}
+			}
+		}
+	}
+	return (NULL);
+}
+
+/* Checks whether the given word is a label.
+ * Returns true, when it is a label. False otherwise. */
+int
+is_label(char *word)
+{
+	if (word == NULL)
+		return (False);
+	do {
+		if (!IS_LABEL(*word))
+			return (False);
+	} while(*++word);
+	return (True);
+}
+
+/* Collect parameters or arguments into the supplied list.
+ * Signals error and returns False in case of memory full. */
+int
+collect_paramarg(struct prog_info *pi, char *paramarg, struct item_list **first_paramarg, struct item_list **last_paramarg)
+{
+	struct item_list *new_paramarg;
+	new_paramarg = malloc(sizeof(struct item_list));
+	if (!new_paramarg) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return (False);
+	}
+	new_paramarg->next = NULL;
+	new_paramarg->value = malloc(strlen(paramarg)+1);
+	if (!new_paramarg->value) {
+		print_msg(pi, MSGTYPE_OUT_OF_MEM, NULL);
+		return (False);
+	}
+	strcpy(new_paramarg->value, paramarg);
+
+	if (*last_paramarg)
+		(*last_paramarg)->next = new_paramarg;
+	else
+		*first_paramarg = new_paramarg;
+	*last_paramarg = new_paramarg;
+	return (True);
+}
+
+/* Replace the range of characters in line between begin and end with value.
+ * Returns False in case the result would not fit into the line buffer. */
+int
+inplace_replace(char *line, char *begin, char *end, char *value, int buff_len)
+{
+	int value_len, rest_len, range_len;
+	value_len = strlen(value);
+	rest_len = strlen(end + 1);
+	range_len = end - begin +1;
+	if (strlen(line) +1 - range_len + value_len > buff_len)
+		return (False);
+	if (range_len != value_len)
+		memmove(begin + value_len, end + 1, rest_len + 1);
+	memmove(begin, value, value_len);
+	return (True);
+}
+
+/* Apply the preprocessor macro operators. */
+void
+apply_preproc_macro_opers(char *line)
+{
+	char *begin, *end;
+
+	while ((begin = strstr(line, "##"))) {	/* Apply Concatenation (##) operator */
+		end = begin + 2;
+		while (begin - 1 > line && IS_HOR_SPACE(*(begin - 1))) begin--;
+		while (IS_HOR_SPACE(*end)) end++;
+		memmove(begin, end, strlen(end) + 1);
+	}
 }
 
 /* end of parser.c */
