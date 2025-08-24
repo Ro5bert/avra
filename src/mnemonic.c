@@ -714,7 +714,7 @@ get_register(struct prog_info *pi, char *data)
 	if (data[1] != '\0') {
 		print_msg(pi, MSGTYPE_ERROR, "Garbage in operand (%s)", data);
 	}
-	switch (data[0]) {
+	switch (tolower(data[0])) {
 	case 'x':
 		reg = 26;
 		break;
