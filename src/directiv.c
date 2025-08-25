@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include "misc.h"
 #include "args.h"
@@ -157,7 +159,7 @@ parse_directive(struct prog_info *pi)
 {
 	int directive, pragma;
 	int ok = True;
-	int i;
+	int64_t i;
 	char *next, *data, buf[140];
 	struct file_info *fi_bak;
 
@@ -323,14 +325,14 @@ parse_directive(struct prog_info *pi)
 				if (!get_expr(pi, next, &i))
 					return (False);
 				if ((i < -32768) || (i > 65535))
-					print_msg(pi, MSGTYPE_WARNING, "Value %d is out of range (-32768 <= k <= 65535). Will be masked", i);
+					print_msg(pi, MSGTYPE_WARNING, "Value %" PRId64 " is out of range (-32768 <= k <= 65535). Will be masked", i);
 			}
 			if (pi->pass == PASS_2) {
 				if (pi->list_line && pi->list_on) {
 					fprintf(pi->list_file, "          %s\n", pi->list_line);
 					pi->list_line = NULL;
 					fprintf(pi->list_file, "%c:%06lx %04x\n",
-					        pi->segment->ident, pi->segment->addr, i);
+					        pi->segment->ident, pi->segment->addr, (int)i);
 				}
 				if (pi->segment == pi->eseg) {
 					write_ee_byte(pi, pi->eseg->addr, (unsigned char)i);
@@ -375,13 +377,13 @@ parse_directive(struct prog_info *pi)
 			if (def_const(pi, next, i)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int j;
+			int64_t j;
 			if (get_constant(pi, next, &j)==False) {  /* Defined in Pass 1 and now missing ? */
 				print_msg(pi, MSGTYPE_ERROR, "Constant %s is missing in pass 2", next);
 				return (False);
 			}
 			if (i != j) {
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %d in pass1 to %d in pass 2", next,j,i);
+				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2", next,j,i);
 				return (False);
 			}
 			/* OK. Definition is unchanged */
@@ -556,13 +558,13 @@ parse_directive(struct prog_info *pi)
 			if (def_const(pi, next, i)==False)
 				return (False);
 		} else { /* Pass 2 */
-			int j;
+			int64_t j;
 			if (get_constant(pi, next, &j)==False) {  /* Defined in Pass 1 and now missing ? */
 				print_msg(pi, MSGTYPE_ERROR, "Constant %s is missing in pass 2", next);
 				return (False);
 			}
 			if (i != j) {
-				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %d in pass1 to %d in pass 2", next,j,i);
+				print_msg(pi, MSGTYPE_ERROR, "Constant %s changed value from %" PRId64 " in pass1 to %" PRId64 " in pass 2", next,j,i);
 				return (False);
 			}
 			/* OK. Definition is unchanged */
@@ -724,7 +726,7 @@ parse_directive(struct prog_info *pi)
 					print_msg(pi, MSGTYPE_APPEND,"\n"); /* Add newline */
 					return (False);
 				}
-				print_msg(pi, MSGTYPE_APPEND,"0x%02X",i);
+				print_msg(pi, MSGTYPE_APPEND,"0x%02" PRIX64,i);
 			}
 			next = data;
 		}
@@ -796,7 +798,7 @@ term_string(struct prog_info *pi, char *string)
 int
 parse_db(struct prog_info *pi, char *next)
 {
-	int i;
+	int64_t i;
 	int count;
 	char *data;
 	char prev = 0;
@@ -831,8 +833,8 @@ parse_db(struct prog_info *pi, char *next)
 				if (!get_expr(pi, next, &i))
 					return (False);
 				if ((i < -128) || (i > 255))
-					print_msg(pi, MSGTYPE_WARNING, "Value %d is out of range (-128 <= k <= 255). Will be masked", i);
-				if (pi->list_on) fprintf(pi->list_file, "%02X", i);
+					print_msg(pi, MSGTYPE_WARNING, "Value %" PRId64 " is out of range (-128 <= k <= 255). Will be masked", i);
+				if (pi->list_on) fprintf(pi->list_file, "%02"  PRIX64, i);
 			}
 			count++;
 			write_db(pi, (char)i, &prev, count);
@@ -920,7 +922,7 @@ spool_conditional(struct prog_info *pi, int only_endif)
 int
 check_conditional(struct prog_info *pi, char *pbuff, int *current_depth, int *do_next, int only_endif)
 {
-	int i = 0;
+	int64_t i = 0;
 	char *next;
 	char linebuff[LINEBUFFER_LENGTH];
 

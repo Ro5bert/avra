@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #include "misc.h"
 #include "avra.h"
@@ -346,7 +347,7 @@ int
 parse_mnemonic(struct prog_info *pi)
 {
 	int mnemonic;
-	int i;
+	int64_t i;
 	int opcode = 0;
 	int opcode2 = 0;
 	int instruction_long = False;
@@ -734,10 +735,12 @@ get_register(struct prog_info *pi, char *data)
 }
 
 int
-get_bitnum(struct prog_info *pi, char *data, int *ret)
+get_bitnum(struct prog_info *pi, char *data, int64_t *ret)
 {
-	if (!get_expr(pi, data, ret))
+	int64_t i;
+	if (!get_expr(pi, data, &i))
 		return (False);
+	*ret = i;
 	if ((*ret < 0) || (*ret > 7)) {
 		print_msg(pi, MSGTYPE_ERROR, "Operand out of range (0 <= s <= 7)");
 		return (False);
