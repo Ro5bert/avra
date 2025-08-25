@@ -1,0 +1,39 @@
+CC = gcc
+CFLAGS = -I. -Wall -O2
+CFLAGS += $(CDEFS)
+
+OBJECTS = args.o \
+	avra.o \
+	coff.o \
+	device.o \
+	directiv.o \
+	expr.o \
+	file.o \
+	macro.o \
+	map.o \
+	mnemonic.o \
+	parser.o \
+	stdextra.o
+
+.PHONY: all clean
+
+all: avra
+
+avra: $(OBJECTS)
+	$(CC) -o $@ $^
+
+clean:
+	rm -f $(OBJECTS) avra
+
+args.o: args.c misc.h args.h
+avra.o: avra.c misc.h args.h avra.h device.h
+coff.o: coff.c coff.h
+device.o: device.c misc.h avra.h device.h
+directiv.o: directiv.c misc.h args.h avra.h device.h
+expr.o: expr.c misc.h avra.h
+file.o: file.c misc.h avra.h
+macro.o: macro.c misc.h args.h avra.h
+map.o: map.c args.h avra.h
+mnemonic.o: mnemonic.c misc.h avra.h device.h
+parser.o: parser.c misc.h avra.h
+stdextra.o: stdextra.c misc.h
