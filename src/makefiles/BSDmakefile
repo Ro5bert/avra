@@ -2,6 +2,7 @@ DEBUG_FLAGS = -g -Wall
 SRCS = avra.c device.c parser.c expr.c mnemonic.c directiv.c macro.c file.c map.c coff.c args.c stdextra.c
 PROG = avra
 NO_MAN = yes
+NOMAN = noman # For OpenBSD
 
 args.o: args.c misc.h args.h
 avra.o: avra.c misc.h args.h avra.h device.h
