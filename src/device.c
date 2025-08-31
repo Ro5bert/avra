@@ -83,6 +83,24 @@ struct device device_list[] = {
 	{"ATtiny2313A" ,   1024, 0x060,   128,  128, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 	{"ATtiny4313"  ,   2048, 0x060,   256,  256, DF_NO_MUL|DF_NO_JMP|DF_NO_ELPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 
+  /*AVRxt (0- and 1-series) ATTiny*/
+  /* 2023-11-02 Technically, these should have NO_DES flag, but I don't
+  * want to edit /everything/ to add NO_DES since only available on
+  * AVRxm */
+  /* Field Order:
+  * name, flash size (words), RAM start, RAM size (bytes), EEPROM size
+  * (bytes), flags */
+  {"ATtiny202"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny204"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny402"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny404"   ,   2048, 0x3f00,  256,  128, 0},
+  {"ATtiny406"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny212"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny214"   ,   1024, 0x3f80,  128,  64, 0},  //UNTESTED
+  {"ATtiny412"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+  {"ATtiny414"   ,   2048, 0x3f00,  256,  128, 0},
+  {"ATtiny416"   ,   2048, 0x3f00,  256,  128, 0}, //UNTESTED
+
 	/* AT90 series */
 	{"AT90S1200"   ,    512, 0x000,     0,   64, DF_NO_MUL|DF_NO_JMP|DF_TINY1X|DF_NO_XREG|DF_NO_YREG|DF_NO_LPM|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
 	{"AT90S2313"   ,   1024, 0x060,   128,  128, DF_NO_MUL|DF_NO_JMP|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
