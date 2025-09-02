@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <stdint.h>
 
 #define IS_HOR_SPACE(x)	((x == ' ') || (x == 9))
 #define IS_LABEL(x)	(isalnum(x) || (x == '%') || (x == '_'))
@@ -221,7 +222,7 @@ struct def {
 struct label {
 	struct label *next;
 	char *name;
-	int value;
+	int64_t value;
 };
 
 struct macro {
@@ -286,7 +287,7 @@ void init_segment_size(struct prog_info *pi, struct device *device);
 void rewind_segments(struct prog_info *pi);
 void advance_ip(struct segment_info *si, int offset);
 
-int def_const(struct prog_info *pi, const char *name, int value);
+int def_const(struct prog_info *pi, const char *name, int64_t value);
 int def_var(struct prog_info *pi, char *name, int value);
 int def_orglist(struct segment_info *si);
 int fix_orglist(struct segment_info *si);
@@ -294,9 +295,9 @@ void fprint_orglist(FILE *file, struct segment_info *si, struct orglist *orglist
 void fprint_sef_orglist(FILE *file, struct segment_info *si);
 void fprint_segments(FILE *file, struct prog_info *pi);
 int test_orglist(struct segment_info *si);
-int get_label(struct prog_info *pi,char *name,int *value);
-int get_constant(struct prog_info *pi,char *name,int *value);
-int get_variable(struct prog_info *pi,char *name,int *value);
+int get_label(struct prog_info *pi,char *name,int64_t *value);
+int get_constant(struct prog_info *pi,char *name,int64_t *value);
+int get_variable(struct prog_info *pi,char *name,int64_t *value);
 struct label *test_label(struct prog_info *pi,char *name,char *message);
 struct label *test_constant(struct prog_info *pi,char *name,char *message);
 struct label *test_variable(struct prog_info *pi,char *name,char *message);
@@ -321,15 +322,15 @@ char *get_next_token(char *scratch, int term);
 char *fgets_new(struct prog_info *pi, char *s, int size, FILE *stream);
 
 /* expr.c */
-int get_expr(struct prog_info *pi, char *data, int *value);
-int get_symbol(struct prog_info *pi, char *label_name, int *data);
+int get_expr(struct prog_info *pi, char *data, int64_t *value);
+int get_symbol(struct prog_info *pi, char *label_name, int64_t *data);
 int par_length(char *data);
 
 /* mnemonic.c */
 int parse_mnemonic(struct prog_info *pi);
 int get_mnemonic_type(struct prog_info *pi);
 int get_register(struct prog_info *pi, char *data);
-int get_bitnum(struct prog_info *pi, char *data, int *ret);
+int get_bitnum(struct prog_info *pi, char *data, int64_t *ret);
 int get_indirect(struct prog_info *pi, char *operand);
 int is_supported(struct prog_info *pi, char *name);
 int count_supported_instructions(int flags);
