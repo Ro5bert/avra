@@ -95,6 +95,11 @@ struct device device_list[] = {
 	{"AT90S8515"   ,   4096, 0x060,   512,  512, DF_NO_MUL|DF_NO_JMP|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
 	{"AT90C8534"   ,   4096, 0x060,   256,  512, DF_NO_MUL|DF_NO_JMP|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
 	{"AT90S8535"   ,   4096, 0x060,   512,  512, DF_NO_MUL|DF_NO_JMP|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_MOVW|DF_NO_BREAK|DF_NO_EICALL|DF_NO_EIJMP},
+	/* ATmega8535: pin/memory-compatible successor to AT90S8535 above,
+	   same 8K flash / 512B SRAM / 512B EEPROM geometry. Only DF_NO_MOVW
+	   and DF_NO_BREAK are lifted relative to AT90S8535, since MOVW and
+	   BREAK are the two instructions this part actually adds. */
+	{"ATmega8535"  ,   4096, 0x060,   512,  512, DF_NO_MUL|DF_NO_JMP|DF_NO_LPM_X|DF_NO_ELPM|DF_NO_SPM|DF_NO_ESPM|DF_NO_EICALL|DF_NO_EIJMP},
 
 	/* AT90USB series */
 	/* AT90USB168 */
